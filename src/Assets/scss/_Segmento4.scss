@@ -1,0 +1,24 @@
+.Segmento-4 {
+    background-image: url(../Images/Segmento4.png);
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: center;
+    width: 100%;
+    height: calc(50vh + 100vh);
+
+    .text{
+        width: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-left: 12em;
+    }
+    p{
+        font-size: 1.7rem;
+        font-weight: 500;
+        color: #FFF;
+        text-align: left;
+        margin-top: 15rem;
+    }
+}

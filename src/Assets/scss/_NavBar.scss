@@ -1,4 +1,93 @@
-nav {
-    background: #DEDEDE;
+.Nav {
+    background-color: #dedede;
     box-shadow: 0px 8px 4px 0px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    z-index: 1500;
+    height: 90px;
+
+    .nav__logo {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        margin: 0 0 0 1rem;
+        padding: 0.5rem 0 0.5rem 0;
+        width: 10rem;
+
+        img {
+            width: 50%;
+        }
+
+        .slogan {
+            width: 120%;
+        }
+    }
+
+    .Menu {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        height: auto !important;
+        width: 100%;
+        margin: 0 1rem 0 0;
+
+        .nav__links {
+            display: flex;
+            flex-direction: row;
+            width: 30%;
+            justify-content: space-between;
+            margin: 0 1rem 0 0;
+            text-decoration: none;
+
+            .links {
+                text-decoration: none;
+                cursor: pointer;
+
+                .nav__link {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    align-items: center;
+
+                    width: 100%;
+                    text-decoration: none;
+                    color: #212121;
+                    font-size: 1em;
+                    font-weight: 700;
+                    padding: .7em 0 0 0;
+                    border-bottom: 2.5px solid #409192;
+                    text-decoration: none;
+                }
+
+                .log-btn {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    align-items: center;
+
+                    width: 100%;
+                    padding: .7em;
+                    font-family: Roboto;
+                    font-size: 1em;
+                    font-style: normal;
+                    font-weight: 700;
+                    line-height: normal;
+                    text-decoration: none;
+                    color: #212121;
+
+                    background-color: #FB9F22;
+                    border-radius: 10px;
+
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+
+
 }

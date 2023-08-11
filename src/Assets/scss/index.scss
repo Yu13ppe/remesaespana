@@ -1,5 +1,10 @@
 @use 'NavBar';
-
+@use 'Login';
+@use 'Segmento1';
+@use 'Segmento2';
+@use 'Segmento3';
+@use 'Segmento4';
+@use 'Segmento5';
 
 *{
     margin: 0;
@@ -8,7 +13,7 @@
 }
 
 body{
-    font-family: 'Noto Sans','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Roboto,'Noto Sans','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #FFF;
     overflow-x: hidden;
 }
