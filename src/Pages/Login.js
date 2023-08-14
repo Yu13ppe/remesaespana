@@ -1,41 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 // import '../Assets/scss/_Login.scss';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import { Input } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
 
-const users = [
-  {
-    email: 'portillo@gmail.com',
-    password: '130302',
-  }
-]
-
 function Login() {
   const history = useHistory();
-  const [usu_email, setEmail] = useState('');
-  const [usu_password, setPassword] = useState('');
+  const [use_email, setEmail] = useState('');
+  const [use_password, setPassword] = useState('');
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/users');
+      setUsers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-    const user = users.find((user) => user.email === usu_email && user.password === usu_password);
+    const user = users.find((user) => user.use_email === use_email && user.use_password === use_password);
 
     if (attemps === 0) {
       setError("Has superado el número de intentos. Intenta más tarde.");
     }
     else if (user) {
       // Si se encuentra el usuario, cambia de ventana
-      // const usuario = users.find(usuario => usuario.email === usu_email);
-      // const usu_name = `${usuario.usu_name} ${usuario.usu_lastName}`;
-      // const fechaNacimiento = new Date(usuario.usu_birthday);
-      // const usu_birthday = new Date(Date.now() - fechaNacimiento.getTime()).getFullYear() - 1970;
+      const user = users.find(user => user.use_email === use_email);
+      const use_name = `${user.use_name} ${user.use_lastName}`;
+      const use_amount = `${user.use_amount}`;
+      const use_verif = `${user.use_verif}`;
 
       history.push({
-        pathname: "/Profile",
+        pathname: "/Changes",
         state: {
-          mail: usu_email,
+          mail: use_email,
+          name: use_name,
+          amount: use_amount,
+          verif: use_verif
         }
       });
     }
@@ -48,15 +59,14 @@ function Login() {
 
 
   return (
-
-
     <div className="card">
       <img className="logo" src={remesalogo} alt="Logo" />
       <form className="form" onSubmit={handleSubmit}>
+      {error && <div className="error">{error}</div>}
         <Input
           className='containerCorreo'
           type="email"
-          value={usu_email}
+          value={use_email}
           onChange={(e) => setEmail(e.target.value)}
           name="email"
           id="exampleEmail"
@@ -68,7 +78,7 @@ function Login() {
           name="password"
           placeholder="Introduzca su contraseña"
           type="password"
-          value={usu_password}
+          value={use_password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <button type="submit" className='botonInicio btnLogin'>

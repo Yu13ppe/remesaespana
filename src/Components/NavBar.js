@@ -25,9 +25,9 @@ function NavBar() {
           <Link className='links' to='/Faqs'>
             <li className='nav__link'>Faqs</li>
           </Link>
-          <Link className='links' to='/'
+          <a className='links' href='#hero2'
           ><li className='nav__link'>Contacto</li>
-          </Link>
+          </a>
           <Link className='links' to='/Login'>
             <Button className='log-btn'>Ingresar</Button>
           </Link>

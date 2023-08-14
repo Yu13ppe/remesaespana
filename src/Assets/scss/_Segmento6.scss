@@ -1,34 +1,97 @@
 .Segmento-6 {
-
+    #hero2 {
+        width: 100%;
+        height: 100vh;
+        color: #fff ;
+        background: url("../Images/sofiacontact.png") top center;
+        background-size: cover;
+      }
+      
+      #hero2:before {
+        content: "";
+        background: rgba(0, 0, 0, 0.5);
+        position: relative;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+      }
+      
+      #hero2 h1 {
+        margin: 0 0 10px 0;
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 56px;
+        text-transform: uppercase;
+        color: #fff;
+      }
+      
+      #hero2 h2 {
+        color: #eee;
+        margin-bottom: 30px;
+        font-size: 24px;
+      }
+      
+      
+      @media (min-width: 1024px) {
+        #hero2 {
+          background-attachment: fixed;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        #hero22 {
+          text-align: center;
+        }
+      
+        #hero2 .container {
+          padding-top: 40px;
+        }
+      
+        #hero2 h1 {
+          font-size: 28px;
+          line-height: 36px;
+        }
+      
+        #hero2 h2 {
+          font-size: 18px;
+          line-height: 24px;
+          margin-bottom: 30px;
+        }
+    }
+    
     .contact .info-box {
-        color: #444444;
+        margin-top: 15px;
+        color: #ffffff;
         padding: 20px;
         width: 100%;
-        background: rgba(30, 30, 30, 0.08);
+        background: #FFFF;
+        display: flex; 
+        align-items: center; 
     }
-
-    .contact .info-box i.bx {
+    
+    .contact .info-box .icon {
         font-size: 24px;
-        color: #6D147F;
+        color: #FB9F22  ;
         border-radius: 50%;
         padding: 14px;
-        float: left;
         background: rgba(30, 30, 30, 0.08);
+        margin-right: 20px; 
     }
-
+    
     .contact .info-box h3 {
         font-size: 20px;
         color: #002a3a;
         font-weight: 700;
-        margin: 10px 0 8px 68px;
+        margin: 0; 
     }
-
+    
     .contact .info-box p {
         padding: 0;
         color: rgb(30, 30, 30);
         line-height: 24px;
         font-size: 14px;
-        margin: 0 0 0 68px;
+        margin: 0;
     }
 
     .contact .info-box .social-links {
@@ -46,18 +109,19 @@
     }
 
     .contact .info-box .social-links a:hover {
-        color: #6D147F;
+        color: #FB9F22;
+        ;
     }
 
     .contact .php-email-form {
         padding: 30px;
-        background: rgba(30, 30, 30, 0.08);
+        background: #ffffff;
     }
 
     .contact .php-email-form .error-message {
         display: none;
         background: rgba(255, 255, 255);
-        background: #6D147F;
+        background: #FB9F22;
         color: #ffffff;
         text-align: left;
         padding: 15px;
@@ -143,7 +207,7 @@
     }
 
     .contact .php-email-form button[type=submit]:hover {
-        background: #6D147F;
+        background: #FB9F22;
     }
 
     @-webkit-keyframes animate-loading {
@@ -164,5 +228,12 @@
         100% {
             transform: rotate(360deg);
         }
+    } 
+
+    .puta{
+        font-size: 30px;
     }
+
+   
+
 }

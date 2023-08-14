@@ -4,9 +4,16 @@ import { Faqs } from '../Pages/Faqs';
 import { Verification } from '../Pages/Verification';
 import { Recover } from '../Pages/Recover';
 import { Register } from '../Pages/Register';
+import { Changes } from '../Pages/Changes';
 import { Profile } from '../Pages/Profile';
 
 const routes = [
+    {
+        title: 'Faqs',
+        path: '/Faqs',
+        component: Faqs,
+        exact: true
+    },
     {
         title: 'Profile',
         path: '/Profile',
@@ -14,9 +21,9 @@ const routes = [
         exact: true
     },
     {
-        title: 'Faqs',
-        path: '/Faqs',
-        component: Faqs,
+        title: 'Changes',
+        path: '/Changes',
+        component: Changes,
         exact: true
     },
     {
@@ -44,7 +51,7 @@ const routes = [
         exact: true
     },
     {
-        title: 'Home',
+        title: 'Map',
         path: '/',
         component: Home,
         exact: true

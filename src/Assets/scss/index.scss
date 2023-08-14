@@ -1,3 +1,4 @@
+@use 'Changes';
 @use 'NavBar';
 @use 'Login';
 @use 'Segmento1';
@@ -6,6 +7,7 @@
 @use 'Segmento4';
 @use 'Segmento5';
 @use 'Segmento6';
+@use 'Footer';
 
 *{
     margin: 0;

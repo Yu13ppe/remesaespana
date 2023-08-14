@@ -1,8 +1,100 @@
-// .Segmento-2 {
-//     background-image: url(../Images/Segmento2.png);
-//     background-repeat: no-repeat;
-//     background-size: auto;
-//     background-position: center;
-//     width: 100%;
-//     height: calc(100vh + 100vh);
-// }
+.Segmento-2 {
+    background-image: url(../Images/BgSegmento2.png);
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    text-transform: capitalize;
+    box-sizing: border-box;
+    transition: .2s;
+    font-family: 'Roboto', sans-serif;
+    
+    :root{
+        --headerclr:#222533;
+        --mainclr:#ffcb0f;
+    }
+        .chose-us{
+        padding: 5rem 7%;
+    }
+    .chose-us h1{
+        color: #ffcb0f;
+        font-size: 40px;
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+    .chose-us h1 span{
+        color: var(#ffcb0f);
+    }
+    .chose-text{
+        color: #212121;
+        font-size: 1.5rem;
+        padding: 1rem 10rem;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .main-chose{
+       
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        text-align: center;
+    }
+    .inner-chose{
+        flex: 1 1 200px;
+    }
+    .inner-chose h2{
+        font-size: 2rem;
+        padding: 1rem 0;
+    }
+    .inner-chose p{
+        font-size: 1.5rem;
+        padding: 0 1rem;
+    }
+
+   .main-review {
+        background-color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .inner-review {
+        flex: 1 1 calc(33.33% - 20px); /* Divide en 3 columnas y resta el espacio entre elementos */
+        max-width: 300px; /* Establece un ancho máximo para las cartas */
+        height: 300px; /* Establece una altura fija para las cartas */
+        padding: 2rem;
+        position: relative;
+        text-align: center;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        box-sizing: border-box; /* Incluye padding y borde en el ancho y alto */
+    }
+    
+
+
+    .inner-review:hover{
+        transition: .5s;
+        background: #FB9F22;
+    }
+    .inner-review:hover i{
+        color: white;
+    }
+    .inner-review p{
+        font-size: 1.5em;
+        padding: 1rem 2rem;
+    }
+    .inner-review img{
+        width: 50px;
+    
+    }
+    .enviom p{
+        padding-top: 80px;
+    }
+    .enviom1 p{
+        padding-top: 65px;
+    }
+
+
+}

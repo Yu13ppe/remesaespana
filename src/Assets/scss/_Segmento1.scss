@@ -82,7 +82,14 @@
             font-style: normal;
             font-weight: 400;
             line-height: normal;
+
+            &:hover {
+                background-color: #409192;
+                transition: 0.9s;
+                color: #fff;
+            }
         }
+
 
         Input {
             background-color: #fff;
@@ -108,5 +115,12 @@
         font-size: 35px;
         font-style: normal;
         font-weight: 400;
+
+        & .LetsGo:hover {
+            background-color: #FFC10E;
+            transition: 0.9s;
+            color: #fff;
+        }
     }
+
 }
