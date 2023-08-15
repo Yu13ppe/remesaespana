@@ -11,6 +11,7 @@ import {
   ModalHeader,
   ModalBody,
 
+  Alert
 } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import changes from '../Assets/Images/changes.png'
@@ -30,10 +31,34 @@ function Changes() {
   const [amount, setAmount] = useState('');
   const [receiveAmount, setReceiveAmount] = useState(0);
   const [bankOption, setBankOption] = useState('');
-  const [note, setNote] = useState('')
+  const [bankOptionPay, setBankOptionPay] = useState('');
+  const [note, setNote] = useState('');
+  const [sendAmount, setSendAmount] = useState('');
 
-  const toggleTridModal = () => {setTridModalOpen(!tridModalOpen);};
-  const toggleforthModal = () => {setForthModalOpen(!forthModalOpen);};
+  const numberBank = [{
+    number: 'ES0193128912312383012381',
+    bank: 'BBVA'
+  },
+  {
+    number: 'ES0193128912312383111111',
+    bank: 'SANTANDER'
+  },
+  {
+    number: 'ES0193128912312333333333',
+    bank: 'CAIXA'
+  },
+  {
+    number: 'ES0193128912312382222222',
+    bank: 'BANKINTER'
+  },
+  {
+    number: 'ES0193128912312380000000',
+    bank: 'BIZUM'
+  }]
+
+  const toggleTridModal = () => { setTridModalOpen(!tridModalOpen); };
+  const toggleforthModal = () => { setForthModalOpen(!forthModalOpen); };
+
 
   const handleAmountChange = (e) => {
     const inputAmount = e.target.value;
@@ -121,7 +146,7 @@ function Changes() {
 
             <InputGroup className='changesBtn'>
               <div className='Btn' >
-                <Button color='primary' onClick={toggleModal}>
+                <Button color='primary' onClick={toggleforthModal}>
                   Cargar
                 </Button>
                 <Button color='success' onClick={toggleTridModal}>
@@ -247,14 +272,14 @@ function Changes() {
                     onChange={(e) => setNote(e.target.value)}
                   />
                 </FormGroup>
-                <Button color="primary" type="submit">
+                <Button color="primary">
                   Enviar
                 </Button>
               </Form>
             </ModalBody>
           </Modal>
 
-          <Modal isOpen={forthModalOpen} toggle={toggleforthModal}>
+          <Modal centered isOpen={forthModalOpen} toggle={toggleforthModal}>
             <ModalHeader toggle={toggleforthModal}>Realiza tu Carga</ModalHeader>
             <ModalBody>
               <Form>
@@ -263,42 +288,73 @@ function Changes() {
                   <InputGroup>
                     <Input
                       type="number"
-                      id="amountInput"
+                      id="sendAmount"
                       placeholder="Ej. 100"
+                      defaultValue={sendAmount}
+                      onChange={(e) => setSendAmount(e.target.value)}
                     />
+                    {/* {sendAmount<"20"? 
+                    <FormFeedback invalid>
+                      El monto mínimo es de 20$
+                    </FormFeedback>
+                    :
+                    null
+                    } */}
                   </InputGroup>
                 </FormGroup>
-              
+
                 <FormGroup>
                   <Label>Selecciona el Banco a transferir</Label>
                   <Input
                     type="select"
-                    id="bankOptionSelect"
+                    id="bankOptionPaySelect"
+                    value={bankOptionPay}
+                    onChange={(e) => setBankOptionPay(e.target.value)}
                   >
                     <option value="">Selecciona una opción</option>
-                    <option value="Cuenta Bancaria">Cuenta Bancaria</option>
-                    <option value="Pago Movil">Pago Móvil</option>
+                    <option value="BBVA">BBVA</option>
+                    <option value="SANTANDER">SANTANDER</option>
+                    <option value="CAIXA">CAIXA</option>
+                    <option value="BANKINTER">BANKINTER</option>
+                    <option value="BIZUM">BIZUM</option>
                   </Input>
                 </FormGroup>
+                {bankOptionPay === "" ? null :
+                  <Alert>
+                    <h4 className="alert-heading">
+                      Cuenta Bancaria {bankOptionPay}:
+                    </h4>
+                    <p>
+                      {numberBank.map((bank) => {
+                        if (bank.bank === bankOptionPay) {
+                          return bank.number
+                        }
+                      })}
+                      <br />
+                      REMESA ESPANA
+                    </p>
+                    <hr />
+                    <p className="mb-0">
+                      Al culminar la verificación del pago, el monto se verá reflejado en su plataforma.
+                    </p>
+                  </Alert>
+                }
                 <FormGroup>
 
+                  <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
                   <Input
-                    type="textarea"
-                    id="noteTextArea"
-                    rows="4"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
+                    type="file"
+                    className="form-control-file"
+                    id="imageInput"
                   />
                 </FormGroup>
-                <Button color="primary" type="submit">
+                <Button color="primary" className='btn col-md-12'>
                   Enviar
                 </Button>
               </Form>
             </ModalBody>
           </Modal>
         </div>
-
-
         :
         <div>
           <img className='changesMen' alt='changesMen' src={changes} />
@@ -368,7 +424,7 @@ function Changes() {
                 <Button color='primary' onClick={toggleModal}>
                   Cargar
                 </Button>
-                <Button color='success' onClick={toggleTridModal}>
+                <Button color='success' onClick={toggleModal}>
                   Retirar
                 </Button>
               </div>
@@ -436,65 +492,6 @@ function Changes() {
                   </Button>
                 </FormGroup>
               </form>
-            </ModalBody>
-          </Modal>
-
-          <Modal isOpen={tridModalOpen} toggle={toggleTridModal}>
-            <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
-            <ModalBody>
-              <Form>
-                <FormGroup>
-                  <Label for="amountInput">Coloca el monto que deseas cambiar</Label>
-                  <InputGroup>
-
-                    <Input
-                      type="number"
-                      id="amountInput"
-                      placeholder="Ej. 100"
-                      value={amount}
-                      onChange={handleAmountChange}
-                    />
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup>
-                  <Label for="receiveAmountInput">Monto a recibir en Bolívares</Label>
-                  <InputGroup>
-
-                    <Input
-                      type="text"
-                      id="receiveAmountInput"
-                      value={receiveAmount}
-                      disabled
-                    />
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup>
-                  <Label>Ingresa tus datos bancarios</Label>
-                  <Input
-                    type="select"
-                    id="bankOptionSelect"
-                    value={bankOption}
-                    onChange={(e) => setBankOption(e.target.value)}
-                  >
-                    <option value="">Selecciona una opción</option>
-                    <option value="Cuenta Bancaria">Cuenta Bancaria</option>
-                    <option value="Pago Movil">Pago Móvil</option>
-                  </Input>
-                </FormGroup>
-                <FormGroup>
-
-                  <Input
-                    type="textarea"
-                    id="noteTextArea"
-                    rows="4"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                  />
-                </FormGroup>
-                <Button color="primary" type="submit">
-                  Enviar
-                </Button>
-              </Form>
             </ModalBody>
           </Modal>
         </div>
