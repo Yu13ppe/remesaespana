@@ -11,7 +11,8 @@ import {
   ModalHeader,
   ModalBody,
 
-  Alert
+  Alert,
+  FormFeedback
 } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import changes from '../Assets/Images/changes.png'
@@ -21,6 +22,8 @@ import Usa from '../Assets/Images/usa.png'
 import Venezuela from '../Assets/Images/venezuela.png'
 import VerificationImage from '../Assets/Images/verification.png';
 import ImageVerification from '../Assets/Images/ImageVerification.png'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Changes() {
   const location = useLocation();
@@ -34,6 +37,22 @@ function Changes() {
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
+
+  const handleSendClick = () => {
+
+    toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
+      position: 'bottom-right',
+      autoClose: 10000, // Duración en milisegundos
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
+    // Cerrar el modal
+    toggleTridModal();
+  };
 
   const numberBank = [{
     number: 'ES0193128912312383012381',
@@ -78,7 +97,7 @@ function Changes() {
 
   return (
     <div className='changesContainer'>
-      {location.state?.verif === 's' ?
+      {location.state?.verif === 's' || 'S' ?
         <div>
           <img className='changesMen' alt='changesMen' src={changes} />
           <div className='textchanges'>
@@ -157,84 +176,27 @@ function Changes() {
 
 
           </div>
-          <Modal isOpen={modalOpen} centered toggle={toggleModal}>
-            <ModalHeader><b style={{ fontFamily: 'Roboto', fontWeight: '900' }}> ¡Necesitas verificación! </b> </ModalHeader>
-            <ModalBody className='custom-modal-content'>
-              <img src={VerificationImage} style={{ float: 'right' }} alt='Exclamation Triangle' width={120} />
-              <Button style={{ background: '#409192', border: 'none', borderRadius: '15px', marginLeft: '15px' }} onClick={toggleSecondModal} >NECESITAS VERIFICACIÓN</Button>
-              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                <div className='modal-text' style={{ marginRight: '10px' }}>
-                  <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>
-                    Para realizar el cambio de divisas necesitamos verificar que eres el propietario de la cuenta.
-                  </p>
-                  <p>Verifica tu identidad para empezar a cambiar.</p>
-                </div>
-              </div>
-            </ModalBody>
-          </Modal>
-
-          <Modal isOpen={secondModalOpen} size='lg' centered toggle={toggleSecondModal}>
-            <ModalHeader toggle={toggleSecondModal}>Verificación de Identidad</ModalHeader>
-            <ModalBody>
-              <form>
-                <div className="form-group">
-                  <Label htmlFor="dniInput">Número de Documento de Identidad:</Label>
-                  <Input
-                    type="text"
-                    className="form-control"
-                    id="dniInput"
-                    placeholder="Ingresa tu DNI"
-                  />
-                </div>
-                <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>
-                  Ingresa el número de documento de identidad. Lo utilizaremos para comprobar que eres realmente tú quien utilizará la plataforma.
-                </p>
-                <p style={{ color: '#a91111', padding: '10px' }}>
-                  <strong >IMPORTANTE:</strong> Debes subir la imagen de tu DNI o Pasaporte junto a tu rostro como en el ejemplo que se muestra. Los datos deben ser legibles y no debes cubrirlos de ninguna manera. El uso de esta información será únicamente para comprobar que realmente eres tú quien realizará el cambio.
-                </p>
-                <div className="form-group">
-                  <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
-                  <Input
-                    type="file"
-                    className="form-control-file"
-                    id="imageInput"
-                  />
-                </div>
-                <div style={{ marginTop: '1em', marginLeft: '.5em' }} className="form-check">
-                  <Input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="termsCheckbox"
-                  />
-                  <Label className="form-check-label" htmlFor="termsCheckbox">
-                    Acepto los términos y condiciones
-                  </Label>
-                </div>
-                <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
-                <FormGroup>
-                  <Button className="btn col-md-12" color='success'>
-                    Enviar
-                  </Button>
-                </FormGroup>
-              </form>
-            </ModalBody>
-          </Modal>
 
           <Modal isOpen={tridModalOpen} toggle={toggleTridModal}>
             <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
             <ModalBody>
               <Form>
                 <FormGroup>
-                  <Label for="amountInput">Coloca el monto que deseas cambiar</Label>
+                  <Label for="amountInput">Coloca el monto que deseas cargar</Label>
                   <InputGroup>
-
                     <Input
                       type="number"
-                      id="amountInput"
+                      id="sendAmount"
                       placeholder="Ej. 100"
-                      value={amount}
-                      onChange={handleAmountChange}
+                      value={sendAmount}
+                      onChange={(e) => setSendAmount(e.target.value)}
+                      invalid={sendAmount !== "" && sendAmount <= 20} // Agrega el atributo invalid
                     />
+                    {sendAmount !== "" && sendAmount <= 20 && (
+                      <FormFeedback>
+                        El monto mínimo es de 20$
+                      </FormFeedback>
+                    )}
                   </InputGroup>
                 </FormGroup>
                 <FormGroup>
@@ -272,7 +234,7 @@ function Changes() {
                     onChange={(e) => setNote(e.target.value)}
                   />
                 </FormGroup>
-                <Button color="primary">
+                <Button onClick={handleSendClick} color="primary">
                   Enviar
                 </Button>
               </Form>
@@ -293,13 +255,13 @@ function Changes() {
                       defaultValue={sendAmount}
                       onChange={(e) => setSendAmount(e.target.value)}
                     />
-                    {/* {sendAmount<"20"? 
-                    <FormFeedback invalid>
-                      El monto mínimo es de 20$
-                    </FormFeedback>
-                    :
-                    null
-                    } */}
+                    {sendAmount < "20" ?
+                      <FormFeedback invalid>
+                        El monto mínimo es de 20$
+                      </FormFeedback>
+                      :
+                      null
+                    }
                   </InputGroup>
                 </FormGroup>
 
@@ -348,12 +310,14 @@ function Changes() {
                     id="imageInput"
                   />
                 </FormGroup>
-                <Button color="primary" className='btn col-md-12'>
+                <Button color="primary" onClick={handleSendClick} className='btn col-md-12'>
                   Enviar
                 </Button>
               </Form>
             </ModalBody>
           </Modal>
+
+          <ToastContainer />
         </div>
         :
         <div>

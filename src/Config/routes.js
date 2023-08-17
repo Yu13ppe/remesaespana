@@ -6,8 +6,15 @@ import { Recover } from '../Pages/Recover';
 import { Register } from '../Pages/Register';
 import { Changes } from '../Pages/Changes';
 import { Profile } from '../Pages/Profile';
+import { AdmRe } from '../Pages/AdmRe';
 
 const routes = [
+    {
+        title: 'AdmRe',
+        path: '/AdmRe',
+        component: AdmRe,
+        exact: true
+    },
     {
         title: 'Faqs',
         path: '/Faqs',

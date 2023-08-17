@@ -1,33 +1,41 @@
 import React from 'react';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import remesaregister from '../Assets/Images/Register-Woman.png';
+import { Input, Button, Label } from 'reactstrap';
+import { Link, useHistory } from 'react-router-dom';
+
 
 function Register() {
   return (
-    <div className="card-container">
-      <div className="card">
-        <div className="form-container">
-          <img className="logo" src={remesalogo} alt="Logo" />
-          <form className="form">
-            <input type="name" placeholder="Nombre" />
-            <input type="password" placeholder="Contrasena" />
-            <input type="password" placeholder="Confirma tu contrasena" />
-            <input type="email" placeholder="email" />
+    <div className='RegisterBody'>
+      <div className="card-register" style={{ width: '600px' }}>
+        <img className="logo" src={remesalogo} alt="Logo" />
+        <form className="form">
+          <Input type="name" placeholder="Nombre" />
+          <Input type="password" placeholder="Contrasena" />
+          <Input type="password" placeholder="Confirma tu contrasena" />
+          <Input type="email" placeholder="Email" />
 
-            <div className="checkboxes">
-              <label>
-                <input type="checkbox" />
-                Aceptar los términos y condiciones
-              </label>
-            </div>
+          <div className="checkboxes">
+            <Label>
+              <Input type="checkbox" />
+              Aceptar los términos y condiciones
+            </Label>
+          </div>
 
-            <button type="submit">Registrar</button>
-          </form>
-          <button className="small-gray-button">Volver</button>
+          <Button >Registrar</Button>
+          <Link to='/Login' ><Button color='secondary'>Volver</Button></Link>
+        </form>
+
+        <div className="register-image-container">
+          <img className="register-image" src={remesaregister} alt="Register" />
         </div>
-        <img className="register-image" src={remesaregister} alt="Register" />
+        <div>
+        </div>
       </div>
     </div>
+
+
   );
 }
 

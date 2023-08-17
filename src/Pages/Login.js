@@ -104,16 +104,16 @@ export { Login };
 
 // [
   // {
-  //   "use_id": 1,
-  //   "use_name": "jose",
-  //   "use_lastName": "Portillo",
-  //   "use_NIE": "21",
-  //   "use_passport": "22",
-  //   "use_email": "portillo@gmail.com",
-  //   "use_password": "123456",
-  //   "use_phone": "+584246725408",
-  //   "use_img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPzUTvJZ94s19RtrtopITO8mpFhxBRG8Cha2qCBLE81utxC1kNonfiBCHM1faMiNGo6Ug&usqp=CAU",
-  //   "use_verif": "n",
+    // "use_id": 1,
+    // "use_name": "jose",
+    // "use_lastName": "Portillo",
+    // "use_NIE": "21",
+    // "use_passport": "22",
+    // "use_email": "portillo@gmail.com",
+    // "use_password": "123456",
+    // "use_phone": "+584246725408",
+    // "use_img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPzUTvJZ94s19RtrtopITO8mpFhxBRG8Cha2qCBLE81utxC1kNonfiBCHM1faMiNGo6Ug&usqp=CAU",
+    // "use_verif": "n",
   //   "use_amount": 1
   // },
 //   {

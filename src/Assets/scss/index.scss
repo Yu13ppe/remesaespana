@@ -1,6 +1,7 @@
 @use 'Changes';
 @use 'NavBar';
 @use 'Login';
+@use 'Register';
 @use 'Segmento1';
 @use 'Segmento2';
 @use 'Segmento3';
@@ -8,6 +9,7 @@
 @use 'Segmento5';
 @use 'Segmento6';
 @use 'Footer';
+@use 'Faqs';
 
 *{
     margin: 0;
