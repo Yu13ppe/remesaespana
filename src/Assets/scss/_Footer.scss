@@ -1,10 +1,12 @@
 footer {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: rgba(251, 159, 34, 0.8);
-    z-index: 1500;
-
     padding: 20px;
 
     .footer-left {
@@ -19,7 +21,6 @@ footer {
             margin-top: 1em;
         }
     }
-
 
     .footer-right {
         ul {
@@ -40,9 +41,7 @@ footer {
                     font-size: 1em;
                     font-weight: 700;
                 }
-
             }
         }
     }
-
 }

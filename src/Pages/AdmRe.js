@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
-import slogan from '../Assets/Images/sloganremesa.png';
 import { Input } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
 
@@ -59,13 +58,9 @@ function AdmRe() {
 
 
     return (
-        <div className="LoginBody">
-            <div className="card-logintop">
-                <img className="slogan" src={slogan} alt="slogan" />
-                <p className="parrafo-login">¿No tienes cuenta aún? <Link to='/Register' id='RegisterA'>¡Regístrate!</Link></p>
-            </div>
-            <div className="card-logintop2"></div>
-            <div className="card-login">
+        <div className='AdmBody'>
+            <div className="card-admtop2"></div>
+            <div className="card-adm">
                 <img className="logo" src={remesalogo} alt="Logo" />
                 <form className="form" onSubmit={handleSubmit}>
                     {error && <div className="error">{error}</div>}

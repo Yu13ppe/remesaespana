@@ -7,12 +7,19 @@ import { Register } from '../Pages/Register';
 import { Changes } from '../Pages/Changes';
 import { Profile } from '../Pages/Profile';
 import { AdmRe } from '../Pages/AdmRe';
+import { Users } from '../Pages/Users';
 
 const routes = [
     {
         title: 'AdmRe',
         path: '/AdmRe',
         component: AdmRe,
+        exact: true
+    },
+    {
+        title: 'Users',
+        path: '/Users',
+        component: Users,
         exact: true
     },
     {

@@ -1,12 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from 'reactstrap'
 
 function Footer() {
   return (
     <footer>
       <div className="footer-left">
-        {/* <img src={slogan} alt="Logo"/> */}
         <p> remesaespana.com ©2023 </p>
 
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import remesaregister from '../Assets/Images/Register-Woman.png';
 import { Input, Button, Label } from 'reactstrap';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 function Register() {

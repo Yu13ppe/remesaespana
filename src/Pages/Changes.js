@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   InputGroup,
   Input,
@@ -6,15 +6,14 @@ import {
   Label,
   FormGroup,
   Form,
-
   Modal,
   ModalHeader,
   ModalBody,
-
   Alert,
   FormFeedback
 } from 'reactstrap';
 import { useLocation } from "react-router-dom";
+import axios from 'axios';
 import changes from '../Assets/Images/changes.png'
 import Spain from '../Assets/Images/spain.png'
 import Uk from '../Assets/Images/uk.png'
@@ -31,15 +30,14 @@ function Changes() {
   const [secondModalOpen, setSecondModalOpen] = useState(false);
   const [tridModalOpen, setTridModalOpen] = useState(false);
   const [forthModalOpen, setForthModalOpen] = useState(false);
-  const [amount, setAmount] = useState('');
   const [receiveAmount, setReceiveAmount] = useState(0);
   const [bankOption, setBankOption] = useState('');
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
+  const [banks, setBanks] = useState([]);
 
   const handleSendClick = () => {
-
     toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
       position: 'bottom-right',
       autoClose: 10000, // Duración en milisegundos
@@ -54,26 +52,18 @@ function Changes() {
     toggleTridModal();
   };
 
-  const numberBank = [{
-    number: 'ES0193128912312383012381',
-    bank: 'BBVA'
-  },
-  {
-    number: 'ES0193128912312383111111',
-    bank: 'SANTANDER'
-  },
-  {
-    number: 'ES0193128912312333333333',
-    bank: 'CAIXA'
-  },
-  {
-    number: 'ES0193128912312382222222',
-    bank: 'BANKINTER'
-  },
-  {
-    number: 'ES0193128912312380000000',
-    bank: 'BIZUM'
-  }]
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
+      setBanks(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const toggleTridModal = () => { setTridModalOpen(!tridModalOpen); };
   const toggleforthModal = () => { setForthModalOpen(!forthModalOpen); };
@@ -81,28 +71,27 @@ function Changes() {
 
   const handleAmountChange = (e) => {
     const inputAmount = e.target.value;
-    setAmount(inputAmount);
+    setSendAmount(inputAmount);
     const calculatedAmount = parseFloat(inputAmount) * 33;
     setReceiveAmount(calculatedAmount);
   };
 
-  const toggleModal = () => { setModalOpen(!modalOpen); };
+  const toggleModal = () => setModalOpen(!modalOpen);
 
   const toggleSecondModal = () => {
     setModalOpen(false);
     setSecondModalOpen(!secondModalOpen);
+    document.body.style.paddingRight = '0';
   };
-
-  const generalAmount = location.state?.amount
 
   return (
     <div className='changesContainer'>
-      {location.state?.verif === 's' || 'S' ?
+      {location.state?.user.use_verif === 's' || location.state?.user.use_verif === 'S' ?
         <div>
           <img className='changesMen' alt='changesMen' src={changes} />
           <div className='textchanges'>
-            <h2>Hola {location.state?.name}</h2>
-            <h3>$1.09 / €{generalAmount} / £0,86</h3>
+            <h2>Hola {location.state?.user.use_name} {location.state?.user.use_lastName}</h2>
+            <h3>${location.state?.user.use_amountUsd ? location.state?.user.use_amountUsd : 0 } | €{location.state?.user.use_amountEur  ? location.state?.user.use_amountEur : 0} | £{location.state?.user.use_amountGbp ? location.state?.user.use_amountGbp : 0}</h3>
             <h6 style={{ color: '#686868' }}>Disponible</h6>
           </div>
 
@@ -173,10 +162,9 @@ function Changes() {
                 </Button>
               </div>
             </InputGroup>
-
-
           </div>
 
+          {/* Cargar */}
           <Modal isOpen={tridModalOpen} toggle={toggleTridModal}>
             <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
             <ModalBody>
@@ -189,7 +177,7 @@ function Changes() {
                       id="sendAmount"
                       placeholder="Ej. 100"
                       value={sendAmount}
-                      onChange={(e) => setSendAmount(e.target.value)}
+                      onChange={(e) => handleAmountChange}
                       invalid={sendAmount !== "" && sendAmount <= 20} // Agrega el atributo invalid
                     />
                     {sendAmount !== "" && sendAmount <= 20 && (
@@ -202,7 +190,6 @@ function Changes() {
                 <FormGroup>
                   <Label for="receiveAmountInput">Monto a recibir en Bolívares</Label>
                   <InputGroup>
-
                     <Input
                       type="text"
                       id="receiveAmountInput"
@@ -225,7 +212,6 @@ function Changes() {
                   </Input>
                 </FormGroup>
                 <FormGroup>
-
                   <Input
                     type="textarea"
                     id="noteTextArea"
@@ -240,7 +226,8 @@ function Changes() {
               </Form>
             </ModalBody>
           </Modal>
-
+                      
+          {/* Retirar */}
           <Modal centered isOpen={forthModalOpen} toggle={toggleforthModal}>
             <ModalHeader toggle={toggleforthModal}>Realiza tu Carga</ModalHeader>
             <ModalBody>
@@ -286,15 +273,21 @@ function Changes() {
                     <h4 className="alert-heading">
                       Cuenta Bancaria {bankOptionPay}:
                     </h4>
-                    <p>
-                      {numberBank.map((bank) => {
-                        if (bank.bank === bankOptionPay) {
-                          return bank.number
-                        }
-                      })}
-                      <br />
-                      REMESA ESPANA
-                    </p>
+                      {banks.map((bank) => {
+                        return bank.acceur_Bank === bankOptionPay ? 
+                            <p>
+                              {bank.acceur_Bank}
+                              <br/>
+                              {bank.acceur_number}
+                              <br/>
+                              {bank.acceur_nie}
+                              <br/>
+                              {bank.acceur_type}
+                              <br/>
+                              {bank.acceur_owner}
+                            </p>
+                          : null
+                        })}
                     <hr />
                     <p className="mb-0">
                       Al culminar la verificación del pago, el monto se verá reflejado en su plataforma.
@@ -323,8 +316,8 @@ function Changes() {
         <div>
           <img className='changesMen' alt='changesMen' src={changes} />
           <div className='textchanges'>
-            <h2>Hola {location.state?.name}</h2>
-            <h3>$1.09 / €{generalAmount} / £0,86</h3>
+            <h2>Hola {location.state?.user.use_name} {location.state?.user.use_lastName}</h2>
+            <h3>${location.state?.user.use_amountUsd ? location.state?.user.use_amountUsd : 0 } | €{location.state?.user.use_amountEur  ? location.state?.user.use_amountEur : 0} | £{location.state?.user.use_amountGbp ? location.state?.user.use_amountGbp : 0}</h3>
             <h6 style={{ color: '#686868' }}>Disponible</h6>
           </div>
 
@@ -396,6 +389,8 @@ function Changes() {
 
 
           </div>
+
+          {/* Alert */}  
           <Modal isOpen={modalOpen} centered toggle={toggleModal}>
             <ModalHeader><b style={{ fontFamily: 'Roboto', fontWeight: '900' }}> ¡Necesitas verificación! </b> </ModalHeader>
             <ModalBody className='custom-modal-content'>
@@ -412,6 +407,7 @@ function Changes() {
             </ModalBody>
           </Modal>
 
+          {/* Verificación de Identidad */}
           <Modal isOpen={secondModalOpen} size='lg' centered toggle={toggleSecondModal}>
             <ModalHeader toggle={toggleSecondModal}>Verificación de Identidad</ModalHeader>
             <ModalBody>

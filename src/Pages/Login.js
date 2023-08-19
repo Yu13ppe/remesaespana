@@ -37,17 +37,11 @@ function Login() {
     else if (user) {
       // Si se encuentra el usuario, cambia de ventana
       const user = users.find(user => user.use_email === use_email);
-      const use_name = `${user.use_name} ${user.use_lastName}`;
-      const use_amount = `${user.use_amount}`;
-      const use_verif = `${user.use_verif}`;
 
       history.push({
         pathname: "/Changes",
         state: {
-          mail: use_email,
-          name: use_name,
-          amount: use_amount,
-          verif: use_verif
+          user: user,
         }
       });
     }

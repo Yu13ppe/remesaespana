@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, Label } from 'reactstrap';
+import { Label } from 'reactstrap';
 function Faqs() {
   return (
     <div className='BodyFaqs'>
