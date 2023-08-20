@@ -35,16 +35,35 @@ function Users() {
   const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
-  const [use_amountEur, setAmountEur] = useState('');
-  const [use_amountUsd, setAmountUsd] = useState('');
-  const [use_amountGbp, setAmountGbp] = useState('');
+  const [use_amountEur, setAmountEur] = useState(Number);
+  const [use_amountUsd, setAmountUsd] = useState(Number);
+  const [use_amountGbp, setAmountGbp] = useState(Number);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [movements, setMovements] = useState([]);
   const [selectMov, setSelectMov] = useState([])
 
+  const [focusAfterClose, setFocusAfterClose] = useState(true);
+
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
-  const toggleUser = () => setModalUser(!modalUser);
+  const toggleUser = () => {
+    setModalUser(!modalUser);
+    if (modalUser === false) {
+      setNombre('');
+      setLastName('');
+      setEmail('');
+      setPassword('');
+      setNie('');
+      setPassport('');
+      setPhone('');
+      setVerif('');
+      setAmountEur('');
+      setAmountUsd('');
+      setAmountGbp('');
+    }
+  }
+  
+
   const toggleMovements = () => setModalMovements(!modalMovements);
   const toggleViewer = () => setModalViewer(!modalViewer);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
@@ -87,6 +106,8 @@ function Users() {
 
     setNombre(user.use_name);
     setLastName(user.use_lastName);
+    setEmail(user.use_email);
+    setPassword(user.use_password);
     setNie(user.use_NIE);
     setPassport(user.use_passport);
     setPhone(user.use_phone);
@@ -106,40 +127,44 @@ function Users() {
           {
             use_name,
             use_lastName,
-            use_email,
-            use_password,
             use_NIE,
             use_passport,
+            use_email,
+            use_password,
             use_phone,
-            use_verif,
             use_img,
-            use_amountEur,
+            use_verif,
             use_amountUsd,
+            use_amountEur,
             use_amountGbp
           });
         setSelectedUser(null);
 
+        fetchData();
+        toggleUser();
+        toggleViewer();
       } else {
         await axios.post(
           'https://apiremesa.up.railway.app/Users/create',
           {
             use_name,
             use_lastName,
-            use_email,
-            use_password,
             use_NIE,
             use_passport,
+            use_email,
+            use_password,
             use_phone,
-            use_verif,
             use_img,
-            use_amountEur,
+            use_verif,
             use_amountUsd,
+            use_amountEur,
             use_amountGbp
-          });
+          }
+        );
       }
-
       fetchData();
       toggleUser();
+      
     } catch (error) {
       console.log(error);
     }
@@ -180,6 +205,8 @@ function Users() {
           </button>
         </div>
       </div>
+
+      {/* Tabla De Usuarios */}
       <Table bordered hover responsive striped>
         <thead>
           <tr>
@@ -221,7 +248,6 @@ function Users() {
         </tbody>
       </Table>
 
-
       {/* Modal De Imagen Usuarios */}
       <Modal isOpen={modalImageUser} toggle={toggleImageUser}>
         <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
@@ -237,7 +263,7 @@ function Users() {
 
       {/* Modal De Agregar Usuarios */}
       <Modal isOpen={modalUser} toggle={toggleUser}>
-        <ModalHeader toggle={toggleUser}>Agregar Usuario</ModalHeader>
+        <ModalHeader toggle={toggleUser}>{selectedUser ? 'Editar Usuario' : 'Agregar Usuario'}</ModalHeader>
         <ModalBody>
           <div className="row g-3">
             <div className="col-md-6">
@@ -287,17 +313,17 @@ function Users() {
             </div>
             <div className="col-md-6">
               <label htmlFor="password" className="form-label">
-                Email:
+                Contraseña:
               </label>
               <Input
                 type="password"
                 defaultValue={use_password}
-                onChange={e => setPassword("remesaespana2023.")}
+                onChange={e => setPassword(e.target.value)}
                 className="form-control"
                 id="password"
                 placeholder="Password"
                 maxLength="45"
-                disabled
+                required
               />
             </div>
             <div className="col-md-6">
@@ -377,6 +403,7 @@ function Users() {
                 className="form-control"
                 id="Eur"
                 placeholder="Eur"
+                pattern="^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}$"
               />
             </div>
             <div className="col-md-6">
@@ -390,6 +417,7 @@ function Users() {
                 className="form-control"
                 id="Usd"
                 placeholder="Usd"
+                pattern="^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}$"
               />
             </div>
             <div className="col-md-6">
@@ -403,13 +431,14 @@ function Users() {
                 className="form-control"
                 id="Gbp"
                 placeholder="Gbp"
+                pattern="^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}$"
               />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={handleSubmit}>
-            Agregar
+            {selectedUser ? 'Editar' : 'Agregar'}
           </Button>
           <Button color="secondary" onClick={toggleUser}>
             Cancelar
@@ -513,7 +542,7 @@ function Users() {
           </Button>
           <Button
             color="secondary"
-            onClick={() => { toggleViewer(); setSelect([]) }}
+            onClick={() => { toggleViewer(); setSelectedUser(null) }}
           >
             Cancelar
           </Button>
@@ -592,6 +621,7 @@ function Users() {
           </Button>
         </ModalFooter>
       </Modal>
+
     </div >
   )
 }
