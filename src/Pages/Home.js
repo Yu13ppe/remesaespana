@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-// import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react'
+import axios from 'axios';
 import {
   InputGroup,
   Input,
@@ -21,12 +21,13 @@ import Uk from '../Assets/Images/uk.png'
 import Venezuela from '../Assets/Images/venezuela.png'
 import Oval from '../Assets/Images/Oval.png'
 import EEUU from '../Assets/Images/usa.png';
-// import { useDataContext } from '../Context/dataContext';
-
+import { useDataContext } from '../Context/dataContext';
+import { NavBar } from '../Components/NavBar';
+import { Footer } from '../Components/Footer';
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
-  // const { currencyPrice, setCurrencyPrice } = useDataContext();
+  const { currencyPrice, setCurrencyPrice } = useDataContext();
 
   const handleCurrencyChange = () => {
     if (currencyImage === Spain) {
@@ -38,22 +39,22 @@ function Home() {
     }
   };
 
-  // const fetchData = async () => {
-  //   try {
-  //     const response = await axios.get('https://apiremesa.up.railway.app/currencyPrice');
-  //     setCurrencyPrice(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/currencyPrice');
+      setCurrencyPrice(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setCurrencyPrice]); // Agregar setCurrencyPrice como dependencia
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
-
-
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // Agregar fetchData como dependencia
+  
   return (
     <div>
+      <NavBar />
       <div className='Segmento-1'>
         <img className='Oval' alt='Oval' src={Oval} />
         <div className='text'>
@@ -70,7 +71,7 @@ function Home() {
             </Button>
             {currencyImage === Spain ?
               <Input disabled className='centered-input'
-                placeholder={'1  =  ' + 33}
+                placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
               />
               : null
             }
@@ -308,12 +309,8 @@ function Home() {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
-
-
-
-
-
   )
 }
 

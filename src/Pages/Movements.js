@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Button, Table, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import axios from 'axios'
 import { useDataContext } from '../Context/dataContext'
+import { NavBar } from '../Components/NavBar';
 
 function Movements() {
   const { user } = useDataContext();
@@ -23,6 +24,7 @@ function Movements() {
   };
   return (
     <div>
+      <NavBar />
       <h1>Movimientos</h1>
       <Table>
         <thead>

@@ -8,7 +8,7 @@ export function DataContextProvider(props) {
     const [logged, setLogged] = useLocalStorage('log', false);
     const [isAdmin, setIsAdmin] = useLocalStorage('adm', false);
     const [user, setUser] = useLocalStorage('user',[]);
-    const [currencyPrice, setCurrencyPrice] = useLocalStorage('currency', {});
+    const [currencyPrice, setCurrencyPrice] = useLocalStorage('currency', []);
     const value = {
         verifyData, setVerifyData, 
         logged, setLogged, 

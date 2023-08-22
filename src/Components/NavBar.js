@@ -74,19 +74,9 @@ function NavBar() {
             </ul>
           )
         }
-
-
       </div >
-
     </div>
   )
 }
 
 export { NavBar }
-{/* {
-  logged ?
-    <a className='links' href='/'>
-      <FiLogOut style={{fontSize: '2em', marginTop: '.2em', color: '#409192'}} onClick={clearLocalStorage} />
-    </a>
-    : null
-} */}

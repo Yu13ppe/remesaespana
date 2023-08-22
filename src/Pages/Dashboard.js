@@ -1,12 +1,30 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import { Container, Row, Col } from 'reactstrap';
 // import { Pie } from 'react-chartjs-2';
-import { FaCheckCircle, FaTimesCircle, FaClock } from 'react-icons/fa';
+import { FaArrowDown,FaArrowUp, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDataContext } from '../Context/dataContext';
+import { NavBar } from '../Components/NavBar';
 
 function Dashboard() {
-  const {isAdmin} = useDataContext();
+  const { isAdmin } = useDataContext();
+
+  const [movements, setMovements] = useState([]);
+  // const [modalImageMov, setModalImageMov] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/movements');
+      setMovements(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const data = {
     totalUsers: 100,
@@ -15,103 +33,87 @@ function Dashboard() {
     totalBolivars: 4500000,
   };
 
-  const transactions = [
-    {
-      id: 1,
-      name: 'John Doe',
-      exchangeType: 'Euros',
-      date: '2023-08-20',
-      status: 'approved',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      exchangeType: 'Dollars',
-      date: '2023-08-19',
-      status: 'rejected',
-    },
-    {
-      id: 3,
-      name: 'Alice Johnson',
-      exchangeType: 'Pounds',
-      date: '2023-08-18',
-      status: 'pending',
-    },
-  ];
-
   return (
-    isAdmin? 
-    <div className="DashboardBody">
-      <Container>
-        <center>
-          <h1 className="my-4">Dashboard</h1></center>
-        <Row>
-          <Col md="6" lg="3">
-            <div className="stat-box total-users">
-              <h2>Total Users</h2>
-              <p>{data.totalUsers}</p>
-            </div>
-          </Col>
-          <Col md="6" lg="3">
-            <div className="stat-box total-euros">
-              <h2>Total Euros</h2>
-              <p>{data.totalEuros}</p>
-            </div>
-          </Col>
-          <Col md="6" lg="3">
-            <div className="stat-box verified-users">
-              <h2>Verified Users</h2>
-              <p>{data.verifiedUsers}</p>
-            </div>
-          </Col>
-          <Col md="6" lg="3" >
-            <Link to='/Users'>
-              <div className="stat-box total-bolivars">
-                <h2>Total Bolivars</h2>
-                <p>{data.totalBolivars}</p>
-              </div>
-            </Link>
-          </Col>
-        </Row>
-        <Row>
-        </Row>
-        <Row>
-          <Col>
+    isAdmin ?
+      <div>
+        <NavBar />
+        <div className="DashboardBody">
+          <Container>
+            <center>
+              <h1 className="my-4">Dashboard</h1></center>
+            <Row>
+              <Col md="6" lg="3">
+                <div className="stat-box total-users">
+                  <h2>Total Users</h2>
+                  <p>{data.totalUsers}</p>
+                </div>
+              </Col>
+              <Col md="6" lg="3">
+                <div className="stat-box total-euros">
+                  <h2>Total Euros</h2>
+                  <p>{data.totalEuros}</p>
+                </div>
+              </Col>
+              <Col md="6" lg="3">
+                <div className="stat-box verified-users">
+                  <h2>Verified Users</h2>
+                  <p>{data.verifiedUsers}</p>
+                </div>
+              </Col>
+              <Col md="6" lg="3" >
+                <Link to='/Users'>
+                  <div className="stat-box total-bolivars">
+                    <h2>Total Bolivars</h2>
+                    <p>{data.totalBolivars}</p>
+                  </div>
+                </Link>
+              </Col>
+            </Row>
+            <Row>
+            </Row>
+            <Row>
+              <Col>
 
-            <table className="transaction-table">
-              <thead>
-                <tr>
-                  <th>Name and Surname</th>
-                  <th>Exchange Type</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map(transaction => (
-                  <tr key={transaction.id}>
-                    <td>{transaction.name}</td>
-                    <td>{transaction.exchangeType}</td>
-                    <td>{transaction.date}</td>
-                    <td>
-                      {transaction.status === 'approved' && <FaCheckCircle className="approved-icon" />}
-                      {transaction.status === 'rejected' && <FaTimesCircle className="rejected-icon" />}
-                      {transaction.status === 'pending' && <FaClock className="pending-icon" />}
-                    </td>
-                    <td>
-                      <button className="details-button">Ver detalles</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Col>
-        </Row>
-      </Container>
-    </div>
-    :
-    <h1>Error404</h1>
+                <table className="transaction-table">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Moneda</th>
+                      <th>Monto</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                      <th>Tipo</th>
+                      <th>Detalles</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {movements.filter((move)=> move.mov_status === 'E').map(move => (
+                      <tr key={move.mov_id}>
+                        <td>{move.User.use_name} {move.User.use_lastName}</td>
+                        <td>{move.mov_currency}</td>
+                        <td>{move.mov_amount}</td>
+                        <td>{move.mov_date}</td>
+                        <td>
+                          {move.mov_status === 'E' && <FaClock className="pending-icon" />}
+                        </td>
+                        <td>
+                        {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green'/>) : null}
+                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red'/>) : null}
+                        </td>
+                        <td>
+                          <button className="details-button">Ver detalles</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      </div>
+      :
+      <h1>Error404</h1>
   );
 }
 
