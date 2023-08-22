@@ -8,12 +8,26 @@ import { Changes } from '../Pages/Changes';
 import { Profile } from '../Pages/Profile';
 import { AdmRe } from '../Pages/AdmRe';
 import { Users } from '../Pages/Users';
+import { Dashboard } from '../Pages/Dashboard';
+import { Movements } from '../Pages/Movements';
 
 const routes = [
     {
         title: 'AdmRe',
         path: '/AdmRe',
         component: AdmRe,
+        exact: true
+    },
+    {
+        title: 'Movements',
+        path: '/Movements',
+        component: Movements,
+        exact: true
+    },
+    {
+        title: 'Dashboard',
+        path: '/Dashboard',
+        component: Dashboard,
         exact: true
     },
     {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+// import axios from 'axios';
 import {
   InputGroup,
   Input,
@@ -15,16 +16,17 @@ import {
   FaRegEnvelope,
   FaPhone
 } from 'react-icons/fa';
-// import Men from '../Assets/Images/men.png'
 import Spain from '../Assets/Images/spain.png'
 import Uk from '../Assets/Images/uk.png'
 import Venezuela from '../Assets/Images/venezuela.png'
 import Oval from '../Assets/Images/Oval.png'
 import EEUU from '../Assets/Images/usa.png';
+// import { useDataContext } from '../Context/dataContext';
 
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
+  // const { currencyPrice, setCurrencyPrice } = useDataContext();
 
   const handleCurrencyChange = () => {
     if (currencyImage === Spain) {
@@ -35,6 +37,19 @@ function Home() {
       setCurrencyImage(Spain);
     }
   };
+
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get('https://apiremesa.up.railway.app/currencyPrice');
+  //     setCurrencyPrice(response.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
 
   return (
@@ -53,10 +68,24 @@ function Home() {
             <Button onClick={handleCurrencyChange}>
               <img src={currencyImage} alt='Currency' width={45} /> €
             </Button>
-            <Input disabled
-              placeholder='1     =     33'
-            >
-            </Input>
+            {currencyImage === Spain ?
+              <Input disabled className='centered-input'
+                placeholder={'1  =  ' + 33}
+              />
+              : null
+            }
+            {/* {currencyImage === Uk ?
+              <Input disabled
+                placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_GbpToBs))}
+              />
+              : null
+            }
+            {currencyImage === EEUU ?
+              <Input disabled
+                placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_UsdToBs))}
+              />
+              : null
+            } */}
             <Button>
               Bs <img src={Venezuela} alt='Venezuela' width={45} />
             </Button>
@@ -74,7 +103,7 @@ function Home() {
                 <div className="inner-review">
                   <img src={Image1} alt="image1" />
                   <div className='enviom1'>
-                  <p>Sin Comisiones</p>
+                    <p>Sin Comisiones</p>
                   </div>
                 </div>
               </div>
@@ -105,7 +134,7 @@ function Home() {
                 <div className="inner-chose">
                   <img src={Image4} alt="image1" />
                   <div className='enviom'>
-                  <p >Envío Minimo</p>
+                    <p >Envío Minimo</p>
                   </div>
                 </div>
               </div>
@@ -201,7 +230,7 @@ function Home() {
                 <div className="col-md-6 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className="icon">
-                      <FaRegClock className="puta" />
+                      <FaRegClock style={{ fontSize: '30px' }} />
                     </div>
                     <div className="info">
                       <h3>Horario</h3>
@@ -214,7 +243,7 @@ function Home() {
                 <div className="col-md-6 mt-4 mt-md-0 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
-                      <FaSlackHash className='puta' />
+                      <FaSlackHash style={{ fontSize: '30px' }} />
                     </div>
                     <h3>Social Profiles</h3>
                     <div className="social-links">
@@ -232,7 +261,7 @@ function Home() {
                 <div className="col-md-6 mt-4 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
-                      <FaRegEnvelope className='puta' />
+                      <FaRegEnvelope style={{ fontSize: '30px' }} />
                     </div>
                     <div className='info'>
                       <h3>Email Me</h3>
@@ -243,7 +272,7 @@ function Home() {
                 <div className="col-md-6 mt-4 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
-                      <FaPhone className='puta' />
+                      <FaPhone style={{ fontSize: '30px' }} />
                     </div>
                     <div className='info'>
                       <h3>Call Me</h3>

@@ -13,8 +13,10 @@ import {
 } from 'reactstrap'
 import axios from 'axios'
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai'
+import { useDataContext } from '../Context/dataContext'
 
 function Users() {
+  const { isAdmin } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -43,8 +45,6 @@ function Users() {
   const [movements, setMovements] = useState([]);
   const [selectMov, setSelectMov] = useState([])
 
-  const [focusAfterClose, setFocusAfterClose] = useState(true);
-
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
   const toggleUser = () => {
     setModalUser(!modalUser);
@@ -62,7 +62,6 @@ function Users() {
       setAmountGbp('');
     }
   }
-  
 
   const toggleMovements = () => setModalMovements(!modalMovements);
   const toggleViewer = () => setModalViewer(!modalViewer);
@@ -164,7 +163,7 @@ function Users() {
       }
       fetchData();
       toggleUser();
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -183,31 +182,34 @@ function Users() {
   };
 
   return (
-    <div className='userContent'>
+    isAdmin ?
+    (<div className='userContent'>
       <h1 className='titleUser'>
         Usuarios
       </h1>
       <div className="container">
-        <div className='row m-5 '>
-          <Input
-            type="text"
-            className="form-control"
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Buscar Usuario..."
-          />
-          <button
-            type="button"
-            className="btn btn-primary col-6"
-            onClick={toggleUser}
-          >
-            Agregar Usuario
-          </button>
+        <div className='row m-5 col-12'>
+          <div className='d-flex align-items-center col-12'>
+            <Input
+              type="text"
+              className="form-control search-input"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Buscar Usuario..."
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={toggleUser}
+            >
+              Agregar Usuario
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Tabla De Usuarios */}
-      <Table bordered hover responsive striped>
+      <Table bordered hover responsive striped className='userTable'>
         <thead>
           <tr>
             <th>#</th>
@@ -240,16 +242,16 @@ function Users() {
                     :
                     <AiOutlineCloseCircle style={{ color: "red", fontSize: "2em" }} />}
                 </td>
-                <td>{user.use_amountUsd ? user.use_amountUsd : <p>No se encontraron resultados</p>}</td>
-                <td>{user.use_amountEur ? user.use_amountEur : <p>No se encontraron resultados</p>}</td>
-                <td>{user.use_amountGbp ? user.use_amountGbp : <p>No se encontraron resultados</p>}</td>
+                <td>{user.use_amountUsd ? user.use_amountUsd : 0}</td>
+                <td>{user.use_amountEur ? user.use_amountEur : 0}</td>
+                <td>{user.use_amountGbp ? user.use_amountGbp : 0}</td>
               </tr>
             ))}
         </tbody>
       </Table>
 
       {/* Modal De Imagen Usuarios */}
-      <Modal isOpen={modalImageUser} toggle={toggleImageUser}>
+      <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
         <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
         <ModalBody>
           <img width={300} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
@@ -262,7 +264,7 @@ function Users() {
       </Modal>
 
       {/* Modal De Agregar Usuarios */}
-      <Modal isOpen={modalUser} toggle={toggleUser}>
+      <Modal centered isOpen={modalUser} toggle={toggleUser}>
         <ModalHeader toggle={toggleUser}>{selectedUser ? 'Editar Usuario' : 'Agregar Usuario'}</ModalHeader>
         <ModalBody>
           <div className="row g-3">
@@ -583,6 +585,7 @@ function Users() {
             </thead>
             <tbody>
               {movements.map((move) => (
+                move.User.use_id === select.use_id ?
                 <tr key={move.mov_id}>
                   <th scope="row">{move.mov_id}</th>
                   <td>{move.mov_currency}</td>
@@ -608,6 +611,8 @@ function Users() {
                     }
                   </td>
                 </tr>
+                : 
+                null
               ))}
             </tbody>
           </Table>
@@ -622,7 +627,9 @@ function Users() {
         </ModalFooter>
       </Modal>
 
-    </div >
+    </div >)
+    :
+    (<h1>Error404</h1>)
   )
 }
 

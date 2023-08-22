@@ -3,14 +3,16 @@ import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import { Input } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
+import { useDataContext } from '../Context/dataContext';
 
 function AdmRe() {
     const history = useHistory();
-    const [use_email, setEmail] = useState('');
-    const [use_password, setPassword] = useState('');
+    const [adm_email, setEmail] = useState('');
+    const [adm_password, setPassword] = useState('');
     const [users, setUsers] = useState([]);
     const [error, setError] = useState("");
     const [attemps, setAttemps] = useState(3);
+    const { setIsAdmin, setLogged } = useDataContext();
 
     useEffect(() => {
         fetchData();
@@ -18,7 +20,7 @@ function AdmRe() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('https://apiremesa.up.railway.app/users');
+            const response = await axios.get('https://apiremesa.up.railway.app/admin');
             setUsers(response.data);
         } catch (error) {
             console.log(error);
@@ -27,27 +29,25 @@ function AdmRe() {
 
     const handleSubmit = (e) => {
         e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-        const user = users.find((user) => user.use_email === use_email && user.use_password === use_password);
+        const user = users.find((user) => user.adm_email === adm_email && user.adm_password === adm_password);
 
         if (attemps === 0) {
             setError("Has superado el número de intentos. Intenta más tarde.");
         }
         else if (user) {
             // Si se encuentra el usuario, cambia de ventana
-            const user = users.find(user => user.use_email === use_email);
-            const use_name = `${user.use_name} ${user.use_lastName}`;
-            const use_amount = `${user.use_amount}`;
-            const use_verif = `${user.use_verif}`;
+            const user = users.find(user => user.adm_email === adm_email);
 
-            history.push({
-                pathname: "/Changes",
-                state: {
-                    mail: use_email,
-                    name: use_name,
-                    amount: use_amount,
-                    verif: use_verif
-                }
-            });
+            if (user.adm_role === "a" || user.adm_role === "A") {
+                setIsAdmin(true);
+                setLogged(true);
+                history.push({
+                    pathname: "/Dashboard",
+                    state: {
+                        user: user,
+                    }
+                });
+            }
         }
         else {
             // Si no se encuentra el usuario, establece un mensaje de error
@@ -67,7 +67,7 @@ function AdmRe() {
                     <Input
                         className='containerCorreo'
                         type="email"
-                        value={use_email}
+                        value={adm_email}
                         onChange={(e) => setEmail(e.target.value)}
                         name="email"
                         id="exampleEmail"
@@ -79,7 +79,7 @@ function AdmRe() {
                         name="password"
                         placeholder="Introduzca su contraseña"
                         type="password"
-                        value={use_password}
+                        value={adm_password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <button type="submit" className='botonInicio btnLogin'>

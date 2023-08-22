@@ -5,6 +5,7 @@ import remesalogo from '../Assets/Images/remesalogo.png';
 import slogan from '../Assets/Images/sloganremesa.png';
 import { Input } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
+import { useDataContext } from '../Context/dataContext';
 
 function Login() {
   const history = useHistory();
@@ -13,6 +14,7 @@ function Login() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
+  const {setVerifyData, setLogged, setUser} = useDataContext();
 
   useEffect(() => {
     fetchData();
@@ -37,13 +39,27 @@ function Login() {
     else if (user) {
       // Si se encuentra el usuario, cambia de ventana
       const user = users.find(user => user.use_email === use_email);
+      
+      if (user.use_verif === "s" || user.use_verif === "S"){
+        setVerifyData(true);
+        setLogged(true);
+        setUser(user)
+        history.push({
+          pathname: "/Changes",
+          state:{
+            user: user,
+          }
+        });
+      }
+      else {
+        setVerifyData(false);
+        setLogged(true);
+        setUser(user)
+        history.push({
+          pathname: "/Changes",
+        });
+      }
 
-      history.push({
-        pathname: "/Changes",
-        state: {
-          user: user,
-        }
-      });
     }
     else {
       // Si no se encuentra el usuario, establece un mensaje de error
@@ -51,6 +67,10 @@ function Login() {
       setError(`Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`);
     }
   };
+
+  
+
+  
 
 
   return (
