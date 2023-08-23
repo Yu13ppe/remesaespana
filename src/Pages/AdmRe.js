@@ -9,18 +9,28 @@ function AdmRe() {
     const history = useHistory();
     const [adm_email, setEmail] = useState('');
     const [adm_password, setPassword] = useState('');
+    const [admins, setAdmin] = useState([]);
     const [users, setUsers] = useState([]);
     const [error, setError] = useState("");
     const [attemps, setAttemps] = useState(3);
-    const { setIsAdmin, setLogged } = useDataContext();
+    const { setIsAdmin, setLogged, setUser } = useDataContext();
 
     useEffect(() => {
         fetchData();
+        fetchDataUsers();
     }, []);
 
     const fetchData = async () => {
         try {
             const response = await axios.get('https://apiremesa.up.railway.app/admin');
+            setAdmin(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const fetchDataUsers = async () => {
+        try {
+            const response = await axios.get('https://apiremesa.up.railway.app/Users');
             setUsers(response.data);
         } catch (error) {
             console.log(error);
@@ -29,22 +39,23 @@ function AdmRe() {
 
     const handleSubmit = (e) => {
         e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-        const user = users.find((user) => user.adm_email === adm_email && user.adm_password === adm_password);
+        const adm = admins.find((adm) => adm.adm_email === adm_email && adm.adm_password === adm_password);
 
         if (attemps === 0) {
             setError("Has superado el número de intentos. Intenta más tarde.");
         }
-        else if (user) {
+        else if (adm) {
             // Si se encuentra el usuario, cambia de ventana
-            const user = users.find(user => user.adm_email === adm_email);
+            const admin = admins.find(user => user.adm_email === adm_email);
 
-            if (user.adm_role === "a" || user.adm_role === "A") {
+            if (admin.adm_role === "a" || admin.adm_role === "A") {
                 setIsAdmin(true);
                 setLogged(true);
+                setUser(users);
                 history.push({
                     pathname: "/Dashboard",
                     state: {
-                        user: user,
+                        user: admin,
                     }
                 });
             }

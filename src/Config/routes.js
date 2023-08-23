@@ -10,8 +10,15 @@ import { AdmRe } from '../Pages/AdmRe';
 import { Users } from '../Pages/Users';
 import { Dashboard } from '../Pages/Dashboard';
 import { Movements } from '../Pages/Movements';
+import { UserVerificated } from '../Pages/UserVerificated';
 
 const routes = [
+    {
+        title: 'UserVerificated',
+        path: '/UserVerificated',
+        component: UserVerificated,
+        exact: true
+    },
     {
         title: 'AdmRe',
         path: '/AdmRe',

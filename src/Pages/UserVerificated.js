@@ -16,7 +16,7 @@ import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
 
-function Users() {
+function UserVerificated() {
   const { isAdmin } = useDataContext();
   const [users, setUsers] = useState([]);
 
@@ -228,7 +228,7 @@ function Users() {
             </thead>
             <tbody>
               {
-                filteredUsuarios.map((user) => (
+                filteredUsuarios.filter((user) => user.use_verif === 'S').map((user) => (
                   <tr key={user.use_id}
                     onClick={() => {
                       setSelect(user);
@@ -501,7 +501,6 @@ function Users() {
               </Table>
             </ModalBody>
             <ModalFooter>
-              {select.use_verif === 'S'|| select.use_verif === 's'?
               <Button
                 color="success"
                 id="PopoverLegacy1"
@@ -510,9 +509,7 @@ function Users() {
               >
                 Movimientos
               </Button>
-              :
-              null
-              }
+
               <Button
                 color="danger"
                 id="PopoverLegacy"
@@ -520,6 +517,7 @@ function Users() {
               >
                 Eliminar
               </Button>
+
               <UncontrolledPopover
                 placement="top"
                 target="PopoverLegacy"
@@ -639,4 +637,4 @@ function Users() {
   )
 }
 
-export { Users }
+export { UserVerificated }

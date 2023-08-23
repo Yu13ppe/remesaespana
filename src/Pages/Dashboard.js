@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col } from 'reactstrap';
 // import { Pie } from 'react-chartjs-2';
-import { FaArrowDown,FaArrowUp, FaClock } from 'react-icons/fa';
+import { FaArrowDown, FaArrowUp, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 
+
 function Dashboard() {
-  const { isAdmin } = useDataContext();
+  const { isAdmin, user } = useDataContext();
 
   const [movements, setMovements] = useState([]);
   // const [modalImageMov, setModalImageMov] = useState(false);
@@ -43,10 +44,12 @@ function Dashboard() {
               <h1 className="my-4">Dashboard</h1></center>
             <Row>
               <Col md="6" lg="3">
-                <div className="stat-box total-users">
-                  <h2>Total Users</h2>
-                  <p>{data.totalUsers}</p>
-                </div>
+                <Link to='/Users'>
+                  <div className="stat-box total-users">
+                    <h2>Total de usuarios</h2>
+                    <p>{user? user.length : <b>No hay usuarios</b>}</p>
+                  </div>
+                </Link>
               </Col>
               <Col md="6" lg="3">
                 <div className="stat-box total-euros">
@@ -56,24 +59,21 @@ function Dashboard() {
               </Col>
               <Col md="6" lg="3">
                 <div className="stat-box verified-users">
-                  <h2>Verified Users</h2>
-                  <p>{data.verifiedUsers}</p>
+                  <h2>Usuario verificados</h2>
+                  <p>{user? user.filter((user)=> user.use_verif === 'S').length : <b>No hay usuarios</b>}</p>
                 </div>
               </Col>
               <Col md="6" lg="3" >
-                <Link to='/Users'>
-                  <div className="stat-box total-bolivars">
-                    <h2>Total Bolivars</h2>
-                    <p>{data.totalBolivars}</p>
-                  </div>
-                </Link>
+                <div className="stat-box total-bolivars">
+                  <h2>Total Bolivars</h2>
+                  <p>{data.totalBolivars}</p>
+                </div>
               </Col>
             </Row>
             <Row>
             </Row>
             <Row>
               <Col>
-
                 <table className="transaction-table">
                   <thead>
                     <tr>
@@ -87,7 +87,7 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {movements.filter((move)=> move.mov_status === 'E').map(move => (
+                    {movements.filter((move) => move.mov_status === 'E').map(move => (
                       <tr key={move.mov_id}>
                         <td>{move.User.use_name} {move.User.use_lastName}</td>
                         <td>{move.mov_currency}</td>
@@ -97,8 +97,8 @@ function Dashboard() {
                           {move.mov_status === 'E' && <FaClock className="pending-icon" />}
                         </td>
                         <td>
-                        {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green'/>) : null}
-                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red'/>) : null}
+                          {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
+                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
                         </td>
                         <td>
                           <button className="details-button">Ver detalles</button>
