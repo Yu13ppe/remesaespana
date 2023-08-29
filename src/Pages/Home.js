@@ -71,8 +71,8 @@ function Home() {
             </Button>
             {currencyImage === Spain ?
               <Input disabled className='centered-input'
-                placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
-              />
+                placeholder={'           1  =  ' + 33}
+              />  
               : null
             }
             {/* {currencyImage === Uk ?
@@ -96,6 +96,7 @@ function Home() {
           </Button>
         </div>
       </div>
+
       <div className='Segmento-2'>
         <div className="chose-us">
           <div className="main-chose">
@@ -144,6 +145,7 @@ function Home() {
         </div>
 
       </div>
+
       <div className="Segmento-3">
         <div className="card1">
           <div className="content">
@@ -181,6 +183,7 @@ function Home() {
                 <img src={Segmento3} alt="Imagen de ejemplo" />
             </div> */}
       </div>
+
       <div className='Segmento-4'>
         <section id="hero" className="d-flex align-items-center">
           <div className="container position-relative" data-aos="fade-up" data-aos-delay="500">

@@ -43,7 +43,7 @@ function Login() {
       if (user.use_verif === "s" || user.use_verif === "S"){
         setVerifyData(true);
         setLogged(true);
-        setUser(user)
+        setUser(user);
         history.push({
           pathname: "/Changes",
           state:{

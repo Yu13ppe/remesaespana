@@ -38,8 +38,9 @@ function Changes() {
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
-  const [banks, setBanks] = useState([]);
-  const [banksBs, setBanksBs] = useState([]);
+  const [banksEUR, setBanksEUR] = useState([]);
+  const [banksGBP, setBanksGBP] = useState([]);
+  const [banksUSD, setBanksUSD] = useState([]);
   const { verifyData, logged, user, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
@@ -48,13 +49,15 @@ function Changes() {
 
   const [sendOption, setSendOption] = useState('')
 
-  const toggleTridModal = () => { setTridModalOpen(!tridModalOpen);
-    setPayment(''); 
-    setReceiveAmount(''); 
-    setSendOption('') };
+  const toggleTridModal = () => {
+    setTridModalOpen(!tridModalOpen);
+    setPayment('');
+    setReceiveAmount('');
+    setSendOption('')
+  };
 
-  const toggleforthModal = () => { 
-    setForthModalOpen(!forthModalOpen); 
+  const toggleforthModal = () => {
+    setForthModalOpen(!forthModalOpen);
     setPayment('');
     setSendAmount('');
     setBankOptionPay('')
@@ -66,38 +69,32 @@ function Changes() {
     document.body.style.paddingRight = '0';
   };
 
-  // const handleSendClick = () => {
-  //   toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
-  //     position: 'bottom-right',
-  //     autoClose: 10000,
-  //     hideProgressBar: false,
-  //     closeOnClick: true,
-  //     pauseOnHover: true,
-  //     draggable: true,
-  //     progress: undefined,
-  //   });
-
-  //   // Cerrar el modal
-  //   toggleTridModal();
-  // };
-
   useEffect(() => {
-    fetchData();
-    fetchDataAccBs();
+    fetchDataAccEur();
+    fetchDataAccGbp();
+    fetchDataAccUsd();
   }, []);
 
-  const fetchData = async () => {
+  const fetchDataAccEur = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
-      setBanks(response.data);
+      setBanksEUR(response.data);
     } catch (error) {
       console.log(error);
     }
   };
-  const fetchDataAccBs = async () => {
+  const fetchDataAccGbp = async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accbs');
-      setBanksBs(response.data);
+      const response = await axios.get('https://apiremesa.up.railway.app/AccGbp');
+      setBanksGBP(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchDataAccUsd = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/AccGbp');
+      setBanksUSD(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -125,24 +122,30 @@ function Changes() {
   const handleSubmitLoad = async event => {
     event.preventDefault();
 
+    const formData = new FormData();
+    formData.append('mov_currency', payment);
+    formData.append('mov_amount', sendAmount);
+    formData.append('mov_type', 'Deposito');
+    formData.append('mov_status', 'S');
+    formData.append('mov_comment', 'Carga de Divisa');
+    formData.append('mov_img', mov_img);
+    formData.append('mov_accEurId', 1);
+    formData.append('mov_userId', user.use_id); // Be sure to define 'user' somewhere
+
     try {
       await axios.post(
         'https://apiremesa.up.railway.app/Movements/create',
+        formData,
         {
-          mov_currency: payment,
-          mov_amount: sendAmount,
-          mov_ref: "21210",
-          mov_type: "I",
-          mov_status: "E",
-          mov_acc: 1,
-          mov_comment: "Carga de Divisa",
-          mov_img,
-          mov_userId: location.state?.user.use_id
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
 
+      console.log('Request sent successfully');
     } catch (error) {
-      console.log(error);
+      console.error('Error:', error);
     }
   };
 
@@ -433,6 +436,7 @@ function Changes() {
                         <option value="USD">Dolar</option>
                       </Input>
                     </FormGroup>
+
                     <FormGroup>
                       <Label for="amountInput">Coloca el monto que deseas cargar</Label>
                       <InputGroup>
@@ -440,13 +444,10 @@ function Changes() {
                           type="number"
                           id="sendAmount"
                           placeholder="Ej. 100"
-                          value={sendAmount} // Usar value en lugar de defaultValue
+                          value={sendAmount}
                           disabled={payment === ''}
                           onChange={(e) => setSendAmount(e.target.value)}
                         />
-                        {/* {sendAmount < 20 ? (
-                        <FormFeedback invalid>El monto mínimo es de 20$</FormFeedback>
-                      ) : null} */}
                       </InputGroup>
                     </FormGroup>
 
@@ -461,56 +462,97 @@ function Changes() {
                       >
                         <option value="">Selecciona una opción</option>
                         {payment === 'EUR' ?
-                          banks.map((bank) => {
+                          banksEUR.map((bank) => {
                             return bank.acceur_Bank ?
                               <option value={bank.acceur_Bank}>{bank.acceur_Bank}</option>
                               : null
                           })
-                          : null
+                          : payment === 'USD' ?
+                            banksUSD.map((bank) => {
+                              return bank.accusd_Bank ?
+                                <option value={bank.accusd_Bank}>{bank.accusd_Bank}</option>
+                                : null
+                            })
+                            : payment === 'GBP' ?
+                              banksGBP.map((bank) => {
+                                return bank.accgbp_Bank ?
+                                  <option value={bank.accgbp_Bank}>{bank.accgbp_Bank}</option>
+                                  : null
+                              })
+                              : null
                         }
-                        {payment === 'USD' ?
-                          banksBs.map((bank) => {
+                        {/* {payment === 'USD' ?
+                          banksUSD.map((bank) => {
                             return bank.accbs_bank ?
                               <option value={bank.accbs_bank}>{bank.accbs_bank}</option>
                               : null
                           })
                           : null
-                        }
+                        } */}
                       </Input>
                     </FormGroup>
+
                     {bankOptionPay === "" ? null :
                       <Alert>
                         <h4 className="alert-heading">
                           Cuenta Bancaria {bankOptionPay}:
                         </h4>
-                        {banks.map((bank) => {
-                          return bank.acceur_Bank === bankOptionPay ?
-                            <p>
-                              {bank.acceur_number}
-                              <br />
-                              {bank.acceur_nie}
-                              <br />
-                              {bank.acceur_owner}
-                            </p>
-                            : null
-                        })}
+                        {payment === 'EUR' ?
+                          banksEUR.map((bank) => {
+                            return bank.acceur_Bank === bankOptionPay ?
+                              <p>
+                                {bank.acceur_number}
+                                <br />
+                                {bank.acceur_nie}
+                                <br />
+                                {bank.acceur_owner}
+                              </p>
+                              : null
+                          })
+                          : payment === 'USD' ?
+                            banksUSD.map((bank) => {
+                              return bank.accusd_Bank === bankOptionPay ?
+                                <p>
+                                  {bank.accusd_number}
+                                  <br />
+                                  {bank.accusd_Ident}
+                                  <br />
+                                  {bank.accusd_owner}
+                                </p>
+                                : null
+                            })
+                            : payment === 'GBP' ?
+                              banksGBP.map((bank) => {
+                                return bank.accgbp_Bank === bankOptionPay ?
+                                  <p>
+                                    {bank.accgbp_number}
+                                    <br />
+                                    {bank.accgbp_Ident}
+                                    <br />
+                                    {bank.accgbp_owner}
+                                  </p>
+                                  : null
+                              })
+                              : null
+                        }
                         <hr />
                         <p className="mb-0">
                           Al culminar la verificación del pago, el monto se verá reflejado en su plataforma.
                         </p>
                       </Alert>
                     }
-                    <FormGroup>
 
+                    <FormGroup>
                       <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
                       <Input
                         type="file"
                         className="form-control-file"
                         id="imageInput"
                         disabled={payment === ''}
-                        onChange={(e) => setMov_img(e.target.value)}
+                        onChange={(e) => setMov_img(e.target.files[0])}
                       />
                     </FormGroup>
+
                     <Button color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
                       Enviar
                     </Button>

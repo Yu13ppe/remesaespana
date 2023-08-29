@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import logo from '../Assets/Images/remesalogo.png'
 import slogan from '../Assets/Images/sloganremesa.png'
 import { Link } from 'react-router-dom'
@@ -9,30 +9,53 @@ import { clearLocalStorage } from '../Hooks/useLocalStorage'
 
 function NavBar() {
   const { logged, isAdmin } = useDataContext()
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
   return (
     <div className='Nav'>
       <div className='nav__logo'>
         <img src={logo}
           alt='remesaespana'
-          width={150}
         />
         <img className='slogan' src={slogan}
           alt='sloganremesaespana'
-          width={150}
         />
       </div>
-      <div className='Menu'>
+      <div className='MenuPrincipal'>
+        <div className='menu' onClick={() => setMenuOpen(!menuOpen)}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         {logged ?
           isAdmin ? (
-            <ul className='nav__links'>
-              <Link className='links' to='/'>
-                <li className='nav__link'>Inicio</li>
+            <ul className={menuOpen ? "open" : ""}>
+              <Link className='' to='/'>
+                <li className=''>Inicio</li>
               </Link>
-              <Link className='links' to='/Dashboard'>
-                <li className='nav__link'>Dashboard</li>
+              <Link className='' to='/Dashboard'>
+                <li className=''>Dashboard</li>
               </Link>
-              <Link className='links' to='/Changes'>
+              <Link className='' to='/Changes'>
+                <Button className='log-btn'>Cambios</Button>
+              </Link>
+              <a className='' href='/'>
+                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocalStorage} />
+              </a>
+            </ul>
+          ) : (
+            <ul className={menuOpen ? "open" : ""}>
+              <Link className='' to='/'>
+                <li className=''>Inicio</li>
+              </Link>
+              <Link className='' to='/Faqs'>
+                <li className=''>Faqs</li>
+              </Link>
+              <Link className='' to='/Movements'>
+                <li className=''>Movimientos</li>
+              </Link>
+              <Link className='' to='/Changes'>
                 <Button className='log-btn'>Cambios</Button>
               </Link>
               <a className='links' href='/'>
@@ -40,35 +63,17 @@ function NavBar() {
               </a>
             </ul>
           ) : (
-            <ul className='nav__links'>
-              <Link className='links' to='/'>
-                <li className='nav__link'>Inicio</li>
+            <ul className={menuOpen ? "open" : ""}>
+              <Link className='' to='/'>
+                <li className=''>Inicio</li>
               </Link>
-              <Link className='links' to='/Faqs'>
-                <li className='nav__link'>Faqs</li>
+              <Link className='' to='/Faqs'>
+                <li className=''>Faqs</li>
               </Link>
-              <Link className='links' to='/Movements'>
-                <li className='nav__link'>Movimientos</li>
-              </Link>
-              <Link className='links' to='/Changes'>
-                <Button className='log-btn'>Cambios</Button>
-              </Link>
-              <a className='links' href='/'>
-                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocalStorage} />
+              <a className='' href='#hero2'
+              ><li className=''>Contacto</li>
               </a>
-            </ul> 
-          ) : (
-            <ul className='nav__links'>
-              <Link className='links' to='/'>
-                <li className='nav__link'>Inicio</li>
-              </Link>
-              <Link className='links' to='/Faqs'>
-                <li className='nav__link'>Faqs</li>
-              </Link>
-              <a className='links' href='#hero2'
-              ><li className='nav__link'>Contacto</li>
-              </a>
-              <Link className='links' to='/Login'>
+              <Link className='' to='/Login'>
                 <Button className='log-btn'>Ingresar</Button>
               </Link>
             </ul>

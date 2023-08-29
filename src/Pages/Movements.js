@@ -7,8 +7,10 @@ import { NavBar } from '../Components/NavBar';
 function Movements() {
   const { user } = useDataContext();
   const [movements, setMovements] = useState([]);
+  const [select, setSelect] = useState([]);
   const [modalImageMov, setModalImageMov] = useState(false);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
+
 
   useEffect(() => {
     fetchData();
@@ -58,6 +60,7 @@ function Movements() {
                       color='primary'
                       onClick={() => {
                         toggleImageMov();
+                        setSelect(move)
                       }}>
                       Ver Imagen
                     </Button>
@@ -72,10 +75,10 @@ function Movements() {
         </tbody>
       </Table>
 
-      <Modal isOpen={modalImageMov} size='l' centered toggle={toggleImageMov}>
+      <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
         <ModalHeader toggle={toggleImageMov}>{user.use_name} {user.use_lastName}</ModalHeader>
         <ModalBody>
-          <img width={300} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${user.mov_img}`} />
+          <img style={{width: '100%'}} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${select.mov_img}`} />
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggleImageMov}>
