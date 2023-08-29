@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import remesaregister from '../Assets/Images/Register-Woman.png';
-import { Input, Button, Label,  FormFeedback } from 'reactstrap';
+import { Input, Button, Label, FormFeedback } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 
@@ -21,9 +21,13 @@ function Register() {
         {
           use_name,
           use_lastName,
+          use_NIE: '',
+          use_passport: '',
           use_email,
           use_password,
-          use_verif: 'S'
+          use_phone: '',
+          use_verif: 'N',
+          use_img: ''
         }
       );
 
@@ -35,38 +39,38 @@ function Register() {
     <div className='RegisterBody'>
       <div className="card-register" style={{ width: '600px' }}>
         <img className="logo" src={remesalogo} alt="Logo" />
-        <form className="form">
+        <form onSubmit={handleSubmit} className="form">
 
           <Input
             type="text"
             placeholder="Nombre"
-            onChange={e => setUse_name}
+            onChange={(e)=>setUse_name(e.target.value)}
             required
           />
           <Input
             type="text"
             placeholder="Apellido"
-            onChange={e => setUse_lastName}
+            onChange={e => setUse_lastName(e.target.value)}
             required
           />
           <Input
             type="email"
             placeholder="Email"
-            onChange={e => setUse_email}
+            onChange={e => setUse_email(e.target.value)}
             required
           />
           <Input
             type="password"
             placeholder="Contraseña"
-            onChange={e => setUse_password}
+            onChange={e => setUse_password(e.target.value)}
             required
           />
           <Input
             type="password"
             placeholder="Confirma tu contraseña"
-            onChange={e => setUse_confirm}
+            onChange={e => setUse_confirm(e.target.value)}
             required
-            invalid={use_confirm !== use_password} 
+            invalid={use_confirm !== use_password}
           />
           {use_confirm !== use_password && (
             <FormFeedback invalid>
@@ -81,8 +85,8 @@ function Register() {
             </Label>
           </div>
 
-          <Button >Registrar</Button>
-          <Link to='/Login' ><Button color='secondary' onChange={handleSubmit}>Volver</Button></Link>
+          <Button type='submit' >Registrar</Button>
+          <Link to='/Login'><Button color='secondary'>Volver</Button></Link>
         </form>
 
         <div className="register-image-container">

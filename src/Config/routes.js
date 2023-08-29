@@ -11,12 +11,19 @@ import { Users } from '../Pages/Users';
 import { Dashboard } from '../Pages/Dashboard';
 import { Movements } from '../Pages/Movements';
 import { UserVerificated } from '../Pages/UserVerificated';
+import { UserNoVerificated } from '../Pages/UserNoVerificated';
 
 const routes = [
     {
         title: 'UserVerificated',
         path: '/UserVerificated',
         component: UserVerificated,
+        exact: true
+    },
+    {
+        title: 'UserNoVerificated',
+        path: '/UserNoVerificated',
+        component: UserNoVerificated,
         exact: true
     },
     {

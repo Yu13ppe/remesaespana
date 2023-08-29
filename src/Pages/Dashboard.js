@@ -43,27 +43,41 @@ function Dashboard() {
             <center>
               <h1 className="my-4">Dashboard</h1></center>
             <Row>
-              <Col md="6" lg="3">
+              <Col md="6" lg="4">
                 <Link to='/Users'>
                   <div className="stat-box total-users">
                     <h2>Total de usuarios</h2>
-                    <p>{user? user.length : <b>No hay usuarios</b>}</p>
+                    <p>{user ? user.length : <b>No hay usuarios</b>}</p>
                   </div>
                 </Link>
               </Col>
-              <Col md="6" lg="3">
+              <Col md="6" lg="4">
+                <Link to='/userVerificated'>
+                  <div className="stat-box verified-users">
+                    <h2>Usuario verificados</h2>
+                    <p>{user ? user.filter((user) => user.use_verif === 'S').length : <b>No hay usuarios</b>}</p>
+                  </div>
+                </Link>
+              </Col>
+              <Col md="6" lg="4" >
+                <div className="stat-box total-bolivars">
+                  <h2>Total Bolivars</h2>
+                  <p>{data.totalBolivars}</p>
+                </div>
+              </Col>
+              <Col md="6" lg="4">
                 <div className="stat-box total-euros">
                   <h2>Total Euros</h2>
                   <p>{data.totalEuros}</p>
                 </div>
               </Col>
-              <Col md="6" lg="3">
-                <div className="stat-box verified-users">
-                  <h2>Usuario verificados</h2>
-                  <p>{user? user.filter((user)=> user.use_verif === 'S').length : <b>No hay usuarios</b>}</p>
+              <Col md="6" lg="4" >
+                <div className="stat-box total-bolivars">
+                  <h2>Total Bolivars</h2>
+                  <p>{data.totalBolivars}</p>
                 </div>
               </Col>
-              <Col md="6" lg="3" >
+              <Col md="6" lg="4" >
                 <div className="stat-box total-bolivars">
                   <h2>Total Bolivars</h2>
                   <p>{data.totalBolivars}</p>

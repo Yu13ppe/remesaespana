@@ -26,6 +26,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
+import { NotFound404 } from '../Pages/NotFound404';
 
 function Changes() {
   const location = useLocation();
@@ -38,9 +39,15 @@ function Changes() {
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
+  const [use_NIE, setUseNIE] = useState('');
+  const [use_img, setUseImg] = useState('');
+  const [termsCheckbox, setTermsCheckbox] = useState(false);
   const [banksEUR, setBanksEUR] = useState([]);
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
+  // const [accEurId, setAccEurId] = useState();
+  // const [accUsdId, setAccUsdId] = useState();
+  // const [accGbpId, setAccGbpId] = useState();
   const { verifyData, logged, user, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
@@ -93,7 +100,7 @@ function Changes() {
   };
   const fetchDataAccUsd = async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/AccGbp');
+      const response = await axios.get('https://apiremesa.up.railway.app/AccUsd');
       setBanksUSD(response.data);
     } catch (error) {
       console.log(error);
@@ -126,10 +133,12 @@ function Changes() {
     formData.append('mov_currency', payment);
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Deposito');
-    formData.append('mov_status', 'S');
+    formData.append('mov_status', 'E');
     formData.append('mov_comment', 'Carga de Divisa');
     formData.append('mov_img', mov_img);
-    formData.append('mov_accEurId', 1);
+    formData.append('mov_accEurId', (payment === 'EUR' ? parseInt(bankOptionPay) : 0));
+    formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
+    formData.append('mov_accGbpId', (payment === 'GBP' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_userId', user.use_id); // Be sure to define 'user' somewhere
 
     try {
@@ -187,13 +196,41 @@ function Changes() {
     }
   };
 
+  const handleSubmitVerify = async event => {
+    event.preventDefault();
+
+    console.log('use_NIE:', use_NIE);
+    console.log('use_img:', use_img);
+
+    const formData = new FormData();
+    formData.append('use_NIE', use_NIE);
+    formData.append('use_img', use_img);
+    formData.append('use_verif', 'E');
+
+    try {
+      await axios.put(
+        `https://apiremesa.up.railway.app/Users/${user.use_id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log('Request edit successfully');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div>
-      <NavBar />
       <div className='changesContainer'>
         {logged ? (
           verifyData ? (
             <div>
+              <NavBar />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
                 <h2>Hola {user.use_name} {user.use_lastName}</h2>
@@ -458,78 +495,76 @@ function Changes() {
                         id="bankOptionPaySelect"
                         defaultValue={bankOptionPay}
                         disabled={payment === ''}
-                        onChange={(e) => setBankOptionPay(e.target.value)}
+                        onChange={(e) => { setBankOptionPay(e.target.value) }}
                       >
                         <option value="">Selecciona una opción</option>
                         {payment === 'EUR' ?
-                          banksEUR.map((bank) => {
+                          banksEUR.filter((bank) => bank.acceur_status === 'Activo').map((bank) => {
                             return bank.acceur_Bank ?
-                              <option value={bank.acceur_Bank}>{bank.acceur_Bank}</option>
+                              <option value={bank.acceur_id}>{bank.acceur_Bank}</option>
                               : null
                           })
                           : payment === 'USD' ?
-                            banksUSD.map((bank) => {
+                            banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
                               return bank.accusd_Bank ?
-                                <option value={bank.accusd_Bank}>{bank.accusd_Bank}</option>
+                                <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
                                 : null
                             })
                             : payment === 'GBP' ?
-                              banksGBP.map((bank) => {
+                              banksGBP.filter((bank) => bank.accgbp_status === 'Activo').map((bank) => {
                                 return bank.accgbp_Bank ?
-                                  <option value={bank.accgbp_Bank}>{bank.accgbp_Bank}</option>
+                                  <option value={bank.accgbp_id}>{bank.accgbp_Bank}</option>
                                   : null
                               })
                               : null
                         }
-                        {/* {payment === 'USD' ?
-                          banksUSD.map((bank) => {
-                            return bank.accbs_bank ?
-                              <option value={bank.accbs_bank}>{bank.accbs_bank}</option>
-                              : null
-                          })
-                          : null
-                        } */}
                       </Input>
                     </FormGroup>
 
                     {bankOptionPay === "" ? null :
                       <Alert>
                         <h4 className="alert-heading">
-                          Cuenta Bancaria {bankOptionPay}:
+                          Cuenta Bancaria:
                         </h4>
                         {payment === 'EUR' ?
                           banksEUR.map((bank) => {
-                            return bank.acceur_Bank === bankOptionPay ?
+                            return bank.acceur_id === parseInt(bankOptionPay) && bank.acceur_status === 'Activo' ?
                               <p>
-                                {bank.acceur_number}
+                                Banco: {bank.acceur_Bank}
                                 <br />
-                                {bank.acceur_nie}
+                                Cuenta: {bank.acceur_number}
                                 <br />
-                                {bank.acceur_owner}
+                                NIE/NIF: {bank.acceur_nie}
+                                <br />
+                                Propietario: {bank.acceur_owner}
                               </p>
                               : null
                           })
                           : payment === 'USD' ?
                             banksUSD.map((bank) => {
-                              return bank.accusd_Bank === bankOptionPay ?
+                              return bank.accusd_id === parseInt(bankOptionPay) ?
                                 <p>
-                                  {bank.accusd_number}
+                                  Banco: {bank.accusd_Bank}
                                   <br />
-                                  {bank.accusd_Ident}
+                                  {bank.accusd_type}
                                   <br />
-                                  {bank.accusd_owner}
+                                  Propietario: {bank.accusd_owner}
+                                  <br />
+                                  Email: {bank.accusd_email}
                                 </p>
                                 : null
                             })
                             : payment === 'GBP' ?
                               banksGBP.map((bank) => {
-                                return bank.accgbp_Bank === bankOptionPay ?
+                                return bank.accgbp_id === parseInt(bankOptionPay) ?
                                   <p>
-                                    {bank.accgbp_number}
+                                    Banco: {bank.accgbp_Bank}
                                     <br />
-                                    {bank.accgbp_Ident}
+                                    Cuenta: {bank.accgbp_number}
                                     <br />
-                                    {bank.accgbp_owner}
+                                    DNI: {bank.accgbp_Ident}
+                                    <br />
+                                    Propietario: {bank.accgbp_owner}
                                   </p>
                                   : null
                               })
@@ -553,7 +588,7 @@ function Changes() {
                       />
                     </FormGroup>
 
-                    <Button color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
+                    <Button disabled={payment === '' || mov_img === '' || sendAmount === ''} color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
                       Enviar
                     </Button>
                   </Form>
@@ -561,9 +596,11 @@ function Changes() {
               </Modal>
 
               <ToastContainer />
+              <Footer />
             </div>
           ) : (
             <div>
+              <NavBar />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
                 <h2>Hola {user.use_name} {user.use_lastName}</h2>
@@ -658,7 +695,7 @@ function Changes() {
               <Modal isOpen={secondModalOpen} size='lg' centered toggle={toggleSecondModal}>
                 <ModalHeader toggle={toggleSecondModal}>Verificación de Identidad</ModalHeader>
                 <ModalBody>
-                  <form>
+                  <form onSubmit={handleSubmitVerify}>
                     <div className="form-group">
                       <Label htmlFor="dniInput">Número de Documento de Identidad:</Label>
                       <Input
@@ -666,6 +703,8 @@ function Changes() {
                         className="form-control"
                         id="dniInput"
                         placeholder="Ingresa tu DNI"
+                        value={use_NIE}
+                        onChange={(e) => setUseNIE(e.target.value)}
                       />
                     </div>
                     <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>
@@ -680,6 +719,7 @@ function Changes() {
                         type="file"
                         className="form-control-file"
                         id="imageInput"
+                        onChange={(e) => setUseImg(e.target.files[0])}
                       />
                     </div>
                     <div style={{ marginTop: '1em', marginLeft: '.5em' }} className="form-check">
@@ -687,28 +727,28 @@ function Changes() {
                         type="checkbox"
                         className="form-check-input"
                         id="termsCheckbox"
+                        checked={termsCheckbox}
+                        onChange={(e) => setTermsCheckbox(e.target.checked)}
                       />
                       <Label className="form-check-label" htmlFor="termsCheckbox">
                         Acepto los términos y condiciones
                       </Label>
                     </div>
                     <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
-                    <FormGroup>
-                      <Button className="btn col-md-12" color='success'>
-                        Enviar
-                      </Button>
-                    </FormGroup>
+
+                    <Button disabled={!termsCheckbox} type='submit' className="btn col-md-12" color='success'>
+                      Enviar
+                    </Button>
                   </form>
                 </ModalBody>
               </Modal>
-
+              <Footer />
             </div>
           )
         ) : (
-          <h1>Error 404</h1>
+          <NotFound404 />
         )}
       </div >
-      <Footer />
     </div>
   )
 }
