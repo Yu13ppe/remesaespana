@@ -14,6 +14,7 @@ import {
   FormFeedback
 } from 'reactstrap';
 import { useLocation } from "react-router-dom";
+import { FaExclamationCircle } from 'react-icons/fa';
 import axios from 'axios';
 import changes from '../Assets/Images/changes.png'
 import Spain from '../Assets/Images/spain.png'
@@ -34,6 +35,7 @@ function Changes() {
   const [secondModalOpen, setSecondModalOpen] = useState(false);
   const [tridModalOpen, setTridModalOpen] = useState(false);
   const [forthModalOpen, setForthModalOpen] = useState(false);
+  const [fifthModalOpen, setFifthModalOpen] = useState(false);
   const [receiveAmount, setReceiveAmount] = useState(0);
   const [receiveUsdAmount, setReceiveUsdAmount] = useState(0);
   const [bankOptionPay, setBankOptionPay] = useState('');
@@ -48,7 +50,7 @@ function Changes() {
   // const [accEurId, setAccEurId] = useState();
   // const [accUsdId, setAccUsdId] = useState();
   // const [accGbpId, setAccGbpId] = useState();
-  const { verifyData, logged, user, currencyPrice } = useDataContext();
+  const { verifyData, logged, user, setUser, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
 
@@ -76,6 +78,12 @@ function Changes() {
     document.body.style.paddingRight = '0';
   };
 
+  const toggleFifthModal = () => {
+    setSecondModalOpen(false);
+    setFifthModalOpen(!fifthModalOpen);
+    document.body.style.paddingRight = '0';
+  }
+
   useEffect(() => {
     fetchDataAccEur();
     fetchDataAccGbp();
@@ -102,6 +110,15 @@ function Changes() {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/AccUsd');
       setBanksUSD(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchDataUser = async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Users/${user.use_id}`);
+      setUser(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -151,6 +168,16 @@ function Changes() {
           },
         }
       );
+
+      toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
+        position: 'bottom-right',
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
 
       console.log('Request sent successfully');
     } catch (error) {
@@ -217,6 +244,19 @@ function Changes() {
           },
         }
       );
+
+      // Cerrar el modal
+      toggleSecondModal();
+      toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
+        position: 'bottom-right',
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      fetchDataUser();
 
       console.log('Request edit successfully');
     } catch (error) {
@@ -664,10 +704,10 @@ function Changes() {
 
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
-                    <Button color='primary' onClick={toggleModal}>
+                    <Button color='primary' onClick={user.use_verif ==='N'? toggleModal : toggleFifthModal}>
                       Cargar
                     </Button>
-                    <Button color='success' onClick={toggleModal}>
+                    <Button color='success' onClick={user.use_verif ==='N'? toggleModal : toggleFifthModal}>
                       Retirar
                     </Button>
                   </div>
@@ -742,6 +782,21 @@ function Changes() {
                   </form>
                 </ModalBody>
               </Modal>
+
+              {/* Verificación en proceso */}
+              <Modal isOpen={fifthModalOpen} centered toggle={toggleFifthModal}>
+                <ModalHeader toggle={toggleFifthModal}>Verificación en proceso</ModalHeader>
+                <ModalBody>
+                  <div style={{ textAlign: 'center' }}>
+                    <FaExclamationCircle style={{ fontSize: '48px', marginBottom: '20px', color:'red'}} />
+                    <p>Tu usuario está en proceso de verificación.</p>
+                    <p>Espera a que un administrador apruebe tu identidad.</p>
+                    <p>El tiempo estimado de verificación dentro de nuestro horario laboral es de aproximadamente 20 minutos.</p>
+                  </div>
+                </ModalBody>
+              </Modal>
+
+              <ToastContainer />
               <Footer />
             </div>
           )

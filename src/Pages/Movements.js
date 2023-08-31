@@ -43,8 +43,8 @@ function Movements() {
           </tr>
         </thead>
         <tbody>
-          {movements.map((move) => (
-            move.User.use_id === user.use_id ?
+          {movements.filter((move)=> move.User.use_id === user.use_id).map((move) => (
+            // move.User.use_id === user.use_id ?
               <tr key={move.mov_id}>
                 <th scope="row">{move.mov_id}</th>
                 <td>{move.mov_currency}</td>
@@ -60,7 +60,8 @@ function Movements() {
                       color='primary'
                       onClick={() => {
                         toggleImageMov();
-                        setSelect(move)
+                        setSelect(move);
+                        console.log(select)
                       }}>
                       Ver Imagen
                     </Button>
@@ -69,8 +70,8 @@ function Movements() {
                   }
                 </td>
               </tr>
-              :
-              null
+              // :
+              // null
           ))}
         </tbody>
       </Table>

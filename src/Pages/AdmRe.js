@@ -10,28 +10,18 @@ function AdmRe() {
     const [adm_email, setEmail] = useState('');
     const [adm_password, setPassword] = useState('');
     const [admins, setAdmin] = useState([]);
-    const [users, setUsers] = useState([]);
     const [error, setError] = useState("");
     const [attemps, setAttemps] = useState(3);
-    const { setIsAdmin, setLogged, setUser } = useDataContext();
+    const { setIsAdmin, setLogged } = useDataContext();
 
     useEffect(() => {
         fetchData();
-        fetchDataUsers();
     }, []);
 
     const fetchData = async () => {
         try {
             const response = await axios.get('https://apiremesa.up.railway.app/admin');
             setAdmin(response.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-    const fetchDataUsers = async () => {
-        try {
-            const response = await axios.get('https://apiremesa.up.railway.app/Users');
-            setUsers(response.data);
         } catch (error) {
             console.log(error);
         }
@@ -51,7 +41,6 @@ function AdmRe() {
             if (admin.adm_role === "a" || admin.adm_role === "A") {
                 setIsAdmin(true);
                 setLogged(true);
-                setUser(users);
                 history.push({
                     pathname: "/Dashboard",
                     state: {

@@ -12,7 +12,7 @@ import {
   PopoverBody
 } from 'reactstrap'
 import axios from 'axios'
-import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai'
+import { AiOutlineCheckCircle, AiOutlineClockCircle,  AiOutlineCloseCircle } from 'react-icons/ai'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
 
@@ -240,10 +240,14 @@ function Users() {
                     <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
                     <td>{user.use_passport ? user.use_passport : <p>No se encontraron resultados</p>}</td>
                     <td>
-                      {user.use_verif === "s" || user.use_verif === "S" ?
+                      {
+                      user.use_verif === "s" || user.use_verif === "S" ?
                         <AiOutlineCheckCircle style={{ color: "green", fontSize: "2em" }} />
+                        : user.use_verif === "e" || user.use_verif === "E" ? 
+                        <AiOutlineClockCircle style={{ color: "blue", fontSize: "2em" }} />
                         :
-                        <AiOutlineCloseCircle style={{ color: "red", fontSize: "2em" }} />}
+                        <AiOutlineCloseCircle style={{ color: "red", fontSize: "2em" }} />
+                        }
                     </td>
                     <td>{user.use_amountUsd ? user.use_amountUsd : 0}</td>
                     <td>{user.use_amountEur ? user.use_amountEur : 0}</td>

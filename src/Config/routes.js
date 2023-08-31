@@ -12,12 +12,19 @@ import { Dashboard } from '../Pages/Dashboard';
 import { Movements } from '../Pages/Movements';
 import { UserVerificated } from '../Pages/UserVerificated';
 import { UserNoVerificated } from '../Pages/UserNoVerificated';
+import { Relation } from '../Pages/Relation';
 
 const routes = [
     {
         title: 'UserVerificated',
         path: '/UserVerificated',
         component: UserVerificated,
+        exact: true
+    },
+    {
+        title: 'Relation',
+        path: '/Relation',
+        component: Relation,
         exact: true
     },
     {
