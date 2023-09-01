@@ -278,6 +278,7 @@ function Changes() {
                 <h6 style={{ color: '#686868' }}>Disponible</h6>
               </div>
 
+              {/* Cambios */}
               <div className='changes'>
 
                 {/* Spain - Bs */}
@@ -648,6 +649,7 @@ function Changes() {
                 <h6 style={{ color: '#686868' }}>Disponible</h6>
               </div>
 
+              {/* Cambios */}
               <div className='changes'>
                 {/* Spain - Bs */}
                 <InputGroup className='Change-Input1'>

@@ -232,6 +232,7 @@ function Users() {
                   <tr key={user.use_id}
                     onClick={() => {
                       setSelect(user);
+                      console.log(select)
                       toggleViewer();
                     }}>
                     <th scope="row">{user.use_id}</th>

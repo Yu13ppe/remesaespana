@@ -50,12 +50,10 @@ function Recover() {
       });
     }
     else {
-      // Si no se encuentra el usuario, establece un mensaje de error
       setAttemps(attemps - 1);
       setError(`Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`);
     }
   };
-
 
   return (
     <div className='RecoverBody'>

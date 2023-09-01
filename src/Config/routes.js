@@ -13,6 +13,7 @@ import { Movements } from '../Pages/Movements';
 import { UserVerificated } from '../Pages/UserVerificated';
 import { UserNoVerificated } from '../Pages/UserNoVerificated';
 import { Relation } from '../Pages/Relation';
+import { Banks } from '../Pages/Banks';
 
 const routes = [
     {
@@ -31,6 +32,12 @@ const routes = [
         title: 'UserNoVerificated',
         path: '/UserNoVerificated',
         component: UserNoVerificated,
+        exact: true
+    },
+    {
+        title: 'Banks',
+        path: '/Banks',
+        component: Banks,
         exact: true
     },
     {
