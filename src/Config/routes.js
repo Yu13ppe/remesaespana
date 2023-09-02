@@ -14,6 +14,7 @@ import { UserVerificated } from '../Pages/UserVerificated';
 import { UserNoVerificated } from '../Pages/UserNoVerificated';
 import { Relation } from '../Pages/Relation';
 import { Banks } from '../Pages/Banks';
+import { CurrencyUpdate } from '../Pages/CurrencyUpdate';
 
 const routes = [
     {
@@ -38,6 +39,12 @@ const routes = [
         title: 'Banks',
         path: '/Banks',
         component: Banks,
+        exact: true
+    },
+    {
+        title: 'CurrencyUpdate',
+        path: '/CurrencyUpdate',
+        component: CurrencyUpdate,
         exact: true
     },
     {

@@ -35,7 +35,10 @@ function NavBar() {
                 <li className=''>Inicio</li>
               </Link>
               <Link className='' to='/Dashboard'>
-                <li className=''>Dashboard</li>
+                <li className=''>Panel</li>
+              </Link>
+              <Link className='' to='/Banks'>
+                <li className=''>Bancos</li>
               </Link>
               <Link className='' to='/Changes'>
                 <Button className='log-btn'>Cambios</Button>

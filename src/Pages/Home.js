@@ -24,10 +24,11 @@ import EEUU from '../Assets/Images/usa.png';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
+import { Link } from 'react-router-dom'
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
-  const { currencyPrice, setCurrencyPrice } = useDataContext();
+  const { setCurrencyPrice } = useDataContext();
 
   const handleCurrencyChange = () => {
     if (currencyImage === Spain) {
@@ -51,7 +52,7 @@ function Home() {
   useEffect(() => {
     fetchData();
   }, [fetchData]); // Agregar fetchData como dependencia
-  
+
   return (
     <div>
       <NavBar />
@@ -72,7 +73,7 @@ function Home() {
             {currencyImage === Spain ?
               <Input disabled className='centered-input'
                 placeholder={'           1  =  ' + 33}
-              />  
+              />
               : null
             }
             {/* {currencyImage === Uk ?
@@ -98,52 +99,60 @@ function Home() {
       </div>
 
       <div className='Segmento-2'>
-        <div className="chose-us">
-          <div className="main-chose">
-            <div className="inner-chose">
-              <div className="main-review">
-                <div className="inner-review">
-                  <img src={Image1} alt="image1" />
-                  <div className='enviom1'>
-                    <p>Sin Comisiones</p>
-                  </div>
+        <div class="container_all" id="container__all">
+          <div class="body__page">
+
+            <div class="container__card">
+
+              <div class="card c3">
+                <div class="icon">
+                  <img src={Image1} alt='Image1' />
+                </div>
+                <div class="info__description">
+                  <p>Sin Comisiones.</p>
+                  <p>Nuestros cambios son totalmente libre de comisiones.</p>
+                  <Link to="/Login">  <input type="button" value="Cambia ya!" /> </Link>
                 </div>
               </div>
-            </div>
-            <div className="inner-chose">
-              <div className="main-review">
-                <div className="inner-review">
-                  <img src={Image3} alt="image1" />
 
-                  <p>Disponemos de Todos los Bancos de Venezuela</p>
+              <div class="card c3">
+                <div class="icon">
+                  <img src={Image2} alt='Image2'/>
+                </div>
+                <div class="info__description">
+                  <p>Recibe tu Remesa en Pocos Minutos.</p>
+                  <p>Tus remesas llegan a tu cuenta en un promedio de 10 minutos</p>
+                  <Link to="/Login">  <input type="button" value="Cambia ya!" /></Link> </div>
+              </div>
+
+              <div class="card c3">
+                <div class="icon">
+                  <img src={Image3} alt='Image3'/>
+                </div>
+                <div class="info__description">
+                  <p>
+                    Disponemos de Todos los Bancos de Venezuela, Como BBVA,
+                    Banesco, Banco nacional de crédito, Mercantil, PagoMovil
+                    entre muchos otros
+                  </p>
+                  <Link to="/Login">  <input type="button" value="Cambia ya!" /></Link>
                 </div>
               </div>
-            </div>
 
-            <div className="inner-chose">
-              <div className="main-review">
-                <div className="inner-review">
-
-                  <img src={Image2} alt="image1" />
-
-                  <p>Recibe tu Remesa en Pocos Minutos</p>
+              <div class="card c3">
+                <div class="icon">
+                  <img src={Image4} alt='Image4'/>
                 </div>
-              </div>
-            </div>
-
-            <div className="main-review">
-              <div className="inner-review">
-                <div className="inner-chose">
-                  <img src={Image4} alt="image1" />
-                  <div className='enviom'>
-                    <p >Envío Minimo</p>
-                  </div>
-                </div>
+                <div class="info__description">
+                  <p>
+                    RemesaEspana te ofrece cambios de hasta un minimo de 20 euros,
+                    ¿Que esperas para cambiar con nosotros?.
+                  </p>
+                  <Link to="/Login">  <input type="button" value="Cambia ya!" /> </Link>                    </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
 
       <div className="Segmento-3">

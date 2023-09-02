@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react'
 import {
   Button,
   Table,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Input,
-  UncontrolledPopover,
-  PopoverHeader,
-  PopoverBody,
+  // Modal,
+  // ModalBody,
+  // ModalFooter,
+  // ModalHeader,
+  Input
 } from 'reactstrap'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, 
+  // toast 
+} from 'react-toastify';
 import axios from 'axios'
 import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai'
 import { useDataContext } from '../Context/dataContext'
@@ -22,15 +21,15 @@ function Relation() {
   const [movement, setMovements] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
-  const [select, setSelect] = useState([])
+  // const [select, setSelect] = useState([])
   const [searchQuery, setSearchQuery] = useState('');
 
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
 
-  const filteredUsuarios = movement.filter(bal => {
-    const fullName = `${bal.bal_currency} ${bal.AccountsEur} ${bal.AccountsGbp} ${bal.AccountsUsd}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+  // const filteredUsuarios = movement.filter(bal => {
+  //   const fullName = `${bal.bal_currency} ${bal.AccountsEur} ${bal.AccountsGbp} ${bal.AccountsUsd}`.toLowerCase();
+  //   return fullName.includes(searchQuery.toLowerCase());
+  // });
 
   const handleSearch = event => {
     setSearchQuery(event.target.value);
@@ -161,7 +160,7 @@ function Relation() {
           </Table>
 
           {/* Modal De Imagen Usuarios */}
-          <Modal centered isOpen={modalImageUser} size='lg' toggle={toggleImageUser}>
+          {/* <Modal centered isOpen={modalImageUser} size='lg' toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
               <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
@@ -171,7 +170,7 @@ function Relation() {
                 Volver
               </Button>
             </ModalFooter>
-          </Modal>
+          </Modal> */}
 
           <ToastContainer />
 

@@ -12,7 +12,6 @@ import {
   Input,
   Label,
   FormGroup,
-  FormText,
   Alert
 } from 'reactstrap';
 // import { Pie } from 'react-chartjs-2';
@@ -34,7 +33,15 @@ function Dashboard() {
   const [modalEgreso, setModalEgreso] = useState(false);
   const toggleModalEgreso = () => setModalEgreso(!modalEgreso);
 
+  const [payment, setPayment] = useState('');
+
   const [showCommentBox, setShowCommentBox] = useState(false);
+
+
+  const [bankOptionPay, setBankOptionPay] = useState('');
+  const [banksBs, setBanksBS] = useState([]);
+  const [banksUSD, setBanksUSD] = useState([]);
+  const [mov_img, setMovImg] = useState(null);
 
   const [amount, setAmount] = useState(Number)
 
@@ -45,18 +52,19 @@ function Dashboard() {
   const toggle = (move) => {
     if (move.mov_type === 'Deposito') {
       toggleModalIngreso();
-      setAmount(parseInt(move.mov_amount))
     } else if (move.mov_type === 'Retiro') {
       toggleModalEgreso();
+      setAmount(parseInt(move.mov_amount))
     }
     setSelect(move);
     setModal(!modal);
   };
 
-
   useEffect(() => {
     fetchData();
     fetchDataUsers();
+    fetchDataAccBs();
+    fetchDataAccUsd();
   }, []);
 
   const fetchData = async () => {
@@ -77,6 +85,23 @@ function Dashboard() {
     }
   };
 
+  const fetchDataAccBs = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/AccBs');
+      setBanksBS(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchDataAccUsd = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/AccUsd');
+      setBanksUSD(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const data = {
     totalUsers: 100,
     totalEuros: 15000,
@@ -91,17 +116,17 @@ function Dashboard() {
     const totalAmountGbp = parseInt(select.User.use_amountGbp);
     const formData = new FormData();
     if (select.mov_currency === 'EUR') {
-      formData.append('use_amountEur', totalAmountEur + amount);
-    } 
+      formData.append('use_amountEur', totalAmountEur);
+    }
     if (select.mov_currency === 'USD') {
-      formData.append('use_amountUsd', totalAmountUsd + amount);
+      formData.append('use_amountUsd', totalAmountUsd);
     }
     if (select.mov_currency === 'GBP') {
-      formData.append('use_amountGbp', totalAmountGbp + amount);
+      formData.append('use_amountGbp', totalAmountGbp);
     }
 
     try {
-       axios.put(
+      axios.put(
         `https://apiremesa.up.railway.app/Users/${select.User.use_id}`,
         formData,
         {
@@ -110,6 +135,78 @@ function Dashboard() {
           },
         }
       );
+      console.log('Request send successfully');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleSubmit = () => {
+    const totalAmountEur = parseInt(select.User.use_amountEur);
+    const totalAmountUsd = parseInt(select.User.use_amountUsd);
+    const totalAmountGbp = parseInt(select.User.use_amountGbp);
+    const formData = new FormData();
+    if (select.mov_currency === 'EUR') {
+      formData.append('use_amountEur', totalAmountEur - amount);
+    }
+    if (select.mov_currency === 'USD') {
+      formData.append('use_amountUsd', totalAmountUsd - amount);
+    }
+    if (select.mov_currency === 'GBP') {
+      formData.append('use_amountGbp', totalAmountGbp - amount);
+    }
+
+    try {
+      axios.put(
+        `https://apiremesa.up.railway.app/Users/${select.User.use_id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      console.log('Request send successfully');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleSubmitSendVerify = async event => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('mov_status', 'V');
+    formData.append('mov_accEurId', 0);
+    formData.append('mov_img', mov_img);
+    formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
+    formData.append('mov_accBsId', (payment === 'BS' ? parseInt(bankOptionPay) : 0));
+
+    try {
+      await axios.put(
+        `https://apiremesa.up.railway.app/Movements/${select.mov_id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Cerrar el modal
+      toggleModalEgreso();
+      toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
+        position: 'bottom-right',
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      handleSubmit();
+      fetchData();
+
       console.log('Request send successfully');
     } catch (error) {
       console.error('Error:', error);
@@ -242,8 +339,6 @@ function Dashboard() {
               </Col>
             </Row>
             <Row>
-            </Row>
-            <Row>
               <Col>
                 <table className="transaction-table">
                   <thead>
@@ -283,6 +378,7 @@ function Dashboard() {
           </Container>
         </div>
 
+        {/*  Ingreso */}
         <Modal centered isOpen={modalIngreso} size='lg' toggle={toggleModalIngreso}>
           <ModalHeader toggle={toggleModalIngreso}>Verificar Ingreso</ModalHeader>
           <ModalBody>
@@ -332,57 +428,109 @@ function Dashboard() {
           </ModalFooter>
         </Modal>
 
+        {/*  Egreso */}
         <Modal centered isOpen={modalEgreso} toggle={() => setModalEgreso(false)}>
-        <ModalHeader toggle={() => setModalEgreso(false)}>DATOS BANCARIOS</ModalHeader>
-        <ModalBody>
-          <Alert color="success">DATOS BANCARIOS</Alert>
-          <FormGroup>
-            <Label for="currency">Elige la Moneda</Label>
-            <Input disabled={showCommentBox} type="select" name="currency" id="currency">
-              <option value="bolivar">Bolívar</option>
-              <option value="dolar">Dólar</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="attachments">Adjuntar Archivo</Label>
-            <Input disabled={showCommentBox} type="file" name="attachments" id="attachments" multiple />
-            <FormText color="muted">
-              Puede seleccionar más de un archivo.
-            </FormText>
-          </FormGroup>
-          {showCommentBox && (
-            <FormGroup>
-              <Label for="comment">Comentario</Label>
-              <Input type="textarea" name="comment" id="comment" />
-            </FormGroup>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          {!showCommentBox ? (
-            <>
-              <Button color="danger" onClick={() => setShowCommentBox(true)}>
-                Rechazar
-              </Button>
+          <ModalHeader toggle={() => setModalEgreso(false)}>Generar retiro</ModalHeader>
+          <ModalBody>
+            <Alert color="success">
+              <h4 className="alert-heading">
+                Datos bancarios:
+              </h4>
+              <p>
+                {select && select.mov_comment}
+              </p>
 
-              <Button color="success" onClick={() => setModalEgreso(false)}>
-                Enviar
-              </Button>
-              <Button color="primary" onClick={() => setModalEgreso(false)}>
-                Cancelar
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button color="warning" onClick={() => setModalEgreso(false)}>
-                Enviar (Rechazado)
-              </Button>
-              <Button color="secondary" onClick={() => setShowCommentBox(false)}>
-                Volver
-              </Button>
-            </>
-          )}
-        </ModalFooter>
-      </Modal>
+            </Alert>
+            <FormGroup>
+              <Label for="amount">Monto a transferir</Label>
+              <Input type="text" name="amount" id="amount" disabled defaultValue={select && `${select.mov_amount}`} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="currency">Elige la Moneda</Label>
+              <Input
+                type="select"
+                id="payment"
+                defaultValue={payment}
+                onChange={(e) => setPayment(e.target.value)}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="BS">Bolívar</option>
+                <option value="USD">Dólar</option>
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label>Selecciona el Banco a transferir</Label>
+              <Input
+                type="select"
+                id="bankOptionPaySelect"
+                defaultValue={bankOptionPay}
+                disabled={payment === ''}
+                onChange={(e) => { setBankOptionPay(e.target.value) }}
+              >
+                <option value="">Selecciona una opción</option>
+                {payment === 'BS' ?
+                  banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
+                    return bank.accbs_bank ?
+                      <option value={bank.accbs_id}>{bank.accbs_bank}</option>
+                      : null
+                  })
+                  : payment === 'USD' ?
+                    banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
+                      return bank.accusd_Bank ?
+                        <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
+                        : null
+                    })
+                    : null
+                }
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label for="attachments">Adjuntar Archivo</Label>
+              <Input
+                disabled={showCommentBox}
+                type="file"
+                className="form-control-file"
+                name="attachments"
+                id="imageInput"
+                onChange={(e) => setMovImg(e.target.files[0])}
+              />
+            </FormGroup>
+            {showCommentBox && (
+              <FormGroup>
+                <Label for="comment">Comentario</Label>
+                <Input type="textarea" name="comment" id="comment" />
+              </FormGroup>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            {!showCommentBox ? (
+              <>
+                <Button color="danger" onClick={() => setShowCommentBox(true)}>
+                  Rechazar
+                </Button>
+
+                <Button color="success" onClick={handleSubmitSendVerify}>
+                  Enviar
+                </Button>
+                <Button color="primary" onClick={toggleModalEgreso}>
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button color="warning" onClick={handleSubmitCancel}>
+                  Enviar (Rechazado)
+                </Button>
+                <Button color="secondary" onClick={() => setShowCommentBox(false)}>
+                  Volver
+                </Button>
+                <Button color="primary" onClick={toggleModalEgreso}>
+                  Cancelar
+                </Button>
+              </>
+            )}
+          </ModalFooter>
+        </Modal>
 
         <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
           <ModalHeader toggle={toggleImageMov}>Verificación de imagén</ModalHeader>
@@ -399,7 +547,7 @@ function Dashboard() {
         <ToastContainer />
       </div>
       :
-      <NotFound404/>
+      <NotFound404 />
   );
 }
 

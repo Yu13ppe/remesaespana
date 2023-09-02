@@ -13,7 +13,6 @@ import {
   Alert,
   FormFeedback
 } from 'reactstrap';
-import { useLocation } from "react-router-dom";
 import { FaExclamationCircle } from 'react-icons/fa';
 import axios from 'axios';
 import changes from '../Assets/Images/changes.png'
@@ -30,7 +29,6 @@ import { Footer } from '../Components/Footer';
 import { NotFound404 } from '../Pages/NotFound404';
 
 function Changes() {
-  const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
   const [secondModalOpen, setSecondModalOpen] = useState(false);
   const [tridModalOpen, setTridModalOpen] = useState(false);
@@ -47,9 +45,6 @@ function Changes() {
   const [banksEUR, setBanksEUR] = useState([]);
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
-  // const [accEurId, setAccEurId] = useState();
-  // const [accUsdId, setAccUsdId] = useState();
-  // const [accGbpId, setAccGbpId] = useState();
   const { verifyData, logged, user, setUser, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
@@ -64,7 +59,6 @@ function Changes() {
     setReceiveAmount('');
     setSendOption('')
   };
-
   const toggleforthModal = () => {
     setForthModalOpen(!forthModalOpen);
     setPayment('');
@@ -156,7 +150,7 @@ function Changes() {
     formData.append('mov_accEurId', (payment === 'EUR' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accGbpId', (payment === 'GBP' ? parseInt(bankOptionPay) : 0));
-    formData.append('mov_userId', user.use_id); // Be sure to define 'user' somewhere
+    formData.append('mov_userId', user.use_id);
 
     try {
       await axios.post(
@@ -188,22 +182,28 @@ function Changes() {
   const handleSubmitSend = async event => {
     event.preventDefault();
 
+    const formData = new FormData();
+    formData.append('mov_currency', payment);
+    formData.append('mov_amount', sendAmount);
+    formData.append('mov_type', 'Retiro');
+    formData.append('mov_status', 'E');
+    formData.append('mov_comment', note);
+    formData.append('mov_img', "Retiro de Divisa");
+    formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
+    formData.append('mov_accUsdId', (payment === 'USD' ? 99 : 0));
+    formData.append('mov_accGbpId', (payment === 'GBP' ? 99 : 0));
+    formData.append('mov_userId', user.use_id);
+
     try {
       await axios.post(
         'https://apiremesa.up.railway.app/Movements/create',
+        formData,
         {
-          mov_currency: payment,
-          mov_amount: receiveAmount,
-          mov_ref: "aaaaaAAAAAA",
-          mov_type: "E",
-          mov_status: "E",
-          mov_acc: 1,
-          mov_comment: "Carga de Divisa",
-          mov_img,
-          mov_userId: location.state?.user.use_id
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
-
 
       toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
         position: 'bottom-right',
@@ -215,11 +215,9 @@ function Changes() {
         progress: undefined,
       });
 
-      // Cerrar el modal
-      toggleTridModal();
-
+      console.log('Request sent successfully');
     } catch (error) {
-      console.log(error);
+      console.error('Error:', error);
     }
   };
 
@@ -244,8 +242,6 @@ function Changes() {
           },
         }
       );
-
-      // Cerrar el modal
       toggleSecondModal();
       toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
         position: 'bottom-right',
@@ -376,35 +372,13 @@ function Changes() {
                           onChange={(e) => handleAmountChange(e)}
                           invalid={sendAmount !== "" && sendAmount <= 20} // Agrega el atributo invalid
                         />
-                        {sendAmount !== "" && sendAmount <= 20 && (
+                        {sendAmount !== "" && sendAmount < 20 && (
                           <FormFeedback>
                             El monto mínimo a retirar es de 20
                           </FormFeedback>
                         )}
                       </InputGroup>
                     </FormGroup>
-                    {/* <FormGroup>
-                    <Label for="receiveAmountInput">Monto a recibir en Bolívares</Label>
-                    <InputGroup>
-                      <Input
-                        type="text"
-                        id="receiveAmountInput"
-                        value={receiveAmount}
-                        disabled
-                      />
-                    </InputGroup>
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="receiveUsdAmountInput">Monto a recibir en Dolares</Label>
-                    <InputGroup>
-                      <Input
-                        type="text"
-                        id="receiveUsdAmountInput"
-                        value={receiveUsdAmount}
-                        disabled
-                      />
-                    </InputGroup>
-                  </FormGroup> */}
                     <FormGroup>
                       <Label>Ingresa tus datos bancarios</Label>
                       <Input

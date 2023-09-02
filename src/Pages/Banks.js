@@ -391,8 +391,9 @@ function Banks() {
                 </div>
               </div>
             </div>
+
             <div className="cards row m-4">
-              {filteredBanks.map(bank => (
+              {filteredBanks.filter((bank) => bank.acceur_Bank !== 'Ghost' && bank.accgbp_Bank !== 'Ghost' && bank.accusd_Bank !== 'Ghost').map(bank => (
                 <Col className="col">
                   <Card className='card mt-2 align-items-center'
                     onClick={() => {
@@ -504,7 +505,51 @@ function Banks() {
             }
           </ModalHeader>
           <ModalBody>
-
+            {selectModal.acceur_Bank &&
+              <div>
+                <h5>Detalles de la cuenta:</h5>
+                <ul>
+                  <li><strong>Banco:</strong> {selectModal.acceur_Bank}</li>
+                  <li><strong>Propietario:</strong> {selectModal.acceur_owner}</li>
+                  <li><strong>Número de cuenta:</strong> {selectModal.acceur_number}</li>
+                  <li><strong>NIE:</strong> {selectModal.acceur_nie}</li>
+                  <li><strong>Teléfono:</strong> {selectModal.acceur_phone}</li>
+                  <li><strong>Tipo:</strong> {selectModal.acceur_type}</li>
+                  <li><strong>Estado:</strong> {selectModal.acceur_status}</li>
+                  <li><strong>Saldo:</strong> {selectModal.acceur_balance}</li>
+                </ul>
+              </div>
+            }
+            {selectModal.accgbp_Bank &&
+              <div>
+                <h5>Detalles de la cuenta:</h5>
+                <ul>
+                  <li><strong>Banco:</strong> {selectModal.accgbp_Bank}</li>
+                  <li><strong>Propietario:</strong> {selectModal.accgbp_owner}</li>
+                  <li><strong>Número de cuenta:</strong> {selectModal.accgbp_number}</li>
+                  <li><strong>NIE:</strong> {selectModal.accgbp_nie}</li>
+                  <li><strong>Teléfono:</strong> {selectModal.accgbp_phone}</li>
+                  <li><strong>Tipo:</strong> {selectModal.accgbp_type}</li>
+                  <li><strong>Estado:</strong> {selectModal.accgbp_status}</li>
+                  <li><strong>Saldo:</strong> {selectModal.accgbp_balance}</li>
+                </ul>
+              </div>
+            }
+            {selectModal.accusd_Bank &&
+              <div>
+                <h5>Detalles de la cuenta:</h5>
+                <ul>
+                  <li><strong>Banco:</strong> {selectModal.accusd_Bank}</li>
+                  <li><strong>Propietario:</strong> {selectModal.accusd_owner}</li>
+                  <li><strong>Número de cuenta:</strong> {selectModal.accusd_number}</li>
+                  <li><strong>NIE:</strong> {selectModal.accusd_nie}</li>
+                  <li><strong>Teléfono:</strong> {selectModal.accusd_phone}</li>
+                  <li><strong>Tipo:</strong> {selectModal.accusd_type}</li>
+                  <li><strong>Estado:</strong> {selectModal.accusd_status}</li>
+                  <li><strong>Saldo:</strong> {selectModal.accusd_balance}</li>
+                </ul>
+              </div>
+            }
           </ModalBody>
           <ModalFooter>
             {
