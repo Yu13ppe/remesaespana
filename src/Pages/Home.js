@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom'
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
-  const { setCurrencyPrice } = useDataContext();
+  const { currencyPrice, setCurrencyPrice } = useDataContext();
 
   const handleCurrencyChange = () => {
     if (currencyImage === Spain) {
@@ -72,11 +72,11 @@ function Home() {
             </Button>
             {currencyImage === Spain ?
               <Input disabled className='centered-input'
-                placeholder={'           1  =  ' + 33}
+                placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
               />
               : null
             }
-            {/* {currencyImage === Uk ?
+            {currencyImage === Uk ?
               <Input disabled
                 placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_GbpToBs))}
               />
@@ -87,7 +87,7 @@ function Home() {
                 placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_UsdToBs))}
               />
               : null
-            } */}
+            }
             <Button>
               Bs <img src={Venezuela} alt='Venezuela' width={45} />
             </Button>
@@ -236,11 +236,12 @@ function Home() {
             <div className="container">
 
               <div className="section-title">
+                <p>Si tienes alguna duda o sugerencia, no dudes en contactarnos.</p>
               </div>
 
               <div className="row mt-2">
 
-                <div className="col-md-6 d-flex align-items-stretch">
+                <div className="col-md-12 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className="icon">
                       <FaRegClock style={{ fontSize: '30px' }} />
@@ -253,7 +254,7 @@ function Home() {
                 </div>
 
 
-                <div className="col-md-6 mt-4 mt-md-0 d-flex align-items-stretch">
+                <div className="col-md-12 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
                       <FaSlackHash style={{ fontSize: '30px' }} />
@@ -271,7 +272,7 @@ function Home() {
                   </div>
                 </div>
 
-                <div className="col-md-6 mt-4 d-flex align-items-stretch">
+                <div className="col-md-12 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
                       <FaRegEnvelope style={{ fontSize: '30px' }} />
@@ -282,20 +283,20 @@ function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="col-md-6 mt-4 d-flex align-items-stretch">
+                <div className="col-md-12 d-flex align-items-stretch">
                   <div className="info-box">
                     <div className='icon'>
                       <FaPhone style={{ fontSize: '30px' }} />
                     </div>
                     <div className='info'>
                       <h3>Call Me</h3>
-                      <p>+58 424 672 5408 </p>
+                      <p>+34 722 850962</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <form className="php-email-form mt-4" name="contact-jp" method="POST" data-netlify="true">
+              {/* <form className="php-email-form mt-4" name="contact-jp" method="POST" data-netlify="true">
                 <div className="row">
                   <div className="col-md-6 form-group">
                     <Input type="text" name="name" className="form-control" id="name" placeholder="Your Name" required />
@@ -316,7 +317,7 @@ function Home() {
                   <div className="sent-message">Your message has been sent. Thank you!</div>
                 </div>
                 <div className="text-center"><button type="submit" value="send" name="send">Send Message</button></div>
-              </form>
+              </form> */}
             </div>
           </div>
         </section>

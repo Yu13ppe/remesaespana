@@ -57,7 +57,11 @@ function Changes() {
     setTridModalOpen(!tridModalOpen);
     setPayment('');
     setReceiveAmount('');
-    setSendOption('')
+    setSendOption('');
+    setSendAmount('');
+    setBankOptionPay('');
+    setPayment('');  
+    setNote('')
   };
   const toggleforthModal = () => {
     setForthModalOpen(!forthModalOpen);
@@ -370,7 +374,7 @@ function Changes() {
                           defaultValue={sendAmount}
                           disabled={payment === ''}
                           onChange={(e) => handleAmountChange(e)}
-                          invalid={sendAmount !== "" && sendAmount <= 20} // Agrega el atributo invalid
+                          invalid={sendAmount !== "" && sendAmount < 20} // Agrega el atributo invalid
                         />
                         {sendAmount !== "" && sendAmount < 20 && (
                           <FormFeedback>
@@ -392,11 +396,6 @@ function Changes() {
                         <option value="Efectivo">Efectivo (Dolares)</option>
                         <option value="Cuenta Bancaria">Cuenta Bancaria</option>
                         <option value="Pago Movil">Pago Móvil</option>
-                        {/* {sendAmount !== "" && sendAmount <= 20 && (
-                        <FormFeedback>
-                          El monto mínimo es de 20$
-                        </FormFeedback>
-                      )} */}
                       </Input>
                     </FormGroup>
                     {
@@ -442,7 +441,7 @@ function Changes() {
                             <Input
                               type="text"
                               id="receiveAmountInput"
-                              value={receiveAmount}
+                              value={parseInt(receiveAmount)}
                               disabled
                             />
                           </InputGroup>
@@ -462,7 +461,7 @@ function Changes() {
                         onChange={(e) => setNote(e.target.value)}
                       />
                     </FormGroup>
-                    <Button onClick={handleSubmitSend} color="primary">
+                    <Button disabled={payment === '' || sendOption === '' ||  note === '' ||  sendAmount === "" || sendAmount < 20} onClick={handleSubmitSend} className='btn col-md-12' color="primary">
                       Enviar
                     </Button>
                   </Form>
@@ -496,10 +495,16 @@ function Changes() {
                           type="number"
                           id="sendAmount"
                           placeholder="Ej. 100"
-                          value={sendAmount}
+                          defaultValue={sendAmount}
                           disabled={payment === ''}
-                          onChange={(e) => setSendAmount(e.target.value)}
+                          onChange={(e) => handleAmountChange(e)}
+                          invalid={sendAmount !== "" && sendAmount < 20} // Agrega el atributo invalid
                         />
+                        {sendAmount !== "" && sendAmount < 20 && (
+                          <FormFeedback>
+                            El monto mínimo a retirar es de 20
+                          </FormFeedback>
+                        )}
                       </InputGroup>
                     </FormGroup>
 
@@ -603,7 +608,7 @@ function Changes() {
                       />
                     </FormGroup>
 
-                    <Button disabled={payment === '' || mov_img === '' || sendAmount === ''} color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
+                    <Button disabled={payment === '' || mov_img === '' || sendAmount === '' || sendAmount === "" || sendAmount < 20} color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
                       Enviar
                     </Button>
                   </Form>
