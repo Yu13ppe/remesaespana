@@ -167,6 +167,7 @@ function Changes() {
         }
       );
 
+      toggleforthModal();
       toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
         position: 'bottom-right',
         autoClose: 10000,
@@ -209,6 +210,7 @@ function Changes() {
         }
       );
 
+      toggleTridModal();
       toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
         position: 'bottom-right',
         autoClose: 10000,

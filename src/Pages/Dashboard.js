@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   Container,
@@ -33,17 +33,24 @@ function Dashboard() {
   const [modalEgreso, setModalEgreso] = useState(false);
   const toggleModalEgreso = () => setModalEgreso(!modalEgreso);
 
+  const [totalEur, setTotalEur] = useState([]);
+  const [totalUsd, setTotalUsd] = useState([]);
+  const [totalGbp, setTotalGbp] = useState([]);
+  const [totalBs, setTotalBs] = useState([]);
+
+
+  const [day, setDay] = useState(new Date().getDate().toString())
+  const [month, setMonth] = useState((new Date().getMonth() + 1).toString())
+  const [year, setYear] = useState(new Date().getFullYear().toString())
+
   const [payment, setPayment] = useState('');
 
   const [showCommentBox, setShowCommentBox] = useState(false);
-
 
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [banksBs, setBanksBS] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
   const [mov_img, setMovImg] = useState(null);
-
-  const [amount, setAmount] = useState(Number)
 
   const [modalImageMov, setModalImageMov] = useState(false);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
@@ -54,18 +61,15 @@ function Dashboard() {
       toggleModalIngreso();
     } else if (move.mov_type === 'Retiro') {
       toggleModalEgreso();
-      setAmount(parseInt(move.mov_amount))
     }
     setSelect(move);
     setModal(!modal);
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchDataUsers();
-    fetchDataAccBs();
-    fetchDataAccUsd();
-  }, []);
+  const addZeros = Number => {
+    if (Number.toString().length < 1) return "0".concat(Number)
+    return Number;
+  }
 
   const fetchData = async () => {
     try {
@@ -75,7 +79,6 @@ function Dashboard() {
       console.log(error);
     }
   };
-
   const fetchDataUsers = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Users');
@@ -84,7 +87,6 @@ function Dashboard() {
       console.log(error);
     }
   };
-
   const fetchDataAccBs = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/AccBs');
@@ -101,13 +103,73 @@ function Dashboard() {
       console.log(error);
     }
   };
+  const fetchDataTotalEur = useCallback(async () => {
+    const nowDay = new Date().getDate();
+    const nowMonth = new Date().getMonth();
+    const nowYear = new Date().getFullYear();
+    setDay(addZeros(nowDay));
+    setMonth(addZeros(nowMonth));
+    setYear(nowYear);
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${year}-${month.length<2?'0'.concat(month):month}-${day.length<2?'0'.concat(day):day}/`);
+      setTotalEur(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setTotalEur, setDay, setMonth, setYear, day, month, year]);
+  const fetchDataTotalGbp = useCallback(async () => {
+    const nowDay = new Date().getDate();
+    const nowMonth = new Date().getMonth();
+    const nowYear = new Date().getFullYear();
+    setDay(addZeros(nowDay));
+    setMonth(addZeros(nowMonth));
+    setYear(nowYear);
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalgbp/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      setTotalGbp(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setTotalGbp, setDay, setMonth, setYear, day, month, year]);
+  const fetchDataTotalUsd = useCallback(async () => {
+    const nowDay = new Date().getDate();
+    const nowMonth = new Date().getMonth();
+    const nowYear = new Date().getFullYear();
+    setDay(addZeros(nowDay));
+    setMonth(addZeros(nowMonth));
+    setYear(nowYear);
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalusd/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      setTotalUsd(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setTotalUsd, setDay, setMonth, setYear, day, month, year]);
+  const fetchDataTotalBs = useCallback(async () => {
+    const nowDay = new Date().getDate();
+    const nowMonth = new Date().getMonth();
+    const nowYear = new Date().getFullYear();
+    setDay(addZeros(nowDay));
+    setMonth(addZeros(nowMonth));
+    setYear(nowYear);
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalbs/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      setTotalBs(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setTotalBs, setDay, setMonth, setYear, day, month, year]);
 
-  const data = {
-    totalUsers: 100,
-    totalEuros: 15000,
-    verifiedUsers: 75,
-    totalBolivars: 4500000,
-  };
+  useEffect(() => {
+    fetchData();
+    fetchDataUsers();
+    fetchDataAccBs();
+    fetchDataAccUsd();
+    fetchDataTotalEur();
+    fetchDataTotalGbp();
+    fetchDataTotalUsd();
+    fetchDataTotalBs();
+  }, [fetchDataTotalEur,fetchDataTotalGbp,fetchDataTotalUsd,fetchDataTotalBs]);
 
   const handleSubmitSummary = () => {
 
@@ -147,13 +209,13 @@ function Dashboard() {
     const totalAmountGbp = parseInt(select.User.use_amountGbp);
     const formData = new FormData();
     if (select.mov_currency === 'EUR') {
-      formData.append('use_amountEur', totalAmountEur - amount);
+      formData.append('use_amountEur', totalAmountEur);
     }
     if (select.mov_currency === 'USD') {
-      formData.append('use_amountUsd', totalAmountUsd - amount);
+      formData.append('use_amountUsd', totalAmountUsd);
     }
     if (select.mov_currency === 'GBP') {
-      formData.append('use_amountGbp', totalAmountGbp - amount);
+      formData.append('use_amountGbp', totalAmountGbp);
     }
 
     try {
@@ -319,22 +381,28 @@ function Dashboard() {
                   </div>
                 </Link>
               </Col>
-              <Col md="6" lg="4">
+              <Col md="6" lg="3">
                 <div className="stat-box total-euros">
                   <h2>Total Euros</h2>
-                  <p>{data.totalEuros}</p>
+                  <p>{totalEur.totalIn - totalEur.totalOut}</p>
                 </div>
               </Col>
-              <Col md="6" lg="4" >
-                <div className="stat-box total-bolivars">
-                  <h2>Total Bolivars</h2>
-                  <p>{data.totalBolivars}</p>
+              <Col md="6" lg="3">
+                <div className="stat-box total-euros">
+                  <h2>Total Libras</h2>
+                  <p>{totalGbp.totalIn - totalGbp.totalOut}</p>
                 </div>
               </Col>
-              <Col md="6" lg="4" >
+              <Col md="6" lg="3" >
                 <div className="stat-box total-bolivars">
-                  <h2>Total Bolivars</h2>
-                  <p>{data.totalBolivars}</p>
+                  <h2>Total Dolares</h2>
+                  <p>{totalUsd.totalIn - totalUsd.totalOut}</p>
+                </div>
+              </Col>
+              <Col md="6" lg="3" >
+                <div className="stat-box total-bolivars">
+                  <h2>Total Bolivares</h2>
+                  <p>{totalBs.totalIn - totalBs.totalOut}</p>
                 </div>
               </Col>
             </Row>
@@ -532,6 +600,7 @@ function Dashboard() {
           </ModalFooter>
         </Modal>
 
+        {/* Modal De Imagen Movimientos */}
         <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
           <ModalHeader toggle={toggleImageMov}>Verificación de imagén</ModalHeader>
           <ModalBody>

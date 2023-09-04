@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react'
 import {
   Button,
   Table,
-  // Modal,
-  // ModalBody,
-  // ModalFooter,
-  // ModalHeader,
   Input
 } from 'reactstrap'
-import { ToastContainer, 
-  // toast 
+import {
+  ToastContainer,
 } from 'react-toastify';
 import axios from 'axios'
 import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai'
@@ -19,6 +15,10 @@ import { NavBar } from '../Components/NavBar';
 function Relation() {
   const { isAdmin } = useDataContext();
   const [movement, setMovements] = useState([]);
+  // const [totalEur, setTotalEur] = useState([]);
+  // const [date, setDate] = useState('');
+  // const [accId, setAccId] = useState('');
+
 
   const [modalImageUser, setModalImageUser] = useState(false);
   // const [select, setSelect] = useState([])
@@ -26,66 +26,38 @@ function Relation() {
 
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
 
-  // const filteredUsuarios = movement.filter(bal => {
-  //   const fullName = `${bal.bal_currency} ${bal.AccountsEur} ${bal.AccountsGbp} ${bal.AccountsUsd}`.toLowerCase();
-  //   return fullName.includes(searchQuery.toLowerCase());
-  // });
+  const filteredRelation = movement.filter(mov => {
+    const fullName = `${mov.mov_currency} ${mov.AccountsEur} ${mov.AccountsGbp} ${mov.AccountsUsd} ${mov.mov_date}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
 
   const handleSearch = event => {
     setSearchQuery(event.target.value);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/movements');
-      setMovements(response.data);
+      const movements = response.data;
+      setMovements(movements);
+      // fetchDataTotalEur(movements);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const combinedSummary = movement.reduce((summary, item) => {
-    if (item.mov_type === "Deposito" || item.mov_type === "Retiro") {
-      const bankKey = item.AccountsEur
-        ? item.AccountsEur.acceur_Bank
-        : item.AccountsGbp
-          ? item.AccountsGbp.accgbp_Bank
-          : item.AccountsUsd.accusd_Bank;
-          const bankTotal = item.AccountsEur
-          ? item.AccountsEur.acceur_balance
-          : item.AccountsGbp
-            ? item.AccountsGbp.accgbp_balance
-            : item.AccountsUsd.accusd_balance;
+  // const fetchDataTotalEur = async (date, accId) => {
+  //   try {
+  //     const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${date}/${accId}`);
+  //     setTotalEur(response.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-      const currency = item.mov_currency;
-      const id = item.mov_id;
-      const total = bankTotal;
-      const date = item.mov_date;
-
-      if (!summary[bankKey]) {
-        summary[bankKey] = {
-          totalDeposit: 0,
-          totalWithdrawal: 0,
-          currency: currency,
-          id: id,
-          total: total,
-          date: date,
-        };
-      }
-
-      if (item.mov_type === "Deposito") {
-        summary[bankKey].totalDeposit += item.mov_amount;
-      } else if (item.mov_type === "Retiro") {
-        summary[bankKey].totalWithdrawal += item.mov_amount;
-      }
-    }
-
-    return summary;
-  }, {});
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     isAdmin ?
@@ -125,35 +97,40 @@ function Relation() {
             </thead>
             <tbody>
               {
-                Object.keys(combinedSummary).map((bankKey) => {
-                  const bankInfo = combinedSummary[bankKey];
+                filteredRelation.map((move) => {
+                  // let date = "";
+                  // let accId = "";
+
+                  // if (move.mov_currency === 'EUR') {
+                  //   date = move.mov_date;
+                  //   accId = move.AccountsEur.acceur_id;
+                  //   fetchDataTotalEur(date, accId);
+                  // } else if (move.mov_currency === 'GBP') {
+                  //   accId = move.AccountsGbp.accgbp_id;
+                  // } else if (move.mov_currency === 'USD') {
+                  //   accId = move.AccountsUsd.accusd_id;
+                  // }
+
                   return (
-                    <tr key={bankKey}>
-                      <th scope="row">{bankInfo.id}</th>
-                      <th>{bankKey}</th>
-                      <td>{bankInfo.currency === 'EUR' && <span>{bankInfo.currency} <AiOutlineEuro style={{ fontSize: "2em" }}/></span>} 
-                      {bankInfo.currency === 'GBP' && <span>{bankInfo.currency} <AiOutlinePound style={{ fontSize: "2em" }}/></span>} 
-                      {bankInfo.currency === 'USD' && <span>{bankInfo.currency} <AiOutlineDollar style={{ fontSize: "2em" }}/></span>}
+                    <tr key={move.mov_id}>
+                      <th scope="row">{move.mov_id}</th>
+                      <td>{move.mov_currency === 'EUR' ? move.AccountsEur?.acceur_Bank : move.AccountsGbp?.accgbp_Bank || move.AccountsUsd?.accusd_Bank}</td>
+                      <td>
+                        {move.mov_currency === 'EUR' && <span>{move.mov_currency} <AiOutlineEuro style={{ fontSize: "2em" }} /></span>}
+                        {move.mov_currency === 'GBP' && <span>{move.mov_currency} <AiOutlinePound style={{ fontSize: "2em" }} /></span>}
+                        {move.mov_currency === 'USD' && <span>{move.mov_currency} <AiOutlineDollar style={{ fontSize: "2em" }} /></span>}
                       </td>
-                      <td>{bankInfo.totalDeposit}</td>
-                      <td>{bankInfo.totalWithdrawal}</td>
-                      <td>{bankInfo.total}</td>
-                      <td>{bankInfo.date}</td>
+                      {/* <td>{totalEur ? totalEur.totalIn : 72}</td>
+                      <td>{totalEur ? totalEur.totalOut : 72}</td>
+                      <td>{totalEur ? totalEur.totalIn - totalEur.totalOut : 72}</td> */}
+                      <td>{move.mov_date}</td>
                       <td>
                         <Button color='primary' onClick={() => toggleImageUser()}>
                           Ver detalles
                         </Button>
                       </td>
-                      {/* <td>
-                        <Button className='mr-5' color="warning">
-                          Editar
-                        </Button>
-                        <Button color="danger" id="PopoverLegacy" type="button">
-                          Eliminar
-                        </Button>
-                      </td> */}
                     </tr>
-                  );
+                  )
                 })
               }
             </tbody>

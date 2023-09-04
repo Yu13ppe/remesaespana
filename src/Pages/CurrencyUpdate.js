@@ -13,6 +13,8 @@ import Spain from '../Assets/Images/spain.png'
 import Uk from '../Assets/Images/uk.png'
 import Usa from '../Assets/Images/usa.png'
 import Venezuela from '../Assets/Images/venezuela.png'
+import { Footer } from '../Components/Footer';
+
 
 function CurrencyUpdate() {
   const { isAdmin } = useDataContext();
@@ -78,10 +80,14 @@ function CurrencyUpdate() {
     isAdmin ? (
       <div>
         <NavBar />
+
+        <div className='currencyContainer'>
         {/* Cambios */}
-        <div className='changes'>
+
+        <div className='currency'>
           {currencyPrice.map((coin) => {
-            return (<div>
+            return (
+            <div className="input-group-container">
               <InputGroup className='Change-Input1'>
                 <Button>
                   <img src={Spain} width={45} alt='Spain' />
@@ -155,19 +161,26 @@ function CurrencyUpdate() {
                 <Button >
                   Bs <img src={Usa} alt='USA' width={45} />
                 </Button>
+
+                
               </InputGroup>
 
-              <Button color='success' onClick={handleEdit}>
-                Actualizar
-              </Button>
+              
             </div>
             )
           })}
-
+<Button clasName='update-button' style={{ width: '200px', height: '200px', margin: 'auto'}} color='success' onClick={handleEdit}>
+                Actualizar
+              </Button>
           <ToastContainer />
+          
         </div>
+        
       </div>
-    )
+      <Footer/>
+      </div>
+       
+    ) 
       : <NotFound404 />
   )
 }

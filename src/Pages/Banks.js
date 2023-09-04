@@ -319,7 +319,7 @@ function Banks() {
       Component: BBVA
     },
     {
-      name: "SANTANDER",
+      name: "Santander",
       Component: SANTANDER
     },
     {
@@ -386,7 +386,7 @@ function Banks() {
                     className="btn btn-primary"
                     onClick={toggle}
                   >
-                    Agregar Usuario
+                    Agregar cuenta
                   </button>
                 </div>
               </div>
@@ -636,7 +636,7 @@ function Banks() {
                     >
                       <option value="">Selecciona una opción</option>
                       <option value="BBVA">BBVA</option>
-                      <option value="SANTANDER">SANTANDER</option>
+                      <option value="SANTANDER">Santander</option>
                       <option value="Revolut">Revolut</option>
                       <option value="Wise">Wise</option>
                       <option value="Cajamar">Cajamar</option>

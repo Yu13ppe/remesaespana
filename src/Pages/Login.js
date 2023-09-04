@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import '../Assets/scss/_Login.scss';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import slogan from '../Assets/Images/sloganremesa.png';
-import { Input } from 'reactstrap';
+import { Input, Alert } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
 import { useDataContext } from '../Context/dataContext';
+import { FaUser, FaLock, } from 'react-icons/fa';
 
 function Login() {
   const history = useHistory();
@@ -14,7 +14,9 @@ function Login() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const {setVerifyData, setLogged, setUser} = useDataContext();
+  const { setVerifyData, setLogged, setUser } = useDataContext();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [inputDisabled, setInputDisabled] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -35,18 +37,20 @@ function Login() {
 
     if (attemps === 0) {
       setError("Has superado el número de intentos. Intenta más tarde.");
+      setAlertVisible(true);
+      setInputDisabled(true);
     }
     else if (user) {
       // Si se encuentra el usuario, cambia de ventana
       const user = users.find(user => user.use_email === use_email);
-      
-      if (user.use_verif === "s" || user.use_verif === "S"){
+
+      if (user.use_verif === "s" || user.use_verif === "S") {
         setVerifyData(true);
         setLogged(true);
         setUser(user);
         history.push({
           pathname: "/Changes",
-          state:{
+          state: {
             user: user,
           }
         });
@@ -64,50 +68,74 @@ function Login() {
     else {
       // Si no se encuentra el usuario, establece un mensaje de error
       setAttemps(attemps - 1);
-      setError(`Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`);
+      const error = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
+      setError(error);
+      setAlertVisible(true);
     }
   };
 
-  
-
-  
-
-
   return (
     <div className="LoginBody">
-      <div className="card-logintop">
-        <img className="slogan" src={slogan} alt="slogan" />
-        <p className="parrafo-login">¿No tienes cuenta aún? <Link to='/Register' id='RegisterA'>¡Regístrate!</Link></p>
-      </div>
-      <div className="card-logintop2"></div>
-      <div className="card-login">
-        <img className="logo" src={remesalogo} alt="Logo" />
-        <form className="form" onSubmit={handleSubmit}>
-          {error && <div className="error">{error}</div>}
-          <Input
-            className='containerCorreo'
-            type="email"
-            value={use_email}
-            onChange={(e) => setEmail(e.target.value)}
-            name="email"
-            id="exampleEmail"
-            placeholder="Introduzca su correo"
-          />
-          <Input
-            className='containerPassword'
-            id="examplePassword"
-            name="password"
-            placeholder="Introduzca su contraseña"
-            type="password"
-            value={use_password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit" className='botonInicio btnLogin'>
-            Iniciar Sesión
-          </button>
-        </form>
-        <div>
-          <Link className="Recover" to="/Recover">¿Olvidaste la contraseña?</Link>
+      <div>
+        <div className="card-logintop">
+          <img className="slogan" src={slogan} alt="slogan" />
+          <p className="parrafo-login">¿No tienes cuenta aún? <Link to='/Register' id='RegisterA'>¡Regístrate!</Link></p>
+        </div>
+        <div className="card-logintop2"></div>
+        <div className="card-login">
+          <Link to='/'>
+            <img className="logo" src={remesalogo} alt="Logo" />
+          </Link>
+          <form className="form" onSubmit={handleSubmit}>
+            {error && (
+              <Alert color="danger" isOpen={alertVisible}>
+                {error}
+                <br></br>
+                <Link to="/Recover" className="recover-link">
+                  Recuperar contraseña
+                </Link>
+              </Alert>)}
+            <div className="container">
+              <div className='row col-12'>
+                <div className='d-flex align-items-center col-12'>
+                  <FaUser style={{ paddingBottom: '15px', fontSize: '45px' }} />
+                  <Input
+                    className={`containerCorreo ${inputDisabled ? 'disabled' : ''}`}
+                    type="email"
+                    value={use_email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    id="exampleEmail"
+                    placeholder="Introduzca su correo"
+                    disabled={inputDisabled}
+                  />
+
+                </div>
+              </div>
+
+              <div className='row col-12'>
+                <div className='d-flex align-items-center col-12'>
+                  <FaLock style={{ paddingBottom: '20px', fontSize: '45px' }} />
+                  <Input
+                    className={`containerPassword ${inputDisabled ? 'disabled' : ''}`}
+                    id="examplePassword"
+                    name="password"
+                    placeholder="Introduzca su contraseña"
+                    type="password"
+                    value={use_password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={inputDisabled}
+                  />
+                </div>
+              </div>
+            </div>
+            <button type="submit" className='botonInicio btnLogin'>
+              Iniciar Sesión
+            </button>
+          </form>
+          <div>
+            <Link className="Recover" to="/Recover">¿Olvidaste la contraseña?</Link>
+          </div>
         </div>
       </div>
     </div>
@@ -115,32 +143,3 @@ function Login() {
 }
 
 export { Login };
-
-// [
-  // {
-    // "use_id": 1,
-    // "use_name": "jose",
-    // "use_lastName": "Portillo",
-    // "use_NIE": "21",
-    // "use_passport": "22",
-    // "use_email": "portillo@gmail.com",
-    // "use_password": "123456",
-    // "use_phone": "+584246725408",
-    // "use_img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPzUTvJZ94s19RtrtopITO8mpFhxBRG8Cha2qCBLE81utxC1kNonfiBCHM1faMiNGo6Ug&usqp=CAU",
-    // "use_verif": "n",
-  //   "use_amount": 1
-  // },
-//   {
-//     "use_id": 2,
-//     "use_name": "julio",
-//     "use_lastName": "pacheco",
-//     "use_NIE": "23",
-//     "use_passport": "24",
-//     "use_email": "pacheco@gmail.com",
-//     "use_password": "123456",
-//     "use_phone": "+584246725408",
-//     "use_img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkVwaoNVWKuqyuGEK7KfrCufT15nZ-6TRlTg&usqp=CAU",
-//     "use_verif": "s",
-//     "use_amount": 1
-//   }
-// ]

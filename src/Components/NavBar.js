@@ -14,6 +14,7 @@ function NavBar() {
 
   return (
     <div className='Nav'>
+      <Link to='/'>
       <div className='nav__logo'>
         <img src={logo}
           alt='remesaespana'
@@ -22,6 +23,7 @@ function NavBar() {
           alt='sloganremesaespana'
         />
       </div>
+      </Link>
       <div className='MenuPrincipal'>
         <div className='menu' onClick={() => setMenuOpen(!menuOpen)}>
           <span></span>
@@ -73,8 +75,8 @@ function NavBar() {
               <Link className='' to='/Faqs'>
                 <li className=''>Faqs</li>
               </Link>
-              <a className='' href='#hero2'
-              ><li className=''>Contacto</li>
+              <a className='' href='/#hero2'>
+                <li className=''>Contacto</li>
               </a>
               <Link className='' to='/Login'>
                 <Button className='log-btn'>Ingresar</Button>

@@ -34,44 +34,39 @@ function Movements() {
             <th>#</th>
             <th>Monda</th>
             <th>Monto</th>
-            <th>Referencia</th>
             <th>Tipo</th>
             <th>Estado</th>
-            <th>Banco</th>
             <th>Fecha</th>
             <th>Imagen</th>
           </tr>
         </thead>
         <tbody>
-          {movements.filter((move)=> move.User.use_id === user.use_id).map((move) => (
+          {movements.filter((move) => move.User.use_id === user.use_id).map((move) => (
             // move.User.use_id === user.use_id ?
-              <tr key={move.mov_id}>
-                <th scope="row">{move.mov_id}</th>
-                <td>{move.mov_currency}</td>
-                <td>{move.mov_amount}</td>
-                <td>{move.mov_ref}</td>
-                <td>{move.mov_type}</td>
-                <td>{move.mov_status}</td>
-                <td>{move.mov_acc}</td>
-                <td>{move.mov_date}</td>
-                <td>
-                  {move.mov_img ?
-                    <Button
-                      color='primary'
-                      onClick={() => {
-                        toggleImageMov();
-                        setSelect(move);
-                        console.log(select)
-                      }}>
-                      Ver Imagen
-                    </Button>
-                    :
-                    <p>No se encontraron resultados</p>
-                  }
-                </td>
-              </tr>
-              // :
-              // null
+            <tr key={move.mov_id}>
+              <th scope="row">{move.mov_id}</th>
+              <td>{move.mov_currency}</td>
+              <td>{move.mov_amount}</td>
+              <td>{move.mov_type}</td>
+              <td>{move.mov_status}</td>
+              <td>{move.mov_date}</td>
+              <td>
+                {move.mov_img ?
+                  <Button
+                    color='primary'
+                    onClick={() => {
+                      toggleImageMov();
+                      setSelect(move);
+                    }}>
+                    Ver Imagen
+                  </Button>
+                  :
+                  <p>No se encontraron resultados</p>
+                }
+              </td>
+            </tr>
+            // :
+            // null
           ))}
         </tbody>
       </Table>
@@ -79,7 +74,7 @@ function Movements() {
       <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
         <ModalHeader toggle={toggleImageMov}>{user.use_name} {user.use_lastName}</ModalHeader>
         <ModalBody>
-          <img style={{width: '100%'}} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${select.mov_img}`} />
+          <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${select.mov_img}`} />
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggleImageMov}>

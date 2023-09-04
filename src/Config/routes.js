@@ -1,7 +1,6 @@
 import { Login } from '../Pages/Login';
 import { Home } from '../Pages/Home';
 import { Faqs } from '../Pages/Faqs';
-import { Verification } from '../Pages/Verification';
 import { Recover } from '../Pages/Recover';
 import { Register } from '../Pages/Register';
 import { Changes } from '../Pages/Changes';
@@ -87,12 +86,6 @@ const routes = [
         title: 'Changes',
         path: '/Changes',
         component: Changes,
-        exact: true
-    },
-    {
-        title: 'Verification',
-        path: '/Verification',
-        component: Verification,
         exact: true
     },
     {

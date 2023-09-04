@@ -14,7 +14,9 @@ import {
   FaRegClock,
   FaSlackHash,
   FaRegEnvelope,
-  FaPhone
+  FaPhone,
+  FaInstagram,
+  FaWhatsapp
 } from 'react-icons/fa';
 import Spain from '../Assets/Images/spain.png'
 import Uk from '../Assets/Images/uk.png'
@@ -92,9 +94,11 @@ function Home() {
               Bs <img src={Venezuela} alt='Venezuela' width={45} />
             </Button>
           </InputGroup>
+          <Link to='/Login'>
           <Button className='letsGo'>
             ¡HAZLO YA!
           </Button>
+          </Link>
         </div>
       </div>
 
@@ -117,7 +121,7 @@ function Home() {
 
               <div class="card c3">
                 <div class="icon">
-                  <img src={Image2} alt='Image2'/>
+                  <img src={Image2} alt='Image2' />
                 </div>
                 <div class="info__description">
                   <p>Recibe tu Remesa en Pocos Minutos.</p>
@@ -127,7 +131,7 @@ function Home() {
 
               <div class="card c3">
                 <div class="icon">
-                  <img src={Image3} alt='Image3'/>
+                  <img src={Image3} alt='Image3' />
                 </div>
                 <div class="info__description">
                   <p>
@@ -141,7 +145,7 @@ function Home() {
 
               <div class="card c3">
                 <div class="icon">
-                  <img src={Image4} alt='Image4'/>
+                  <img src={Image4} alt='Image4' />
                 </div>
                 <div class="info__description">
                   <p>
@@ -170,7 +174,9 @@ function Home() {
             </div>
             <br></br>
             <div className="btn-container">
-              <button>Empieza ya</button>
+              <Link to='/Login'>
+                <Button>Empieza ya</Button>
+              </Link>
             </div>
           </div>
           <div className="img-card"></div>
@@ -220,7 +226,7 @@ function Home() {
               recomiendan y somos su empresa de envio más
               confiable.
             </p>
-            <a href="#about" className="btn-get-started scrollto">Empieza Con Nosotros</a>
+            <Link to='/Login' className="btn-get-started scrollto">Empieza Con Nosotros</Link>
           </div>
         </section>
       </div>
@@ -236,7 +242,9 @@ function Home() {
             <div className="container">
 
               <div className="section-title">
-                <p>Si tienes alguna duda o sugerencia, no dudes en contactarnos.</p>
+                <p style={{
+                  color: '#002a3a'
+                }}>Si tienes alguna duda o sugerencia, no dudes en contactarnos.</p>
               </div>
 
               <div className="row mt-2">
@@ -248,7 +256,7 @@ function Home() {
                     </div>
                     <div className="info">
                       <h3>Horario</h3>
-                      <p>Lunes a Sabado desde las 12:00-22:00</p>
+                      <p>Lunes a Sabado desde las 12:00-22:00 Hora española</p>
                     </div>
                   </div>
                 </div>
@@ -259,16 +267,25 @@ function Home() {
                     <div className='icon'>
                       <FaSlackHash style={{ fontSize: '30px' }} />
                     </div>
-                    <h3>Social Profiles</h3>
-                    <div className="social-links">
-                      <a href="https://www.t.me/yuseppe" className="telegram"><i className="bi bi-telegram"></i></a>
-                      <a href="https://www.facebook.com/josedaniel.portillofinol/" className="facebook"><i
-                        className="bi bi-facebook"></i></a>
-                      <a href="https://www.instagram.com/josed.portillo/" className="instagram"><i className="bi bi-instagram"></i></a>
+                    <div className='info'>
+                      <h3>Redes sociales</h3>
+                      <p>
+                        <a href='https://www.instagram.com/remesaespana/' className="instagram">
+                          <FaInstagram style={{ fontSize: '25px', marginTop: '.2em' }} />
+                        </a>
+                        <a href='https://www.instagram.com/remesaespana/' className="Whatsapp">
+                          <FaWhatsapp style={{ fontSize: '25px', marginTop: '.2em' }} />
+                        </a>
+                        <a href="mailto:remesaespana@hotmail.com" className="Email" target="_blank" rel="noopener noreferrer">
+                          <FaRegEnvelope style={{ fontSize: '25px', marginTop: '.2em' }} />
+                        </a>
+                      </p>
+                    </div>
+
+                    {/* <a href="https://www.instagram.com/josed.portillo/" className="instagram"><FaInstagram/></a>
                       <a href="https://api.whatsapp.com/send/?phone=%2B584246725408&text&type=phone_number&app_absent=0"
                         className="whatsapp"><i className="bi bi-whatsapp"></i></a>
-                      <a href="https://github.com/Yu13ppe" className="github"><i className="bi bi-github"></i></a>
-                    </div>
+                      <a href="https://github.com/Yu13ppe" className="github"><i className="bi bi-github"></i></a> */}
                   </div>
                 </div>
 
@@ -278,8 +295,8 @@ function Home() {
                       <FaRegEnvelope style={{ fontSize: '30px' }} />
                     </div>
                     <div className='info'>
-                      <h3>Email Me</h3>
-                      <p>joseportillo2002.jdpf@gmail.com</p>
+                      <h3>Correo electrónico</h3>
+                      <p>remesaespana@hotmail.com</p>
                     </div>
                   </div>
                 </div>
@@ -289,7 +306,7 @@ function Home() {
                       <FaPhone style={{ fontSize: '30px' }} />
                     </div>
                     <div className='info'>
-                      <h3>Call Me</h3>
+                      <h3>Número teléfonico</h3>
                       <p>+34 722 850962</p>
                     </div>
                   </div>
