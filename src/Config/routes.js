@@ -20,97 +20,81 @@ const routes = [
         title: 'UserVerificated',
         path: '/UserVerificated',
         component: UserVerificated,
-        exact: true
     },
     {
         title: 'Relation',
         path: '/Relation',
         component: Relation,
-        exact: true
     },
     {
         title: 'UserNoVerificated',
         path: '/UserNoVerificated',
         component: UserNoVerificated,
-        exact: true
     },
     {
         title: 'Banks',
         path: '/Banks',
         component: Banks,
-        exact: true
     },
     {
         title: 'CurrencyUpdate',
         path: '/CurrencyUpdate',
         component: CurrencyUpdate,
-        exact: true
     },
     {
         title: 'AdmRe',
         path: '/AdmRe',
         component: AdmRe,
-        exact: true
     },
     {
         title: 'Movements',
         path: '/Movements',
         component: Movements,
-        exact: true
     },
     {
         title: 'Dashboard',
         path: '/Dashboard',
         component: Dashboard,
-        exact: true
     },
     {
         title: 'Users',
         path: '/Users',
         component: Users,
-        exact: true
     },
     {
         title: 'Faqs',
         path: '/Faqs',
         component: Faqs,
-        exact: true
     },
     {
         title: 'Profile',
         path: '/Profile',
         component: Profile,
-        exact: true
     },
     {
         title: 'Changes',
         path: '/Changes',
         component: Changes,
-        exact: true
     },
     {
         title: 'Recover',
         path: '/Recover',
         component: Recover,
-        exact: true
     },
     {
         title: 'Register',
         path: '/Register',
         component: Register,
-        exact: true
     },
     {
         title: 'Login',
         path: '/Login',
         component: Login,
-        exact: true
     },
     {
         title: 'Map',
         path: '/',
         component: Home,
-        exact: true
     }
 ]
 
