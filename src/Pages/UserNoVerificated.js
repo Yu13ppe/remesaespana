@@ -52,7 +52,7 @@ function UserNoVerificated() {
       setLastName('');
       setEmail('');
       setPassword('');
-      use_dni('');
+      setDNI('');
       setPhone('');
       setVerif('');
       setAmountEur('');
