@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Table, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import axios from 'axios'
-import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
+import { useDataContext } from '../Context/dataContext';
 
 function Movements() {
-  const { user } = useDataContext();
+  const { accessToken } = useDataContext();
   const [movements, setMovements] = useState([]);
   const [select, setSelect] = useState([]);
   const [modalImageMov, setModalImageMov] = useState(false);
+  const [user, setUser] = useState([])
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
-
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -24,6 +20,21 @@ function Movements() {
       console.log(error);
     }
   };
+
+  const fetchDataUser = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
+      setUser(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setUser, accessToken]);
+
+  useEffect(() => {
+    fetchData();
+    fetchDataUser();
+  }, [fetchDataUser]);
+
   return (
     <div>
       <NavBar />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Button,
   Table,
@@ -11,13 +11,14 @@ import {
   PopoverHeader,
   PopoverBody
 } from 'reactstrap'
+import { NotFound404 } from './NotFound404';
 import axios from 'axios'
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
 
 function UserVerificated() {
-  const { isAdmin } = useDataContext();
+  const { accessToken } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -28,6 +29,8 @@ function UserVerificated() {
 
   const [select, setSelect] = useState([])
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [admin, setAdmin] = useState([]);
 
   const [use_name, setNombre] = useState('');
   const [use_lastName, setLastName] = useState('');
@@ -77,10 +80,20 @@ function UserVerificated() {
     setSearchQuery(event.target.value);
   };
 
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
+
   useEffect(() => {
     fetchData();
     fetchDataMovements();
-  }, []);
+    fetchDataAdmin();
+  }, [fetchDataAdmin]);
 
   const fetchData = async () => {
     try {
@@ -183,7 +196,7 @@ function UserVerificated() {
   };
 
   return (
-    isAdmin ?
+    admin.adm_role === 'A' ?
       <div>
         <NavBar />
         <div className='userContent'>
@@ -633,7 +646,7 @@ function UserVerificated() {
         </div >
       </div>
       :
-      (<h1>Error404</h1>)
+      <NotFound404 />
   )
 }
 

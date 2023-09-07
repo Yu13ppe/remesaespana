@@ -9,5 +9,12 @@
     img{
         width: 50em;
     }
+
+    @media screen and (max-width: 900px) {
+        img{
+            width: 25em;
+        }
+
+    }
 }
 

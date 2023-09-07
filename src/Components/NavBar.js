@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import axios from 'axios'
 import logo from '../Assets/Images/remesalogo.png'
 import slogan from '../Assets/Images/sloganremesa.png'
 import { Link } from 'react-router-dom'
@@ -8,9 +9,22 @@ import { FiLogOut } from 'react-icons/fi'
 import { clearLocalStorage } from '../Hooks/useLocalStorage'
 
 function NavBar() {
-  const { logged, isAdmin } = useDataContext()
+  const { logged, accessToken } = useDataContext()
   const [menuOpen, setMenuOpen] = useState(false);
+  const [admin, setAdmin] = useState([]);
 
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
+
+  useEffect(() => {
+    fetchDataAdmin();
+  }, [fetchDataAdmin]);
 
   return (
     <div className='Nav'>
@@ -31,19 +45,19 @@ function NavBar() {
           <span></span>
         </div>
         {logged ?
-          isAdmin ? (
+          admin.adm_role === 'A' ? (
             <ul className={menuOpen ? "open" : ""}>
               <Link className='' to='/'>
                 <li className=''>Inicio</li>
               </Link>
-              <Link className='' to='/Dashboard'>
-                <li className=''>Panel</li>
+              <Link className='' to='/CurrencyUpdate'>
+                <li className=''>Tasa</li>
               </Link>
               <Link className='' to='/Banks'>
                 <li className=''>Bancos</li>
               </Link>
-              <Link className='' to='/Changes'>
-                <Button className='log-btn'>Cambios</Button>
+              <Link className='' to='/Dashboard'>
+                <Button className='log-btn'>Panel</Button>
               </Link>
               <a className='' href='/'>
                 <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocalStorage} />

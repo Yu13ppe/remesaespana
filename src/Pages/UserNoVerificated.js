@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Button,
   Table,
@@ -11,6 +11,7 @@ import {
   PopoverHeader,
   PopoverBody,
 } from 'reactstrap'
+import { NotFound404 } from './NotFound404';
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios'
 import { AiOutlineClockCircle } from 'react-icons/ai'
@@ -18,7 +19,7 @@ import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
 
 function UserNoVerificated() {
-  const { isAdmin } = useDataContext();
+  const { accessToken } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -28,12 +29,13 @@ function UserNoVerificated() {
   const [select, setSelect] = useState([])
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [admin, setAdmin] = useState([]);
+
   const [use_name, setNombre] = useState('');
   const [use_lastName, setLastName] = useState('');
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
-  const [use_NIE, setNie] = useState('');
-  const [use_passport, setPassport] = useState('');
+  const [use_dni, setDNI] = useState('');
   const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
@@ -50,8 +52,7 @@ function UserNoVerificated() {
       setLastName('');
       setEmail('');
       setPassword('');
-      setNie('');
-      setPassport('');
+      use_dni('');
       setPhone('');
       setVerif('');
       setAmountEur('');
@@ -63,17 +64,13 @@ function UserNoVerificated() {
   const toggleViewer = () => setModalViewer(!modalViewer);
 
   const filteredUsuarios = users.filter(user => {
-    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_NIE} ${user.use_passport}`.toLowerCase();
+    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
 
   const handleSearch = event => {
     setSearchQuery(event.target.value);
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -84,6 +81,20 @@ function UserNoVerificated() {
     }
   };
 
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
+
+  useEffect(() => {
+    fetchData();
+    fetchDataAdmin();
+  }, [fetchDataAdmin]);
+
   const handleEdit = user => {
     setSelectedUser(user);
     toggleUser();
@@ -92,8 +103,7 @@ function UserNoVerificated() {
     setLastName(user.use_lastName);
     setEmail(user.use_email);
     setPassword(user.use_password);
-    setNie(user.use_NIE);
-    setPassport(user.use_passport);
+    setDNI(user.use_dni);
     setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
@@ -111,8 +121,7 @@ function UserNoVerificated() {
           {
             use_name,
             use_lastName,
-            use_NIE,
-            use_passport,
+            use_dni,
             use_email,
             use_password,
             use_phone,
@@ -143,8 +152,7 @@ function UserNoVerificated() {
           {
             use_name,
             use_lastName,
-            use_NIE,
-            use_passport,
+            use_dni,
             use_email,
             use_password,
             use_phone,
@@ -177,7 +185,7 @@ function UserNoVerificated() {
   };
 
   return (
-    isAdmin ?
+    admin.adm_role === 'A' ?
       <div>
         <NavBar />
         <div className='userContent'>
@@ -212,7 +220,7 @@ function UserNoVerificated() {
                 <th>#</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>NIE/NIF</th>
+                <th>DNI</th>
                 <th>Verificacion</th>
                 <th>Imagen</th>
                 <th>Acciones</th>
@@ -228,7 +236,7 @@ function UserNoVerificated() {
                     <th scope="row">{user.use_id}</th>
                     <td>{user.use_name}</td>
                     <td>{user.use_lastName}</td>
-                    <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
+                    <td>{user.use_dni ? user.use_dni : <p>No se encontraron resultados</p>}</td>
                     <td><AiOutlineClockCircle style={{ color: "blue", fontSize: "2em" }} /></td>
                     <td>
                       <Button
@@ -363,30 +371,17 @@ function UserNoVerificated() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="nie" className="form-label">
-                    NIE:
+                  <label htmlFor="dni" className="form-label">
+                    DNI:
                   </label>
                   <Input
                     type="number"
-                    defaultValue={use_NIE}
-                    onChange={e => setNie(e.target.value)}
+                    defaultValue={use_dni}
+                    onChange={e => setDNI(e.target.value)}
                     className="form-control"
                     disabled={selectedUser}
-                    id="nie"
-                    placeholder="NIE"
-                  />
-                </div>
-                <div hidden className="col-md-6">
-                  <label htmlFor="passport" className="form-label">
-                    Pasaporte:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_passport}
-                    onChange={e => setPassport(e.target.value)}
-                    className="form-control"
-                    id="passport"
-                    placeholder="passport"
+                    id="dni"
+                    placeholder="DNI"
                   />
                 </div>
                 <div className="col-md-6">
@@ -492,7 +487,7 @@ function UserNoVerificated() {
         </div >
       </div>
       :
-      (<h1>Error404</h1>)
+      <NotFound404 />
   )
 }
 

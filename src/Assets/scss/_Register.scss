@@ -25,16 +25,20 @@
 
 
 .card-register {
-  overflow: hidden;
-  position: relative;
-  margin: 0 auto;
-  width: 10px;
-  padding: 170px 30px 54px 10px;
-  border-radius: 1.25rem;
-  background: #fff;
-  text-align: center;
-  box-shadow: 0 100px 100px rgb(0 0 0 / 10%);
-  display: flex;
+   overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    z-index: 3;
+    width: 100%;
+    max-width: 360px;
+    // height: 2px;
+    /* Usa max-width para limitar el ancho de la tarjeta */
+    /* Centra la tarjeta horizontalmente */
+    padding: 170px 30px 54px;
+    border-radius: 1.25rem;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 100px 100px rgb(0 0 0 / 10%);
 }
 
 .register-image-container {
@@ -52,26 +56,6 @@
 .register-image {
   width: 320px;
 
-}
-
-.card-registertop {
-  overflow: hidden;
-  position: relative;
-  z-index: 3;
-  // width: 100%;
-  // max-width: 360px; /* Usa max-width para limitar el ancho de la tarjeta */
-  margin: 0 auto;
-  /* Centra la tarjeta horizontalmente */
-  padding: 100px 10px 4px;
-  // border-radius: 1.25rem;
-  border-radius: 2rem 2rem 0px 0px;
-  background: #fff;
-  text-align: center;
-  box-shadow: 0 100px 100px rgb(0 0 0 / 10%);
-
-  .parrafo-login {
-    margin-bottom: 35px;
-  }
 }
 
 
@@ -130,29 +114,30 @@
     color: #2a3444;
   }
 
-  .form {
-    margin: 0 0 36px;
-    display: grid;
-    gap: 16px;
-  }
 
-  .form>input,
-  .form>button {
-    width: 250px;
-    height: 56px;
-    border-radius: 28px;
-  }
+   .inputs input {
 
-  .form>input {
-    border: 2px solid #409192;
-    font-family: inherit;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: none;
+    border-bottom: 1px solid #000;
+    background: transparent;
+    outline: none;
+    height: 40px;
     font-size: 16px;
     padding: 0 24px;
-    color: #11274c;
+    color: #000;
+    // display: flex;
+    // align-items: center;
+    // margin: auto;
+    // height: 50px;
+    // // background: #eaeaea;
+    // border-radius: 6px;
+    // padding-left: 15px;
   }
 
   .form>input::placeholder {
-    color: #9a9999;
+    color: #606060;
   }
 
   .form>button {
@@ -160,15 +145,21 @@
     width: 100%;
     height: 56px;
     padding: 0 16px;
+    border: none;
     background: #FFC10E;
     color: #f9f9f9;
-    border: 0;
+    border-radius: 20px;
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
     text-align: center;
     letter-spacing: 2px;
     transition: all 0.375s;
+  }
+
+  .form>button:hover {
+    background: #409192;
+
   }
 
 

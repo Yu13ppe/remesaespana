@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import { Input, Alert } from 'reactstrap';
@@ -10,20 +10,25 @@ function AdmRe() {
   const history = useHistory();
   const [adm_email, setEmail] = useState('');
   const [adm_password, setPassword] = useState('');
-  const [admins, setAdmin] = useState([]);
+  const [tkn, setTkn] = useState('');
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const {setIsAdmin, setLogged } = useDataContext();
+  const { setLogged, setAccessToken } = useDataContext();
   const [alertVisible, setAlertVisible] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = async (email, password) => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/admin');
-      setAdmin(response.data);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/loginAdmin/${email}/${password}`);
+      setAccessToken(response.data.data);
+      const response2 = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${response.data.data.access_token}`);
+      setTkn(response2.data);
+      setLogged(true);
+      history.push({
+        pathname: "/Dashboard",
+        state: {
+          user: tkn,
+        }
+      });
     } catch (error) {
       console.log(error);
     }
@@ -31,29 +36,14 @@ function AdmRe() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-    const adm = admins.find((adm) => adm.adm_email === adm_email && adm.adm_password === adm_password);
+
+    fetchData(adm_email, adm_password)
 
     if (attemps === 0) {
       setError("Has superado el número de intentos. Intenta más tarde.");
       setAlertVisible(true);
     }
-    else if (adm) {
-      // Si se encuentra el usuario, cambia de ventana
-      const admin = admins.find(user => user.adm_email === adm_email);
-
-      if (admin.adm_role === "a" || admin.adm_role === "A") {
-        setIsAdmin(true);
-        setLogged(true);
-        history.push({
-          pathname: "/Dashboard",
-          state: {
-            user: admin,
-          }
-        });
-      }
-    }
     else {
-      // Si no se encuentra el usuario, establece un mensaje de error
       setAttemps(attemps - 1);
       const error = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
       setError(error);
@@ -77,7 +67,11 @@ function AdmRe() {
             <div className='row col-12'>
               <div className='d-flex align-items-center col-12'>
                 <FaUser />
-                <Input className='containerCorreo' type="email" value={adm_email} onChange={(e) => setEmail(e.target.value)} name="email"
+                <Input className='containerCorreo'
+                  type="email"
+                  value={adm_email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
                   id="exampleEmail"
                   placeholder="Introduzca su correo">
                 </Input>

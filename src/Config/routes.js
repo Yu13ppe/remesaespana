@@ -92,7 +92,7 @@ const routes = [
         component: Login,
     },
     {
-        title: 'Map',
+        title: '',
         path: '/',
         component: Home,
     }

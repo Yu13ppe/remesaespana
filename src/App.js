@@ -10,11 +10,11 @@ function App() {
   return (
     <React.Fragment>
       <Router>
-        <Switch>
-          {routes.map((route) => (
-            <Route key={route.path} path={route.path} component={route.component} />
-          ))}
-        </Switch>
+          <Switch>
+            {routes.map((route) => (
+              <Route key={route.path} path={route.path} component={route.component} />
+            ))}
+          </Switch>
       </Router>
     </React.Fragment>
   );

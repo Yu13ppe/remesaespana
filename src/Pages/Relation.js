@@ -1,161 +1,205 @@
-import React, { useState, useEffect } from 'react'
-import {
-  Button,
-  Table,
-  Input
-} from 'reactstrap'
-import {
-  ToastContainer,
-} from 'react-toastify';
-import axios from 'axios'
-import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai'
-import { useDataContext } from '../Context/dataContext'
-import { NavBar } from '../Components/NavBar';
+// import React, { useState, useEffect } from 'react';
+// import {
+//   Button,
+//   Table,
+//   Input,
+//   Nav,
+//   NavItem,
+//   NavLink,
+// } from 'reactstrap';
+// import classnames from 'classnames';
+// import axios from 'axios';
+// import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
+// import { NavBar } from '../Components/NavBar';
+// import { useDataContext } from '../Context/dataContext';
 
-function Relation() {
-  const { isAdmin } = useDataContext();
-  const [movement, setMovements] = useState([]);
-  // const [totalEur, setTotalEur] = useState([]);
-  // const [date, setDate] = useState('');
-  // const [accId, setAccId] = useState('');
+// function Relation() {
+//   const { isAdmin } = useDataContext();
+//   const [movements, setMovements] = useState([]);
+//   const [filteredMovements, setFilteredMovements] = useState([]);
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [selectedCurrency, setSelectedCurrency] = useState('EUR');
+//   const [consolidatedData, setConsolidatedData] = useState({});
+//   const [currentDate, setCurrentDate] = useState('');
+
+//   const toggleCurrency = (currency) => {
+//     // Verificar si la moneda seleccionada es diferente a la actual antes de cambiarla
+//     if (currency !== selectedCurrency) {
+//       setSelectedCurrency(currency);
+//       // Limpiar o reestablecer los estados relevantes aquí, por ejemplo, filteredMovements y consolidatedData
+//       setFilteredMovements([]);
+//       setConsolidatedData({});
+//     }
+//   };
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await axios.get('https://apiremesa.up.railway.app/movements');
+//         const movementsData = response.data;
+//         setMovements(movementsData);
+//       } catch (error) {
+//         console.error(error);
+//       }
+//     };
+//     fetchData();
+//   }, []);
+
+//   useEffect(() => {
+//     const currentDate = new Date().toISOString().split('T')[0];
+//     const filtered = movements.filter((move) => {
+//       return move.mov_date === currentDate && move.mov_currency === selectedCurrency;
+//     });
+//     setFilteredMovements(filtered);
+//   }, [movements, selectedCurrency]);
+
+//   const handleSearch = (event) => {
+//     setSearchQuery(event.target.value);
+//   };
+
+//   const getIngresosEgresos = async (date, accId, currency) => {
+//     try {
+//       let endpoint;
+
+//       if (currency === 'EUR') {
+//         endpoint = `https://apiremesa.up.railway.app/Movements/totaleur/${date}/${accId}`;
+//       } else if (currency === 'GBP') {
+//         endpoint = `https://apiremesa.up.railway.app/Movements/totalgbp/${date}/${accId}`;
+//       } else if (currency === 'USD') {
+//         endpoint = `https://apiremesa.up.railway.app/Movements/totalusd/${date}/${accId}`;
+//       }
+
+//       const response = await axios.get(endpoint);
+//       const data = response.data;
+//       const ingresos = data.totalIn;
+//       const egresos = data.totalOut;
+//       return { ingresos, egresos };
+//     } catch (error) {
+//       console.error(error);
+//       return { ingresos: 0, egresos: 0 };
+//     }
+//   };
+
+//   const consolidateByBankAndCurrency = async () => {
+//     const consolidatedData = {};
+
+//     for (const move of filteredMovements) {
+//       const bankName = move.mov_currency === 'EUR' ? move.AccountsEur?.acceur_Bank :
+//         move.mov_currency === 'GBP' ? move.AccountsGbp?.accgbp_Bank :
+//         move.AccountsUsd?.accusd_Bank;
+//       const currency = move.mov_currency;
+//       const accId = move.mov_currency === 'EUR' ? move.AccountsEur?.acceur_id :
+//         move.mov_currency === 'GBP' ? move.AccountsGbp?.accgbp_id :
+//         move.AccountsUsd?.accusd_id;
+//       const date = move.mov_date;
+
+//       const { ingresos, egresos } = await getIngresosEgresos(date, accId, currency);
+
+//       if (!consolidatedData[bankName]) {
+//         consolidatedData[bankName] = {
+//           bankName,
+//           EUR: { ingresos: 0, egresos: 0 },
+//           GBP: { ingresos: 0, egresos: 0 },
+//           USD: { ingresos: 0, egresos: 0 },
+//           date: date,
+//         };
+//       }
+
+//       consolidatedData[bankName][currency].ingresos += ingresos;
+//       consolidatedData[bankName][currency].egresos += egresos;
+//     }
+
+//     return consolidatedData;
+//   };
+
+//   useEffect(() => {
+//     consolidateByBankAndCurrency().then((consolidatedData) => {
+//       setConsolidatedData(consolidatedData);
+//     });
+//   }, [filteredMovements, selectedCurrency]);
+
+//   return (
+//     isAdmin ? (
+//       <div>
+//         <NavBar />
+//         <div className='userContent'>
+//           <h1 className='titleUser'>Relación</h1>
+//           <div className="container">
+//             <div className='row m-5 col-12'>
+//               <div className='d-flex align-items-center col-12'>
+//                 <Input
+//                   type="text"
+//                   className="form-control search-input"
+//                   defaultValue={searchQuery}
+//                   onChange={handleSearch}
+//                   placeholder="Buscar Usuario..."
+//                 />
+//               </div>
+//             </div>
+//           </div>
+
+//           <Nav tabs>
+//             <NavItem>
+//               <NavLink
+//                 className={classnames({ active: selectedCurrency === 'EUR' })}
+//                 onClick={() => toggleCurrency('EUR')}
+//               >
+//                 Euro
+//               </NavLink>
+//             </NavItem>
+//             <NavItem>
+//               <NavLink
+//                 className={classnames({ active: selectedCurrency === 'GBP' })}
+//                 onClick={() => toggleCurrency('GBP')}
+//               >
+//                 Libra
+//               </NavLink>
+//             </NavItem>
+//             <NavItem>
+//               <NavLink
+//                 className={classnames({ active: selectedCurrency === 'USD' })}
+//                 onClick={() => toggleCurrency('USD')}
+//               >
+//                 Dólar
+//               </NavLink>
+//             </NavItem>
+//           </Nav>
+
+//           <Table success bordered hover responsive striped className='userTable table-success'>
+//             <thead>
+//               <tr>
+//                 <th>#</th>
+//                 <th>Banco</th>
+//                 <th>Moneda</th>
+//                 <th>Total Ingreso</th>
+//                 <th>Total Egreso</th>
+//                 <th>Total</th>
+//                 <th>Fecha</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {Object.keys(consolidatedData).map((bankName) => (
+//                 <tr key={bankName}>
+//                   <th scope="row">{bankName}</th>
+//                   <td>{bankName}</td>
+//                   <td>{selectedCurrency}</td>
+//                   <td>{consolidatedData[bankName][selectedCurrency].ingresos}</td>
+//                   <td>{consolidatedData[bankName][selectedCurrency].egresos}</td>
+//                   <td>{consolidatedData[bankName][selectedCurrency].ingresos - consolidatedData[bankName][selectedCurrency].egresos}</td>
+//                   <td>{consolidatedData[bankName].date}</td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </Table>
+//         </div>
+//       </div>
+//     ) : (
+//       <h1>Error404</h1>
+//     )
+//   );
+// }
+
+// export { Relation };
 
 
-  const [modalImageUser, setModalImageUser] = useState(false);
-  // const [select, setSelect] = useState([])
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const toggleImageUser = () => setModalImageUser(!modalImageUser);
-
-  const filteredRelation = movement.filter(mov => {
-    const fullName = `${mov.mov_currency} ${mov.AccountsEur} ${mov.AccountsGbp} ${mov.AccountsUsd} ${mov.mov_date}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
-
-  const handleSearch = event => {
-    setSearchQuery(event.target.value);
-  };
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('https://apiremesa.up.railway.app/movements');
-      const movements = response.data;
-      setMovements(movements);
-      // fetchDataTotalEur(movements);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // const fetchDataTotalEur = async (date, accId) => {
-  //   try {
-  //     const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${date}/${accId}`);
-  //     setTotalEur(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  return (
-    isAdmin ?
-      <div>
-        <NavBar />
-        <div className='userContent'>
-          <h1 className='titleUser'>
-            Relacion
-          </h1>
-          <div className="container">
-            <div className='row m-5 col-12'>
-              <div className='d-flex align-items-center col-12'>
-                <Input
-                  type="text"
-                  className="form-control search-input"
-                  defaultValue={searchQuery}
-                  onChange={handleSearch}
-                  placeholder="Buscar Usuario..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Tabla De Usuarios */}
-          <Table success bordered hover responsive striped className='userTable table-success'>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Banco</th>
-                <th>Moneda</th>
-                <th>Ingreso</th>
-                <th>Egreso</th>
-                <th>Total</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                filteredRelation.map((move) => {
-                  // let date = "";
-                  // let accId = "";
-
-                  // if (move.mov_currency === 'EUR') {
-                  //   date = move.mov_date;
-                  //   accId = move.AccountsEur.acceur_id;
-                  //   fetchDataTotalEur(date, accId);
-                  // } else if (move.mov_currency === 'GBP') {
-                  //   accId = move.AccountsGbp.accgbp_id;
-                  // } else if (move.mov_currency === 'USD') {
-                  //   accId = move.AccountsUsd.accusd_id;
-                  // }
-
-                  return (
-                    <tr key={move.mov_id}>
-                      <th scope="row">{move.mov_id}</th>
-                      <td>{move.mov_currency === 'EUR' ? move.AccountsEur?.acceur_Bank : move.AccountsGbp?.accgbp_Bank || move.AccountsUsd?.accusd_Bank}</td>
-                      <td>
-                        {move.mov_currency === 'EUR' && <span>{move.mov_currency} <AiOutlineEuro style={{ fontSize: "2em" }} /></span>}
-                        {move.mov_currency === 'GBP' && <span>{move.mov_currency} <AiOutlinePound style={{ fontSize: "2em" }} /></span>}
-                        {move.mov_currency === 'USD' && <span>{move.mov_currency} <AiOutlineDollar style={{ fontSize: "2em" }} /></span>}
-                      </td>
-                      {/* <td>{totalEur ? totalEur.totalIn : 72}</td>
-                      <td>{totalEur ? totalEur.totalOut : 72}</td>
-                      <td>{totalEur ? totalEur.totalIn - totalEur.totalOut : 72}</td> */}
-                      <td>{move.mov_date}</td>
-                      <td>
-                        <Button color='primary' onClick={() => toggleImageUser()}>
-                          Ver detalles
-                        </Button>
-                      </td>
-                    </tr>
-                  )
-                })
-              }
-            </tbody>
-          </Table>
-
-          {/* Modal De Imagen Usuarios */}
-          {/* <Modal centered isOpen={modalImageUser} size='lg' toggle={toggleImageUser}>
-            <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
-            <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
-            </ModalBody>
-            <ModalFooter>
-              <Button color="secondary" onClick={toggleImageUser}>
-                Volver
-              </Button>
-            </ModalFooter>
-          </Modal> */}
-
-          <ToastContainer />
-
-        </div >
-      </div>
-      :
-      (<h1>Error404</h1>)
-  )
-}
-
-export { Relation }

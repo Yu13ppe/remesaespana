@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import slogan from '../Assets/Images/sloganremesa.png';
@@ -11,21 +11,26 @@ function Login() {
   const history = useHistory();
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
-  const [users, setUsers] = useState([]);
+  const [tkn, setTkn] = useState('');
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const { setVerifyData, setLogged, setUser } = useDataContext();
+  const {setLogged, setAccessToken } = useDataContext();
   const [alertVisible, setAlertVisible] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = async (email, password) => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/users');
-      setUsers(response.data);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/login/${email}/${password}`);
+      setAccessToken(response.data.data);
+      const response2 = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${response.data.data.access_token}`);
+      setTkn(response2.data);
+      setLogged(true);
+      history.push({
+        pathname: "/Changes",
+        state: {
+          user: tkn,
+        }
+      });
     } catch (error) {
       console.log(error);
     }
@@ -33,40 +38,15 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-    const user = users.find((user) => user.use_email === use_email && user.use_password === use_password);
+
+    fetchData(use_email, use_password)
 
     if (attemps === 0) {
       setError("Has superado el número de intentos. Intenta más tarde.");
       setAlertVisible(true);
       setInputDisabled(true);
     }
-    else if (user) {
-      // Si se encuentra el usuario, cambia de ventana
-      const user = users.find(user => user.use_email === use_email);
-
-      if (user.use_verif === "s" || user.use_verif === "S") {
-        setVerifyData(true);
-        setLogged(true);
-        setUser(user);
-        history.push({
-          pathname: "/Changes",
-          state: {
-            user: user,
-          }
-        });
-      }
-      else {
-        setVerifyData(false);
-        setLogged(true);
-        setUser(user)
-        history.push({
-          pathname: "/Changes",
-        });
-      }
-
-    }
     else {
-      // Si no se encuentra el usuario, establece un mensaje de error
       setAttemps(attemps - 1);
       const error = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
       setError(error);

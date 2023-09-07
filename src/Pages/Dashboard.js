@@ -23,7 +23,7 @@ import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from './NotFound404';
 
 function Dashboard() {
-  const { isAdmin } = useDataContext();
+  const { accessToken } = useDataContext();
 
   const [movements, setMovements] = useState([]);
   const [user, setUsers] = useState([]);
@@ -38,12 +38,14 @@ function Dashboard() {
   const [totalGbp, setTotalGbp] = useState([]);
   const [totalBs, setTotalBs] = useState([]);
 
+  const [admin, setAdmin] = useState([]);
 
   const [day, setDay] = useState(new Date().getDate().toString())
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString())
   const [year, setYear] = useState(new Date().getFullYear().toString())
 
   const [payment, setPayment] = useState('');
+  const [amount, setAmount] = useState('')
 
   const [showCommentBox, setShowCommentBox] = useState(false);
 
@@ -59,8 +61,10 @@ function Dashboard() {
   const toggle = (move) => {
     if (move.mov_type === 'Deposito') {
       toggleModalIngreso();
+      setAmount(move.mov_amount)
     } else if (move.mov_type === 'Retiro') {
       toggleModalEgreso();
+      setAmount(move.mov_amount)
     }
     setSelect(move);
     setModal(!modal);
@@ -79,6 +83,14 @@ function Dashboard() {
       console.log(error);
     }
   };
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
   const fetchDataUsers = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Users');
@@ -169,7 +181,8 @@ function Dashboard() {
     fetchDataTotalGbp();
     fetchDataTotalUsd();
     fetchDataTotalBs();
-  }, [fetchDataTotalEur,fetchDataTotalGbp,fetchDataTotalUsd,fetchDataTotalBs]);
+    fetchDataAdmin();
+  }, [fetchDataTotalEur,fetchDataTotalGbp,fetchDataTotalUsd,fetchDataTotalBs,fetchDataAdmin]);
 
   const handleSubmitSummary = () => {
 
@@ -178,13 +191,13 @@ function Dashboard() {
     const totalAmountGbp = parseInt(select.User.use_amountGbp);
     const formData = new FormData();
     if (select.mov_currency === 'EUR') {
-      formData.append('use_amountEur', totalAmountEur);
+      formData.append('use_amountEur', totalAmountEur + amount);
     }
     if (select.mov_currency === 'USD') {
-      formData.append('use_amountUsd', totalAmountUsd);
+      formData.append('use_amountUsd', totalAmountUsd + amount);
     }
     if (select.mov_currency === 'GBP') {
-      formData.append('use_amountGbp', totalAmountGbp);
+      formData.append('use_amountGbp', totalAmountGbp + amount);
     }
 
     try {
@@ -209,13 +222,13 @@ function Dashboard() {
     const totalAmountGbp = parseInt(select.User.use_amountGbp);
     const formData = new FormData();
     if (select.mov_currency === 'EUR') {
-      formData.append('use_amountEur', totalAmountEur);
+      formData.append('use_amountEur', totalAmountEur - amount);
     }
     if (select.mov_currency === 'USD') {
-      formData.append('use_amountUsd', totalAmountUsd);
+      formData.append('use_amountUsd', totalAmountUsd - amount);
     }
     if (select.mov_currency === 'GBP') {
-      formData.append('use_amountGbp', totalAmountGbp);
+      formData.append('use_amountGbp', totalAmountGbp - amount);
     }
 
     try {
@@ -257,7 +270,7 @@ function Dashboard() {
 
       // Cerrar el modal
       toggleModalEgreso();
-      toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
+      toast.success('¡Datos enviados con exito!', {
         position: 'bottom-right',
         autoClose: 10000,
         hideProgressBar: false,
@@ -294,7 +307,7 @@ function Dashboard() {
 
       // Cerrar el modal
       toggleModalIngreso();
-      toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
+      toast.success('¡Datos enviados con exito!', {
         position: 'bottom-right',
         autoClose: 10000,
         hideProgressBar: false,
@@ -331,7 +344,7 @@ function Dashboard() {
 
       // Cerrar el modal
       toggleModalIngreso();
-      toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
+      toast.success('¡Datos enviados con exito!', {
         position: 'bottom-right',
         autoClose: 10000,
         hideProgressBar: false,
@@ -349,13 +362,13 @@ function Dashboard() {
   };
 
   return (
-    isAdmin ?
+    admin.adm_role === 'A' ?
       <div>
         <NavBar />
         <div className="DashboardBody">
           <Container>
             <center>
-              <h1 className="my-4">Dashboard</h1></center>
+              <h1 className="my-4">Panel de control</h1></center>
             <Row>
               <Col md="6" lg="4">
                 <Link to='/Users'>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   Container,
@@ -34,13 +34,15 @@ import Bizum from '../Assets/Images/Banks/BIZUM.jpg'
 import Caixa from '../Assets/Images/Banks/CAIXABANK.png'
 
 function Banks() {
-  const { isAdmin } = useDataContext();
+  const { accessToken } = useDataContext();
 
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
   const [banksGbp, setBanksGBP] = useState([]);
   const [selectModal, setSelectModal] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [admin, setAdmin] = useState([]);
 
   const [acceur_Bank, setAcceur_Bank] = useState('');
   const [acceur_owner, setAcceur_owner] = useState('');
@@ -77,11 +79,14 @@ function Banks() {
     setSearchQuery(event.target.value);
   };
 
-  useEffect(() => {
-    fetchDataEUR();
-    fetchDataGBP();
-    fetchDataUSD();
-  }, []);
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
 
   const fetchDataEUR = async () => {
     try {
@@ -107,6 +112,13 @@ function Banks() {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    fetchDataEUR();
+    fetchDataGBP();
+    fetchDataUSD();
+    fetchDataAdmin();
+  }, [fetchDataAdmin]);
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -365,7 +377,7 @@ function Banks() {
   ]
 
   return (
-    isAdmin ?
+    admin.adm_role === 'A' ?
       <div>
         <NavBar />
         <div className="BanksBody">

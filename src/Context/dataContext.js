@@ -4,16 +4,12 @@ import { useLocalStorage } from "../Hooks/useLocalStorage";
 export const DataContext = createContext();
 
 export function DataContextProvider(props) {
-    const [verifyData, setVerifyData] = useLocalStorage('verif', false);
+    const [accessToken, setAccessToken] = useLocalStorage("token", '');
     const [logged, setLogged] = useLocalStorage('log', false);
-    const [isAdmin, setIsAdmin] = useLocalStorage('adm', false);
-    const [user, setUser] = useLocalStorage('user',[]);
     const [currencyPrice, setCurrencyPrice] = useLocalStorage('currency', []);
     const value = {
-        verifyData, setVerifyData, 
         logged, setLogged, 
-        isAdmin, setIsAdmin, 
-        user, setUser,
+        accessToken, setAccessToken,
         currencyPrice, setCurrencyPrice
     };
 

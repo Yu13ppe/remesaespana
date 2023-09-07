@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import slogan from '../Assets/Images/sloganremesa.png';
 import remesalogo from '../Assets/Images/remesalogo.png';
@@ -6,37 +6,38 @@ import { Input, Button } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useDataContext } from '../Context/dataContext';
 
 function Recover() {
   const history = useHistory();
-  const [users, setUsers] = useState([]);
+  const { accessToken } = useDataContext();
+  const [user, setUser] = useState([]);
   const [to, setTo] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/users');
-      setUsers(response.data);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
+      setUser(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [setUser, accessToken]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const user = users.find((user) => user.use_email === to);
-    if (!user) {
+    if (user.use_email !== to) {
       toast.error('El correo no existe');
       return;
     }
     try {
       await axios.post(`https://apiremesa.up.railway.app/Auth/forgotPasswordUser/${to}`);
       toast.success('El correo fue enviado con éxito');
-            setTo('');
-      
+      setTo('');
+
       setTimeout(() => {
         history.push('/Login');
       }, 5000);
@@ -72,7 +73,7 @@ function Recover() {
             <Button type="submit" color='primary'>
               Recuperar contraseña
             </Button>
-            <Button type="submit" color='secondary'>
+            <Button color='secondary'>
               Volver
             </Button>
           </form>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useDataContext } from '../Context/dataContext';
 import {
   InputGroup,
@@ -39,13 +39,14 @@ function Changes() {
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
-  const [use_NIE, setUseNIE] = useState('');
+  const [use_dni, setUseDNI] = useState('');
   const [use_img, setUseImg] = useState('');
   const [termsCheckbox, setTermsCheckbox] = useState(false);
   const [banksEUR, setBanksEUR] = useState([]);
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
-  const { verifyData, logged, user, setUser, currencyPrice } = useDataContext();
+  const [user, setUser] = useState([]);
+  const { logged, accessToken, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
 
@@ -75,18 +76,11 @@ function Changes() {
     setSecondModalOpen(!secondModalOpen);
     document.body.style.paddingRight = '0';
   };
-
   const toggleFifthModal = () => {
     setSecondModalOpen(false);
     setFifthModalOpen(!fifthModalOpen);
     document.body.style.paddingRight = '0';
   }
-
-  useEffect(() => {
-    fetchDataAccEur();
-    fetchDataAccGbp();
-    fetchDataAccUsd();
-  }, []);
 
   const fetchDataAccEur = async () => {
     try {
@@ -112,15 +106,21 @@ function Changes() {
       console.log(error);
     }
   };
-
-  const fetchDataUser = async () => {
+  const fetchDataUser = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Users/${user.use_id}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
       setUser(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  },[setUser, accessToken]);
+
+  useEffect(() => {
+    fetchDataAccEur();
+    fetchDataAccGbp();
+    fetchDataAccUsd();
+    fetchDataUser();
+  }, [fetchDataUser]);
 
   const handleAmountChange = (e) => {
     const inputAmount = e.target.value;
@@ -129,7 +129,6 @@ function Changes() {
     currencyPrice.forEach((coin) => {
       if (payment === 'EUR') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
-        console.log(coin.cur_EurToBs)
         setReceiveUsdAmount(parseFloat(inputAmount) * coin.cur_EurToUsd);
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
@@ -168,7 +167,7 @@ function Changes() {
       );
 
       toggleforthModal();
-      toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
+      toast.success('Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma', {
         position: 'bottom-right',
         autoClose: 10000,
         hideProgressBar: false,
@@ -211,7 +210,7 @@ function Changes() {
       );
 
       toggleTridModal();
-      toast.success('Cambio realizado con exito!, En segundo tendras los bolivares en la cuenta', {
+      toast.success('Cambio realizado con exito!, En un momento tu egreso será procesado', {
         position: 'bottom-right',
         autoClose: 10000,
         hideProgressBar: false,
@@ -230,11 +229,8 @@ function Changes() {
   const handleSubmitVerify = async event => {
     event.preventDefault();
 
-    console.log('use_NIE:', use_NIE);
-    console.log('use_img:', use_img);
-
     const formData = new FormData();
-    formData.append('use_NIE', use_NIE);
+    formData.append('use_dni', use_dni);
     formData.append('use_img', use_img);
     formData.append('use_verif', 'E');
 
@@ -258,7 +254,6 @@ function Changes() {
         draggable: true,
         progress: undefined,
       });
-      fetchDataUser();
 
       console.log('Request edit successfully');
     } catch (error) {
@@ -270,7 +265,7 @@ function Changes() {
     <div>
       <div className='changesContainer'>
         {logged ? (
-          verifyData ? (
+          user.use_verif === 'S' ? (
             <div>
               <NavBar />
               <img className='changesMen' alt='changesMen' src={changes} />
@@ -726,8 +721,8 @@ function Changes() {
                         className="form-control"
                         id="dniInput"
                         placeholder="Ingresa tu DNI"
-                        value={use_NIE}
-                        onChange={(e) => setUseNIE(e.target.value)}
+                        value={use_dni}
+                        onChange={(e) => setUseDNI(e.target.value)}
                       />
                     </div>
                     <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>

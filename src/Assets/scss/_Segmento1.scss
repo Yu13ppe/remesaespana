@@ -81,7 +81,6 @@
       }
     }
 
-
     Input {
       background-color: #fff;
       color: #000;
@@ -113,65 +112,65 @@
     }
   }
 
-
   @media screen and (max-width: 900px) {
-    flex-direction: column;
-    align-items: center;
-    height: auto;
-
-    .Segmento-1 {
-      height: 100vh;
-    }
+    /* Modificamos los estilos para dispositivos móviles */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    height: 100vh; /* Altura automática */
+    min-width: 0; /* Eliminamos el ancho mínimo */
 
     .Oval {
-      display: none;
+      display: none; /* Ocultamos el elemento en dispositivos móviles */
     }
 
     .text {
-      margin: 1em;
+      margin-top: 2em; /* Espaciado superior para separar el texto */
       text-align: center;
 
       h1 {
-        font-size: 40px;
+        font-size: 32px; /* Reducimos el tamaño de fuente del título */
         margin-left: 0;
       }
 
       h2 {
-        font-size: 40px;
+        font-size: 32px; /* Reducimos el tamaño de fuente del subtítulo */
         margin-left: 0;
       }
 
       p {
-        font-size: 18px;
+        font-size: 18px; /* Reducimos el tamaño de fuente del párrafo */
         margin-left: 0;
       }
     }
 
     .Change-Input {
-      width: 60%;
+      margin-left: 2px;
+      margin-right: 20px;
+      width: 100%; /* Aumentamos el ancho del input y el botón */
       display: flex;
       position: relative;
-      top: 3em;
+      top: 3em; /* Ajustamos la posición vertical */
       left: 0em;
-      margin: auto;
+      // margin: auto;
       justify-content: center;
       text-align: center;
 
       Button {
         font-size: 20px;
+        // padding: 10px 20px; /* Ajustamos el espacio alrededor del botón */
       }
 
       Input {
         font-size: 20px;
-        width: 20%;
+         /* Aumentamos el ancho del input */
       }
     }
 
     .letsGo {
-      width: 40%;
+      
+      width: 40%; /* Aumentamos el ancho del botón */
       display: flex;
       position: relative;
-      top: 2em;
+      top: 3em; /* Ajustamos la posición vertical */
       left: 0em;
       margin: auto;
       justify-content: center;

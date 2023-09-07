@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Button,
   Table,
@@ -9,15 +9,19 @@ import {
   Input,
   UncontrolledPopover,
   PopoverHeader,
-  PopoverBody
-} from 'reactstrap'
-import axios from 'axios'
-import { AiOutlineCheckCircle, AiOutlineClockCircle,  AiOutlineCloseCircle } from 'react-icons/ai'
-import { useDataContext } from '../Context/dataContext'
+  PopoverBody,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+} from 'reactstrap';
+import axios from 'axios';
+import { NotFound404 } from './NotFound404';
+import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 
 function Users() {
-  const { isAdmin } = useDataContext();
+  const { accessToken } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -26,7 +30,7 @@ function Users() {
   const [modalViewer, setModalViewer] = useState(false);
   const [modalImageMov, setModalImageMov] = useState(false);
 
-  const [select, setSelect] = useState([])
+  const [select, setSelect] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [use_name, setNombre] = useState('');
@@ -44,7 +48,12 @@ function Users() {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [movements, setMovements] = useState([]);
-  const [selectMov, setSelectMov] = useState([])
+  const [selectMov, setSelectMov] = useState([]);
+
+  const [admin, setAdmin] = useState([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 9; // Número máximo de usuarios por página
 
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
   const toggleUser = () => {
@@ -62,25 +71,20 @@ function Users() {
       setAmountUsd('');
       setAmountGbp('');
     }
-  }
+  };
 
   const toggleMovements = () => setModalMovements(!modalMovements);
   const toggleViewer = () => setModalViewer(!modalViewer);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
 
-  const filteredUsuarios = users.filter(user => {
+  const filteredUsuarios = users.filter((user) => {
     const fullName = `${user.use_name} ${user.use_lastName} ${user.use_NIE} ${user.use_passport}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
 
-  const handleSearch = event => {
+  const handleSearch = (event) => {
     setSearchQuery(event.target.value);
   };
-
-  useEffect(() => {
-    fetchData();
-    fetchDataMovements();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -91,8 +95,24 @@ function Users() {
     }
   };
 
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  },[setAdmin, accessToken]);
+
+  useEffect(() => {
+    fetchData();
+    fetchDataMovements();
+    fetchDataAdmin();
+  }, [currentPage, fetchDataAdmin]); // Actualiza los movimientos cuando cambia la página
+
   const fetchDataMovements = async () => {
     try {
+      // Aquí debes ajustar la lógica para obtener los movimientos relacionados con el usuario actualmente seleccionado
       const response = await axios.get('https://apiremesa.up.railway.app/Movements');
       setMovements(response.data);
     } catch (error) {
@@ -100,7 +120,7 @@ function Users() {
     }
   };
 
-  const handleEdit = user => {
+  const handleEdit = (user) => {
     setSelectedUser(user);
     toggleUser();
 
@@ -117,7 +137,7 @@ function Users() {
     setAmountGbp(user.use_amountGbp);
   };
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
@@ -136,45 +156,40 @@ function Users() {
             use_verif,
             use_amountUsd,
             use_amountEur,
-            use_amountGbp
-          });
+            use_amountGbp,
+          }
+        );
         setSelectedUser(null);
 
         fetchData();
         toggleUser();
         toggleViewer();
       } else {
-        await axios.post(
-          'https://apiremesa.up.railway.app/Users/create',
-          {
-            use_name,
-            use_lastName,
-            use_NIE,
-            use_passport,
-            use_email,
-            use_password,
-            use_phone,
-            use_img,
-            use_verif,
-            use_amountUsd,
-            use_amountEur,
-            use_amountGbp
-          }
-        );
+        await axios.post('https://apiremesa.up.railway.app/Users/create', {
+          use_name,
+          use_lastName,
+          use_NIE,
+          use_passport,
+          use_email,
+          use_password,
+          use_phone,
+          use_img,
+          use_verif,
+          use_amountUsd,
+          use_amountEur,
+          use_amountGbp,
+        });
       }
       fetchData();
       toggleUser();
-
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleDelete = async id => {
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `https://apiremesa.up.railway.app/Users/${id}`
-      );
+      await axios.delete(`https://apiremesa.up.railway.app/Users/${id}`);
       fetchData();
       toggleViewer();
     } catch (error) {
@@ -182,8 +197,18 @@ function Users() {
     }
   };
 
+  // Calcular el índice de inicio y final de los usuarios para la página actual
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsuarios.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Cambiar de página
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
-    isAdmin ?
+    admin.adm_role === 'A' ?
       <div>
         <NavBar />
         <div className='userContent'>
@@ -227,36 +252,45 @@ function Users() {
               </tr>
             </thead>
             <tbody>
-              {
-                filteredUsuarios.map((user) => (
-                  <tr key={user.use_id}
-                    onClick={() => {
-                      setSelect(user);
-                      console.log(select)
-                      toggleViewer();
-                    }}>
-                    <th scope="row">{user.use_id}</th>
-                    <td>{user.use_name}</td>
-                    <td>{user.use_lastName}</td>
-                    <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
-                    <td>{user.use_passport ? user.use_passport : <p>No se encontraron resultados</p>}</td>
-                    <td>
-                      {
-                      user.use_verif === "s" || user.use_verif === "S" ?
-                        <AiOutlineCheckCircle style={{ color: "green", fontSize: "2em" }} />
-                        : user.use_verif === "e" || user.use_verif === "E" ? 
-                        <AiOutlineClockCircle style={{ color: "blue", fontSize: "2em" }} />
-                        :
-                        <AiOutlineCloseCircle style={{ color: "red", fontSize: "2em" }} />
-                        }
-                    </td>
-                    <td>{user.use_amountUsd ? user.use_amountUsd : 0}</td>
-                    <td>{user.use_amountEur ? user.use_amountEur : 0}</td>
-                    <td>{user.use_amountGbp ? user.use_amountGbp : 0}</td>
-                  </tr>
-                ))}
+              {currentUsers.map((user) => (
+                <tr
+                  key={user.use_id}
+                  onClick={() => {
+                    setSelect(user);
+                    toggleViewer();
+                  }}
+                >
+                  <th scope="row">{user.use_id}</th>
+                  <td>{user.use_name}</td>
+                  <td>{user.use_lastName}</td>
+                  <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
+                  <td>{user.use_passport ? user.use_passport : <p>No se encontraron resultados</p>}</td>
+                  <td>
+                    {user.use_verif === 's' || user.use_verif === 'S' ? (
+                      <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} />
+                    ) : user.use_verif === 'e' || user.use_verif === 'E' ? (
+                      <AiOutlineClockCircle style={{ color: 'blue', fontSize: '2em' }} />
+                    ) : (
+                      <AiOutlineCloseCircle style={{ color: 'red', fontSize: '2em' }} />
+                    )}
+                  </td>
+                  <td>{user.use_amountUsd ? user.use_amountUsd : 0}</td>
+                  <td>{user.use_amountEur ? user.use_amountEur : 0}</td>
+                  <td>{user.use_amountGbp ? user.use_amountGbp : 0}</td>
+                </tr>
+              ))}
             </tbody>
           </Table>
+
+          <Pagination>
+            {Array.from({ length: Math.ceil(filteredUsuarios.length / usersPerPage) }).map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink onClick={() => paginate(index + 1)}>
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+          </Pagination>
 
           {/* Modal De Imagen Usuarios */}
           <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
@@ -640,7 +674,7 @@ function Users() {
         </div >
       </div>
       :
-      (<h1>Error404</h1>)
+      <NotFound404 />
   )
 }
 
