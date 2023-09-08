@@ -61,7 +61,7 @@ function Changes() {
     setSendOption('');
     setSendAmount('');
     setBankOptionPay('');
-    setPayment('');  
+    setPayment('');
     setNote('')
   };
   const toggleforthModal = () => {
@@ -113,7 +113,7 @@ function Changes() {
     } catch (error) {
       console.log(error);
     }
-  },[setUser, accessToken]);
+  }, [setUser, accessToken]);
 
   useEffect(() => {
     fetchDataAccEur();
@@ -140,6 +140,7 @@ function Changes() {
     });
   };
 
+  //Enviar a espera una carga
   const handleSubmitLoad = async event => {
     event.preventDefault();
 
@@ -183,6 +184,7 @@ function Changes() {
     }
   };
 
+  //Enviar a espera un retiro
   const handleSubmitSend = async event => {
     event.preventDefault();
 
@@ -226,6 +228,7 @@ function Changes() {
     }
   };
 
+  // Verificacion User
   const handleSubmitVerify = async event => {
     event.preventDefault();
 
@@ -458,7 +461,16 @@ function Changes() {
                         onChange={(e) => setNote(e.target.value)}
                       />
                     </FormGroup>
-                    <Button disabled={payment === '' || sendOption === '' ||  note === '' ||  sendAmount === "" || sendAmount < 20} onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                    <Button disabled={
+                      payment === '' ||
+                      sendOption === '' ||
+                      note === '' ||
+                      sendAmount === "" ||
+                      sendAmount < 20 ||
+                      (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                      (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                      (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                      onClick={handleSubmitSend} className='btn col-md-12' color="primary">
                       Enviar
                     </Button>
                   </Form>
@@ -605,7 +617,14 @@ function Changes() {
                       />
                     </FormGroup>
 
-                    <Button disabled={payment === '' || mov_img === '' || sendAmount === '' || sendAmount === "" || sendAmount < 20} color="primary" onClick={handleSubmitLoad} className='btn col-md-12'>
+                    <Button disabled={
+                      payment === '' ||
+                      mov_img === '' ||
+                      sendAmount === '' ||
+                      sendAmount === "" ||
+                      sendAmount < 20}
+                      color="primary"
+                      onClick={handleSubmitLoad} className='btn col-md-12'>
                       Enviar
                     </Button>
                   </Form>
@@ -682,10 +701,10 @@ function Changes() {
 
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
-                    <Button color='primary' onClick={user.use_verif ==='N'? toggleModal : toggleFifthModal}>
+                    <Button color='primary' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
                       Cargar
                     </Button>
-                    <Button color='success' onClick={user.use_verif ==='N'? toggleModal : toggleFifthModal}>
+                    <Button color='success' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
                       Retirar
                     </Button>
                   </div>
@@ -766,7 +785,7 @@ function Changes() {
                 <ModalHeader toggle={toggleFifthModal}>Verificación en proceso</ModalHeader>
                 <ModalBody>
                   <div style={{ textAlign: 'center' }}>
-                    <FaExclamationCircle style={{ fontSize: '48px', marginBottom: '20px', color:'red'}} />
+                    <FaExclamationCircle style={{ fontSize: '48px', marginBottom: '20px', color: 'red' }} />
                     <p>Tu usuario está en proceso de verificación.</p>
                     <p>Espera a que un administrador apruebe tu identidad.</p>
                     <p>El tiempo estimado de verificación dentro de nuestro horario laboral es de aproximadamente 20 minutos.</p>

@@ -86,7 +86,7 @@
       }
     }
 
-    .changesBtn {
+    .changesBtn{
       position: relative;
       top: 3em;
       left: 18em;
@@ -119,46 +119,40 @@
 
 @media (max-width: 1100px) {
   .changesContainer {
+    // margin-bottom: 20px;
+    height: 100vh;
     .changesMen {
       display: none;
     }
 
     .textchanges {
-
-      h2,
-      h3,
-      h6 {
-        margin-left: 0;
-        /* Resetear el margen izquierdo */
+      h2, h3, h6 {
+        margin-left: 0; /* Resetear el margen izquierdo */
         text-align: center;
       }
     }
 
     .changes {
       .Change-Input1 {
-        width: 100%;
-        /* Ancho completo en dispositivos móviles */
+        width: 100%; /* Ancho completo en dispositivos móviles */
         left: 0;
         margin-bottom: 1em;
 
         Input {
-          font-size: 20px;
-          /* Tamaño de fuente más pequeño para dispositivos móviles */
+          font-size: 20px; /* Tamaño de fuente más pequeño para dispositivos móviles */
         }
 
         Button {
-          font-size: 20px;
-          /* Tamaño de fuente más pequeño para dispositivos móviles */
+          font-size: 20px; /* Tamaño de fuente más pequeño para dispositivos móviles */
         }
       }
 
-      .changesBtn {
-        margin: auto;
-        left: 105px;
-
+      .changesBtn { 
+margin: auto;        // width: 200px;
+left: 105px;
         Button {
           width: 100px;
-          font-size: 20px;
+          font-size: 20px; /* Tamaño de fuente más pequeño para dispositivos móviles */
         }
       }
     }

@@ -243,8 +243,7 @@ function Users() {
                 <th>#</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>NIE/NIF</th>
-                <th>Pasaporte</th>
+                <th>DNI</th>
                 <th>Verificacion</th>
                 <th>USD</th>
                 <th>EUR</th>
@@ -263,8 +262,7 @@ function Users() {
                   <th scope="row">{user.use_id}</th>
                   <td>{user.use_name}</td>
                   <td>{user.use_lastName}</td>
-                  <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
-                  <td>{user.use_passport ? user.use_passport : <p>No se encontraron resultados</p>}</td>
+                  <td>{user.use_dni ? user.use_dni : <p>No se encontraron resultados</p>}</td>
                   <td>
                     {user.use_verif === 's' || user.use_verif === 'S' ? (
                       <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} />
@@ -503,8 +501,7 @@ function Users() {
                 <thead>
                   <tr>
                     <th>Correo</th>
-                    <th>NIE/NIF</th>
-                    <th>Pasaporte</th>
+                    <th>DNI</th>
                     <th>Telefono</th>
                     <th>Imagen</th>
                     <th>USD</th>
@@ -515,8 +512,7 @@ function Users() {
                 <tbody>
                   <tr>
                     <td>{select.use_email}</td>
-                    <td>{select.use_NIE ? select.use_NIE : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_passport ? select.use_passport : <p>No se encontraron resultados</p>}</td>
+                    <td>{select.use_dni ? select.use_dni : <p>No se encontraron resultados</p>}</td>
                     <td>{select.use_phone ? select.use_phone : <p>No se encontraron resultados</p>}</td>
                     <td>
                       {select.use_verif === "s" || select.use_verif === "S" ?
@@ -532,9 +528,9 @@ function Users() {
                         <p>No se encontraron resultados</p>
                       }
                     </td>
-                    <td>{select.use_amountUsd ? select.use_amountUsd : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_amountEur ? select.use_amountEur : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_amountGbp ? select.use_amountGbp : <p>No se encontraron resultados</p>}</td>
+                    <td>{select.use_amountUsd ? select.use_amountUsd : 0}</td>
+                    <td>{select.use_amountEur ? select.use_amountEur : 0}</td>
+                    <td>{select.use_amountGbp ? select.use_amountGbp : 0}</td>
                   </tr>
                 </tbody>
               </Table>
@@ -616,7 +612,7 @@ function Users() {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Monda</th>
+                    <th>Moneda</th>
                     <th>Monto</th>
                     <th>Referencia</th>
                     <th>Tipo</th>

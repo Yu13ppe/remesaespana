@@ -3,45 +3,45 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     background-color: rgba(251, 159, 34, 0.8);
     padding: 20px;
-
+    text-align: center; // Centramos el contenido en dispositivos móviles
+  
     .footer-left {
-        display: flex;
-        width: 30rem;
-
-        p {
-            font-family: Roboto;
-            font-size: 1rem;
-            font-style: normal;
-            font-weight: 900;
-            margin-top: 1em;
-        }
+      width: 100%; // Ocupa todo el ancho en dispositivos móviles
+  
+      p {
+        font-family: Roboto;
+        font-size: 1rem;
+        font-style: normal;
+        font-weight: 900;
+        margin-top: 1em;
+      }
     }
-
+  
     .footer-right {
-        ul {
-            margin-top: 1em;
-            list-style: none;
-            font-size: 1rem;
-            font-style: normal;
-            font-weight: 900;
-            display: flex;
-            gap: 20px;
-
-            .linkFooter {
-                text-decoration: none;
-
-                li {
-                    width: 100%;
-                    color: #212121;
-                    font-size: 1em;
-                    font-weight: 700;
-                }
-            }
+      margin-top: 1em;
+  
+      ul {
+        list-style: none;
+        font-size: 1rem;
+        font-style: normal;
+        font-weight: 900;
+        display: flex;
+        flex-wrap: wrap; // Hacemos que los enlaces se envuelvan en dispositivos móviles
+        justify-content: center; // Centramos los enlaces en dispositivos móviles
+        gap: 20px;
+  
+        .linkFooter {
+          text-decoration: none;
+  
+          li {
+            color: #212121;
+            font-size: 1em;
+            font-weight: 700;
+          }
         }
+      }
     }
-}
+  }
+  

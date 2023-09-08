@@ -36,8 +36,7 @@ function UserVerificated() {
   const [use_lastName, setLastName] = useState('');
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
-  const [use_NIE, setNie] = useState('');
-  const [use_passport, setPassport] = useState('');
+  const [use_dni, setDNI] = useState('');
   const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
@@ -57,8 +56,7 @@ function UserVerificated() {
       setLastName('');
       setEmail('');
       setPassword('');
-      setNie('');
-      setPassport('');
+      setDNI('');
       setPhone('');
       setVerif('');
       setAmountEur('');
@@ -121,8 +119,7 @@ function UserVerificated() {
     setLastName(user.use_lastName);
     setEmail(user.use_email);
     setPassword(user.use_password);
-    setNie(user.use_NIE);
-    setPassport(user.use_passport);
+    setDNI(user.use_dni);
     setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
@@ -140,8 +137,7 @@ function UserVerificated() {
           {
             use_name,
             use_lastName,
-            use_NIE,
-            use_passport,
+            use_dni,
             use_email,
             use_password,
             use_phone,
@@ -162,8 +158,7 @@ function UserVerificated() {
           {
             use_name,
             use_lastName,
-            use_NIE,
-            use_passport,
+            use_dni,
             use_email,
             use_password,
             use_phone,
@@ -231,8 +226,7 @@ function UserVerificated() {
                 <th>#</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>NIE/NIF</th>
-                <th>Pasaporte</th>
+                <th>DNI</th>
                 <th>Verificacion</th>
                 <th>USD</th>
                 <th>EUR</th>
@@ -250,8 +244,7 @@ function UserVerificated() {
                     <th scope="row">{user.use_id}</th>
                     <td>{user.use_name}</td>
                     <td>{user.use_lastName}</td>
-                    <td>{user.use_NIE ? user.use_NIE : <p>No se encontraron resultados</p>}</td>
-                    <td>{user.use_passport ? user.use_passport : <p>No se encontraron resultados</p>}</td>
+                    <td>{user.use_dni ? user.use_dni : <p>No se encontraron resultados</p>}</td>
                     <td>
                       {user.use_verif === "s" || user.use_verif === "S" ?
                         <AiOutlineCheckCircle style={{ color: "green", fontSize: "2em" }} />
@@ -345,29 +338,16 @@ function UserVerificated() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="nie" className="form-label">
-                    NIE:
+                  <label htmlFor="dni" className="form-label">
+                    DNI:
                   </label>
                   <Input
                     type="number"
-                    defaultValue={use_NIE}
-                    onChange={e => setNie(e.target.value)}
+                    defaultValue={use_dni}
+                    onChange={e => setDNI(e.target.value)}
                     className="form-control"
-                    id="nie"
-                    placeholder="NIE"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="passport" className="form-label">
-                    Pasaporte:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_passport}
-                    onChange={e => setPassport(e.target.value)}
-                    className="form-control"
-                    id="passport"
-                    placeholder="passport"
+                    id="dni"
+                    placeholder="DNI"
                   />
                 </div>
                 <div className="col-md-6">
@@ -477,8 +457,7 @@ function UserVerificated() {
                 <thead>
                   <tr>
                     <th>Correo</th>
-                    <th>NIE/NIF</th>
-                    <th>Pasaporte</th>
+                    <th>DNI</th>
                     <th>Telefono</th>
                     <th>Imagen</th>
                     <th>USD</th>
@@ -489,8 +468,7 @@ function UserVerificated() {
                 <tbody>
                   <tr>
                     <td>{select.use_email}</td>
-                    <td>{select.use_NIE ? select.use_NIE : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_passport ? select.use_passport : <p>No se encontraron resultados</p>}</td>
+                    <td>{select.use_dni ? select.use_dni : <p>No se encontraron resultados</p>}</td>
                     <td>{select.use_phone ? select.use_phone : <p>No se encontraron resultados</p>}</td>
                     <td>
                       {select.use_verif === "s" || select.use_verif === "S" ?
@@ -506,9 +484,9 @@ function UserVerificated() {
                         <p>No se encontraron resultados</p>
                       }
                     </td>
-                    <td>{select.use_amountUsd ? select.use_amountUsd : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_amountEur ? select.use_amountEur : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_amountGbp ? select.use_amountGbp : <p>No se encontraron resultados</p>}</td>
+                    <td>{select.use_amountUsd ? select.use_amountUsd : 0}</td>
+                    <td>{select.use_amountEur ? select.use_amountEur : 0}</td>
+                    <td>{select.use_amountGbp ? select.use_amountGbp : 0}</td>
                   </tr>
                 </tbody>
               </Table>
@@ -588,7 +566,7 @@ function UserVerificated() {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Monda</th>
+                    <th>Moneda</th>
                     <th>Monto</th>
                     <th>Referencia</th>
                     <th>Tipo</th>

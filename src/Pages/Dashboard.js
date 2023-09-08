@@ -52,7 +52,7 @@ function Dashboard() {
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [banksBs, setBanksBS] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
-  const [mov_img, setMovImg] = useState(null);
+  const [mov_img, setMovImg] = useState('');
 
   const [modalImageMov, setModalImageMov] = useState(false);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
