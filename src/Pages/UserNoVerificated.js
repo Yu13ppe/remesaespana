@@ -31,6 +31,9 @@ function UserNoVerificated() {
 
   const [admin, setAdmin] = useState([]);
 
+  const [use_img, setUserImage1] = useState('');
+  const [use_imgDni, setUserImage2] = useState('');
+
   const [use_name, setNombre] = useState('');
   const [use_lastName, setLastName] = useState('');
   const [use_email, setEmail] = useState('');
@@ -38,7 +41,6 @@ function UserNoVerificated() {
   const [use_dni, setDNI] = useState('');
   const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
-  const use_img = '';
   const [use_amountEur, setAmountEur] = useState(Number);
   const [use_amountUsd, setAmountUsd] = useState(Number);
   const [use_amountGbp, setAmountGbp] = useState(Number);
@@ -88,14 +90,14 @@ function UserNoVerificated() {
     } catch (error) {
       console.log(error);
     }
-  },[setAdmin, accessToken]);
+  }, [setAdmin, accessToken]);
 
   useEffect(() => {
     fetchData();
     fetchDataAdmin();
   }, [fetchDataAdmin]);
 
-  const handleEdit = user => {
+  const handleEdit = async (user) => {
     setSelectedUser(user);
     toggleUser();
 
@@ -104,6 +106,8 @@ function UserNoVerificated() {
     setEmail(user.use_email);
     setPassword(user.use_password);
     setDNI(user.use_dni);
+    setUserImage1(user.use_img);
+    setUserImage2(user.use_imgDni);
     setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
@@ -126,6 +130,7 @@ function UserNoVerificated() {
             use_password,
             use_phone,
             use_img,
+            use_imgDni,
             use_verif,
             use_amountUsd,
             use_amountEur,
@@ -157,6 +162,7 @@ function UserNoVerificated() {
             use_password,
             use_phone,
             use_img,
+            use_imgDni,
             use_verif,
             use_amountUsd,
             use_amountEur,
@@ -292,7 +298,8 @@ function UserNoVerificated() {
           <Modal centered isOpen={modalImageUser} size='lg' toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser1' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser2' src={`https://apiremesa.up.railway.app/Users/image/${select.use_imgDni}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>

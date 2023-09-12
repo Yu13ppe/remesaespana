@@ -46,6 +46,8 @@ function Changes() {
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
   const [user, setUser] = useState([]);
+
+  const [use_imgDni, setUseImgDni] = useState('');
   const { logged, accessToken, currencyPrice } = useDataContext();
 
   const [mov_img, setMov_img] = useState('');
@@ -151,6 +153,7 @@ function Changes() {
     formData.append('mov_status', 'E');
     formData.append('mov_comment', 'Carga de Divisa');
     formData.append('mov_img', mov_img);
+    formData.append('use_imgDni', use_imgDni);
     formData.append('mov_accEurId', (payment === 'EUR' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accGbpId', (payment === 'GBP' ? parseInt(bankOptionPay) : 0));
@@ -228,6 +231,29 @@ function Changes() {
     }
   };
 
+  const handleSubmitVerifyDni = () => {
+
+    const formData = new FormData();
+    formData.append('use_imgDni', use_imgDni);
+
+    try {
+      axios.put(
+        `https://apiremesa.up.railway.app/Users/dni/${user.use_id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log('Request edit successfully');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+
   // Verificacion User
   const handleSubmitVerify = async event => {
     event.preventDefault();
@@ -247,6 +273,8 @@ function Changes() {
           },
         }
       );
+
+      handleSubmitVerifyDni();
       toggleSecondModal();
       toast.success('¡Datos enviados con exito!. En minutos un administrador verificará tus datos', {
         position: 'bottom-right',
@@ -257,6 +285,8 @@ function Changes() {
         draggable: true,
         progress: undefined,
       });
+
+
 
       console.log('Request edit successfully');
     } catch (error) {
@@ -269,7 +299,7 @@ function Changes() {
       <div className='changesContainer'>
         {logged ? (
           user.use_verif === 'S' ? (
-            <div>
+            <div style={{ height: '100vh' }}>
               <NavBar />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
@@ -284,7 +314,7 @@ function Changes() {
                 {/* Spain - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} width={60} alt='Spain' /> €</Button>
+                    <img src={Spain} width={45} alt='Spain' /> €</Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -323,7 +353,7 @@ function Changes() {
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} alt='Spain' width={58} /> €
+                    <img src={Spain} alt='Spain' width={45} /> €
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
@@ -374,13 +404,31 @@ function Changes() {
                           defaultValue={sendAmount}
                           disabled={payment === ''}
                           onChange={(e) => handleAmountChange(e)}
-                          invalid={sendAmount !== "" && sendAmount < 20} // Agrega el atributo invalid
+                          invalid={(sendAmount !== "" && sendAmount < 20) ||
+                            (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                            (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                            (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
                         />
-                        {sendAmount !== "" && sendAmount < 20 && (
-                          <FormFeedback>
-                            El monto mínimo a retirar es de 20
+                        {
+                          (sendAmount !== "" && sendAmount < 20 ?
+                            <FormFeedback>
+                              El monto mínimo a retirar es de 20
+                            </FormFeedback>
+                            : null) ||
+                          (payment === 'EUR' ? user.use_amountEur < sendAmount :
+                            <FormFeedback>
+                              El monto excede la cantidad que tiene disponible
+                            </FormFeedback>
+                          ) ||
+                          (payment === 'USD' ? user.use_amountUsd < sendAmount :
+                            <FormFeedback>
+                              El monto excede la cantidad que tiene disponible
+                            </FormFeedback>
+                          ) ||
+                          (payment === 'GBP' ? user.use_amountGbp < sendAmount : <FormFeedback>
+                            El monto excede la cantidad que tiene disponible
                           </FormFeedback>
-                        )}
+                          )}
                       </InputGroup>
                     </FormGroup>
                     <FormGroup>
@@ -632,10 +680,9 @@ function Changes() {
               </Modal>
 
               <ToastContainer />
-              <Footer />
             </div>
           ) : (
-            <div>
+            <div style={{ height: '100vh' }}>
               <NavBar />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
@@ -649,7 +696,7 @@ function Changes() {
                 {/* Spain - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} width={60} alt='Spain' /> €</Button>
+                    <img src={Spain} width={45} alt='Spain' /> €</Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -688,7 +735,7 @@ function Changes() {
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} alt='Spain' width={58} /> €
+                    <img src={Spain} alt='Spain' width={45} /> €
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
@@ -757,6 +804,15 @@ function Changes() {
                         className="form-control-file"
                         id="imageInput"
                         onChange={(e) => setUseImg(e.target.files[0])}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <Label htmlFor="imageInput">Seleccionar Imagen del DNI:</Label>
+                      <Input
+                        type="file"
+                        className="form-control-file"
+                        id="imageInputDNI"
+                        onChange={(e) => setUseImgDni(e.target.files[0])}
                       />
                     </div>
                     <div style={{ marginTop: '1em', marginLeft: '.5em' }} className="form-check">

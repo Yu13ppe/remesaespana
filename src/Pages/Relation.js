@@ -1,4 +1,4 @@
-// import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect, useCallback } from 'react';
 // import {
 //   Button,
 //   Table,
@@ -7,14 +7,97 @@
 //   NavItem,
 //   NavLink,
 // } from 'reactstrap';
-// import classnames from 'classnames';
 // import axios from 'axios';
 // import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
 // import { NavBar } from '../Components/NavBar';
 // import { useDataContext } from '../Context/dataContext';
+// import { NotFound404 } from './NotFound404';
 
 // function Relation() {
-//   const { isAdmin } = useDataContext();
+//   const { accessToken } = useDataContext();
+//   const [movements, setMovements] = useState([]);
+//   const [filteredMovements, setFilteredMovements] = useState([]);
+//   const [admin, setAdmin] = useState([]);
+//   const [searchQuery, setSearchQuery] = useState('');
+
+//   const filteredRelation = movements.filter((mov) => {
+//     const fullName = `${mov.mov_date}`.toLowerCase();
+//     return fullName.includes(searchQuery.toLowerCase());
+//   });
+
+//   const handleSearch = (event) => {
+//     setSearchQuery(event.target.value);
+//   };
+
+//   const fetchData = async () => {
+//     try {
+//       const response = await axios.get('https://apiremesa.up.railway.app/movements');
+//       setMovements(response.data);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   const fetchDataAdmin = useCallback(async () => {
+//     try {
+//       const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+//       setAdmin(response.data);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }, [setAdmin, accessToken]);
+
+//   useEffect(() => {
+//     fetchData();
+//     fetchDataAdmin();
+//   }, [fetchDataAdmin]);
+
+//   return (
+//     admin.adm_role === 'A' ? (
+//       <div>
+//         <NavBar />
+//         <div className='userContent'>
+//           <h1 className='titleUser'>Relación</h1>
+//           <div className="container">
+//             <div className='row m-5 col-12'>
+//               <div className='d-flex align-items-center col-12'>
+//                 <Input
+//                   type="text"
+//                   className="form-control search-input"
+//                   defaultValue={searchQuery}
+//                   onChange={handleSearch}
+//                   placeholder="Buscar Usuario..."
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//           <Table success bordered hover responsive striped className='userTable table-success'>
+//             <thead>
+//               <tr>
+//                 <th>#</th>
+//                 <th>Banco</th>
+//                 <th>Moneda</th>
+//                 <th>Total Ingreso</th>
+//                 <th>Total Egreso</th>
+//                 <th>Total</th>
+//                 <th>Fecha</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+
+//             </tbody>
+//           </Table>
+//         </div>
+//       </div>
+//     ) : (
+//       <NotFound404 />
+//     )
+//   );
+// }
+
+// export { Relation }
+
+// function Relation() {
 //   const [movements, setMovements] = useState([]);
 //   const [filteredMovements, setFilteredMovements] = useState([]);
 //   const [searchQuery, setSearchQuery] = useState('');

@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Table, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import axios from 'axios'
 import { NavBar } from '../Components/NavBar';
+import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { useDataContext } from '../Context/dataContext';
+import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
 
 function Movements() {
   const { accessToken } = useDataContext();
@@ -28,7 +31,7 @@ function Movements() {
     } catch (error) {
       console.log(error);
     }
-  },[setUser, accessToken]);
+  }, [setUser, accessToken]);
 
   useEffect(() => {
     fetchData();
@@ -39,11 +42,11 @@ function Movements() {
     <div>
       <NavBar />
       <h1>Movimientos</h1>
-      <Table>
+      <Table success bordered hover responsive striped className='userTable table-success'>
         <thead>
           <tr>
             <th>#</th>
-            <th>Monda</th>
+            <th>Moneda</th>
             <th>Monto</th>
             <th>Tipo</th>
             <th>Estado</th>
@@ -56,10 +59,40 @@ function Movements() {
             // move.User.use_id === user.use_id ?
             <tr key={move.mov_id}>
               <th scope="row">{move.mov_id}</th>
-              <td>{move.mov_currency}</td>
+              <td>
+                {move.mov_currency === 'EUR' &&
+                  <span style={{ fontSize: '1.1em' }}>
+                    EUR
+                    <AiOutlineEuro />
+                  </span>
+                }
+                {move.mov_currency === 'GBP' &&
+                  <span style={{ fontSize: '1.1em' }}>
+                    GBP
+                    <AiOutlinePound />
+                  </span>
+                }
+                {move.mov_currency === 'USD' && 
+                <span style={{ fontSize: '1.1em' }}>
+                USD
+                <AiOutlineDollar />
+              </span>
+                }
+              </td>
               <td>{move.mov_amount}</td>
-              <td>{move.mov_type}</td>
-              <td>{move.mov_status}</td>
+              <td>
+                {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
+                {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
+              </td>
+              <td>
+                {move.mov_status === 'R' ? (
+                  <AiOutlineCloseCircle style={{ color: 'red', fontSize: '2em' }} /> // Icono de reloj
+                ) : move.mov_status === 'V' ? (
+                  <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} /> // Icono de equis
+                ) : (
+                  <AiOutlineClockCircle style={{ color: 'blue', fontSize: '2em' }} /> // Icono de check
+                )}
+              </td>
               <td>{move.mov_date}</td>
               <td>
                 {move.mov_img ?
@@ -76,8 +109,6 @@ function Movements() {
                 }
               </td>
             </tr>
-            // :
-            // null
           ))}
         </tbody>
       </Table>
