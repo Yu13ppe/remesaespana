@@ -9,18 +9,17 @@ import { FiLogOut } from 'react-icons/fi'
 import { clearLocalStorage } from '../Hooks/useLocalStorage'
 
 function NavBar() {
-  const { logged, accessToken } = useDataContext()
+  const { logged, accessAdminToken } = useDataContext()
   const [menuOpen, setMenuOpen] = useState(false);
   const [admin, setAdmin] = useState([]);
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
       setAdmin(response.data);
     } catch (error) {
-      console.log(error);
     }
-  },[setAdmin, accessToken]);
+  },[setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchDataAdmin();

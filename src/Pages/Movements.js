@@ -29,7 +29,7 @@ function Movements() {
       const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
       setUser(response.data);
     } catch (error) {
-      console.log(error);
+      console.log('a');
     }
   }, [setUser, accessToken]);
 

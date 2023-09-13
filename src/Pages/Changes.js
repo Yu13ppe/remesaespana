@@ -51,7 +51,6 @@ function Changes() {
   const [mov_img, setMov_img] = useState('');
   const [payment, setPayment] = useState('');
   const [sendOption, setSendOption] = useState('');
-
   const [accNumber, setAccNumber] = useState('');
   const [accBank, setAccBank] = useState('');
   const [accOwner, setAccOwner] = useState('');

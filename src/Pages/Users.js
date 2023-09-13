@@ -21,7 +21,7 @@ import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 
 function Users() {
-  const { accessToken } = useDataContext();
+  const { accessAdminToken } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -97,12 +97,11 @@ function Users() {
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
       setAdmin(response.data);
     } catch (error) {
-      console.log(error);
     }
-  },[setAdmin, accessToken]);
+  },[setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchData();

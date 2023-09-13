@@ -121,37 +121,37 @@ function Home() {
       </div>
 
       <div className='Segmento-2'>
-        <div class="container_all" id="container__all">
-          <div class="body__page">
+        <div className="container_all" id="container__all">
+          <div className="body__page">
 
-            <div class="container__card">
+            <div className="container__card">
 
-              <div class="card c3">
-                <div class="icon">
+              <div className="card c3">
+                <div className="icon">
                   <img src={Image1} alt='Image1' />
                 </div>
-                <div class="info__description">
+                <div className="info__description">
                   <p>Sin Comisiones.</p>
                   <p>Nuestros cambios son totalmente libre de comisiones.</p>
                   <Link to="/Login">  <input type="button" value="Cambia ya!" /> </Link>
                 </div>
               </div>
 
-              <div class="card c3">
-                <div class="icon">
+              <div className="card c3">
+                <div className="icon">
                   <img src={Image2} alt='Image2' />
                 </div>
-                <div class="info__description">
+                <div className="info__description">
                   <p>Recibe tu Remesa en Pocos Minutos.</p>
                   <p>Tus remesas llegan a tu cuenta en un promedio de 10 minutos</p>
                   <Link to="/Login">  <input type="button" value="Cambia ya!" /></Link> </div>
               </div>
 
-              <div class="card c3">
-                <div class="icon">
+              <div className="card c3">
+                <div className="icon">
                   <img src={Image3} alt='Image3' />
                 </div>
-                <div class="info__description">
+                <div className="info__description">
                   <p>
                     Disponemos de Todos los Bancos de Venezuela, Como BBVA,
                     Banesco, Banco nacional de crédito, Mercantil, PagoMovil
@@ -161,11 +161,11 @@ function Home() {
                 </div>
               </div>
 
-              <div class="card c3">
-                <div class="icon">
+              <div className="card c3">
+                <div className="icon">
                   <img src={Image4} alt='Image4' />
                 </div>
-                <div class="info__description">
+                <div className="info__description">
                   <p>
                     RemesaEspana te ofrece cambios de hasta un minimo de 20 euros,
                     ¿Que esperas para cambiar con nosotros?.

@@ -16,7 +16,7 @@ import Venezuela from '../Assets/Images/venezuela.png'
 import { Footer } from '../Components/Footer';
 
 function CurrencyUpdate() {
-  const { accessToken } = useDataContext();
+  const { accessAdminToken } = useDataContext();
   const [admin, setAdmin] = useState([]);
 
   const [currencyPrice, setCurrencyPrice] = useState([]);
@@ -29,8 +29,6 @@ function CurrencyUpdate() {
     cur_UsdToBs: ''
   });
 
-
-
   const fetchData = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/CurrencyPrice');
@@ -38,18 +36,17 @@ function CurrencyUpdate() {
       // Set default values from the database
       setFormData(response.data[0]);
     } catch (error) {
-      console.log(error);
+      console.log('a');
     }
   };
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
       setAdmin(response.data);
     } catch (error) {
-      console.log(error);
     }
-  }, [setAdmin, accessToken]);
+  },[setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchData();

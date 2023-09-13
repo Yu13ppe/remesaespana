@@ -23,7 +23,7 @@ import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from './NotFound404';
 
 function Dashboard() {
-  const { accessToken } = useDataContext();
+  const { accessAdminToken } = useDataContext();
 
   const [movements, setMovements] = useState([]);
   const [user, setUsers] = useState([]);
@@ -85,12 +85,11 @@ function Dashboard() {
   };
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessToken.access_token}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
       setAdmin(response.data);
     } catch (error) {
-      console.log(error);
     }
-  }, [setAdmin, accessToken]);
+  },[setAdmin, accessAdminToken]);
   const fetchDataUsers = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Users');
