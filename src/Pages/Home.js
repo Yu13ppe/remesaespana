@@ -27,6 +27,8 @@ import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
 import { Link } from 'react-router-dom'
+import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
@@ -55,8 +57,24 @@ function Home() {
     fetchData();
   }, [fetchData]); // Agregar fetchData como dependencia
 
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simula una carga ficticia
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1300); // Simula que la carga demora 2 segundos
+  }, []);
+
+  
   return (
     <div>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+
       <NavBar />
       <div className='Segmento-1'>
         <img className='Oval' alt='Oval' src={Oval} />
@@ -340,6 +358,8 @@ function Home() {
         </section>
       </div>
       <Footer />
+      </>
+      )}
     </div>
   )
 }

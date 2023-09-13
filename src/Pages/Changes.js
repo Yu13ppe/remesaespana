@@ -46,15 +46,17 @@ function Changes() {
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
   const [user, setUser] = useState([]);
-
   const [use_imgDni, setUseImgDni] = useState('');
   const { logged, accessToken, currencyPrice } = useDataContext();
-
   const [mov_img, setMov_img] = useState('');
-
   const [payment, setPayment] = useState('');
+  const [sendOption, setSendOption] = useState('');
 
-  const [sendOption, setSendOption] = useState('')
+  const [accNumber, setAccNumber] = useState('');
+  const [accBank, setAccBank] = useState('');
+  const [accOwner, setAccOwner] = useState('');
+  const [accTlf, setAccTlf] = useState('');
+  const [accDni, setAccDni] = useState('');
 
   const toggleTridModal = () => {
     setTridModalOpen(!tridModalOpen);
@@ -124,6 +126,7 @@ function Changes() {
     fetchDataUser();
   }, [fetchDataUser]);
 
+  // Cambios de monto
   const handleAmountChange = (e) => {
     const inputAmount = e.target.value;
     setSendAmount(inputAmount);
@@ -196,7 +199,7 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', note);
+    formData.append('mov_comment', `Numero de cuenta: ${accNumber} \n Banco: ${accBank} \n Propietario: ${accOwner} \n Número Telefónico: ${accTlf} \n DNI: ${accDni} \n` + note);
     formData.append('mov_img', "Retiro de Divisa");
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? 99 : 0));
@@ -231,6 +234,7 @@ function Changes() {
     }
   };
 
+  // Verificacion DNI
   const handleSubmitVerifyDni = () => {
 
     const formData = new FormData();
@@ -252,7 +256,6 @@ function Changes() {
       console.error('Error:', error);
     }
   };
-
 
   // Verificacion User
   const handleSubmitVerify = async event => {
@@ -380,6 +383,7 @@ function Changes() {
                 <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
                 <ModalBody>
                   <Form>
+                    {/* Seleccionar Moneda a debitar */}
                     <FormGroup>
                       <Label>Selecciona el tipo de moneda a retirar</Label>
                       <Input
@@ -394,6 +398,7 @@ function Changes() {
                         <option value="USD">Dolar</option>
                       </Input>
                     </FormGroup>
+                    {/* Monto a debitar */}
                     <FormGroup>
                       <Label for="amountInput">Coloca el monto que deseas retirar</Label>
                       <InputGroup>
@@ -431,6 +436,7 @@ function Changes() {
                           )}
                       </InputGroup>
                     </FormGroup>
+                    {/* Seleccionar Banco a recibir */}
                     <FormGroup>
                       <Label>Ingresa tus datos bancarios</Label>
                       <Input
@@ -446,6 +452,7 @@ function Changes() {
                         <option value="Pago Movil">Pago Móvil</option>
                       </Input>
                     </FormGroup>
+                    {/* Seleccionar forma de pago a recibir */}
                     {
                       sendOption === "Cuenta Bancaria" ?
                         <FormGroup>
@@ -497,22 +504,104 @@ function Changes() {
                         :
                         null
                     }
-                    <FormGroup>
-                      <Input
-                        type="textarea"
-                        id="noteTextArea"
-                        rows="4"
-                        value={note}
-                        disabled={payment === ''}
-                        placeholder="Ingrese tus datos Bancarios (Nombre, Cédula, número de cuenta o teléfono y el banco).
-                        En caso de retiro en efectivo, tu dirección y un teléfono de contacto."
-                        onChange={(e) => setNote(e.target.value)}
-                      />
-                    </FormGroup>
+                    {/* Datos para Nota */}
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese su numero de cuenta</Label>
+                          <Input
+                            type="text"
+                            id="accNumber"
+                            onChange={(e) => setAccNumber(e.target.value)}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese el banco</Label>
+                          <Input
+                            type="text"
+                            id="accBank"
+                            onChange={(e) => setAccBank(e.target.value)}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese el propietario de la cuenta bancaria</Label>
+                          <Input
+                            type="text"
+                            id="setAccOwner"
+                            onChange={(e) => setAccOwner(e.target.value)}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese el número teléfonico (En caso de pago móvil)</Label>
+                          <Input
+                            type="text"
+                            id="accTlf"
+                            onChange={(e) => setAccTlf(e.target.value)}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese identificación</Label>
+                          <Input
+                            type="text"
+                            id="accDni"
+                            onChange={(e) => setAccDni(e.target.value)}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese un comentario (opcional)</Label>
+                          <Input
+                            type="textarea"
+                            id="noteTextArea"
+                            rows="4"
+                            disabled={payment === ''}
+                            placeholder="Ingrese algun comentario"
+                            onChange={(e) => setNote(
+                              `Nota: ${e.target.value}`
+                            )}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
                     <Button disabled={
                       payment === '' ||
                       sendOption === '' ||
-                      note === '' ||
+                      accNumber === '' ||
+                      accBank === '' ||
+                      accOwner === '' ||
+                      accTlf === '' ||
+                      accDni === '' ||
                       sendAmount === "" ||
                       sendAmount < 20 ||
                       (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||

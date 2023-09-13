@@ -90,7 +90,7 @@ function Dashboard() {
     } catch (error) {
       console.log(error);
     }
-  },[setAdmin, accessToken]);
+  }, [setAdmin, accessToken]);
   const fetchDataUsers = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Users');
@@ -123,7 +123,7 @@ function Dashboard() {
     setMonth(addZeros(nowMonth));
     setYear(nowYear);
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${year}-${month.length<2?'0'.concat(month):month}-${day.length<2?'0'.concat(day):day}/`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${year}-${month.length < 2 ? '0'.concat(month) : month}-${day.length < 2 ? '0'.concat(day) : day}/`);
       setTotalEur(response.data);
     } catch (error) {
       console.log(error);
@@ -182,7 +182,7 @@ function Dashboard() {
     fetchDataTotalUsd();
     fetchDataTotalBs();
     fetchDataAdmin();
-  }, [fetchDataTotalEur,fetchDataTotalGbp,fetchDataTotalUsd,fetchDataTotalBs,fetchDataAdmin]);
+  }, [fetchDataTotalEur, fetchDataTotalGbp, fetchDataTotalUsd, fetchDataTotalBs, fetchDataAdmin]);
 
   const handleSubmitSummary = () => {
 
@@ -517,10 +517,7 @@ function Dashboard() {
               <h4 className="alert-heading">
                 Datos bancarios:
               </h4>
-              <p>
-                {select && select.mov_comment}
-              </p>
-
+              <p dangerouslySetInnerHTML={{ __html: select && select.mov_comment.replace(/\n/g, "<br/>") }} />
             </Alert>
             <FormGroup>
               <Label for="amount">Monto a transferir</Label>
