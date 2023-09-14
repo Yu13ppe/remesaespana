@@ -56,6 +56,7 @@ function Changes() {
   const [accOwner, setAccOwner] = useState('');
   const [accTlf, setAccTlf] = useState('');
   const [accDni, setAccDni] = useState('');
+  const [showAccNumber, setShowAccNumber] = useState(false);
 
   const toggleTridModal = () => {
     setTridModalOpen(!tridModalOpen);
@@ -408,7 +409,8 @@ function Changes() {
                           defaultValue={sendAmount}
                           disabled={payment === ''}
                           onChange={(e) => handleAmountChange(e)}
-                          invalid={(sendAmount !== "" && sendAmount < 20) ||
+                          invalid={
+                            (sendAmount !== "" && sendAmount < 20) ||
                             (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                             (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                             (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
@@ -442,8 +444,10 @@ function Changes() {
                         type="select"
                         id="bankOptionSelect"
                         defaultValue={sendOption}
-                        disabled={payment === ''}
-                        onChange={(e) => setSendOption(e.target.value)}
+                        onChange={(e) => {
+                          setSendOption(e.target.value);
+                          setShowAccNumber(e.target.value === 'Cuenta Bancaria');
+                        }}
                       >
                         <option value="">Selecciona una opción</option>
                         <option value="Efectivo">Efectivo (Dolares)</option>
@@ -469,7 +473,7 @@ function Changes() {
                     }
                     {
                       sendOption === "Efectivo" ?
-                        <FormGroup>
+                        <FormGroup >
                           <Label for="receiveUsdAmountInput">Monto a recibir en Dolares</Label>
                           <InputGroup>
                             <Input
@@ -505,71 +509,71 @@ function Changes() {
                     }
                     {/* Datos para Nota */}
                     {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese su numero de cuenta</Label>
+                      sendOption === "Cuenta Bancaria" ?
+                        (<FormGroup >
+                          <Label for="receiveAmountInput">Ingrese su número de cuenta</Label>
                           <Input
                             type="text"
                             id="accNumber"
-                            onChange={(e) => setAccNumber(e.target.value)}
+                            placeholder='01080000000000000000'
+                            value={accNumber}
+                            onChange={(e) => {
+                              const inputValue = e.target.value;
+                              // Usar una expresión regular para eliminar cualquier carácter que no sea número
+                              const numericValue = inputValue.replace(/[^0-9]/g, '');
+                              setAccNumber(numericValue);
+                            }}
+                            maxLength={20}
+                            pattern="[0-9]*" // Aceptar solo números
+                            invalid={showAccNumber && (accNumber.length !== 20)}
+                            valid={showAccNumber && (accNumber.length === 20)}
                           />
+                          <FormFeedback invalid>
+                            El número de cuenta debe tener exactamente 20 dígitos.
+                          </FormFeedback>
                         </FormGroup>
+
                         )
                         :
                         null
                     }
                     {
                       sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese el banco</Label>
-                          <Input
-                            type="text"
-                            id="accBank"
-                            onChange={(e) => setAccBank(e.target.value)}
-                          />
-                        </FormGroup>
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese el propietario de la cuenta bancaria</Label>
-                          <Input
-                            type="text"
-                            id="setAccOwner"
-                            onChange={(e) => setAccOwner(e.target.value)}
-                          />
-                        </FormGroup>
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese el número teléfonico (En caso de pago móvil)</Label>
-                          <Input
-                            type="text"
-                            id="accTlf"
-                            onChange={(e) => setAccTlf(e.target.value)}
-                          />
-                        </FormGroup>
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese identificación</Label>
-                          <Input
-                            type="text"
-                            id="accDni"
-                            onChange={(e) => setAccDni(e.target.value)}
-                          />
-                        </FormGroup>
+                        (
+                          <div className='row col-12'>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Ingrese el banco</Label>
+                              <Input
+                                type="text"
+                                id="accBank"
+                                onChange={(e) => setAccBank(e.target.value)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Ingrese el propietario de la cuenta bancaria</Label>
+                              <Input
+                                type="text"
+                                id="setAccOwner"
+                                onChange={(e) => setAccOwner(e.target.value)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Ingrese el número teléfonico</Label>
+                              <Input
+                                type="text"
+                                id="accTlf"
+                                onChange={(e) => setAccTlf(e.target.value)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Ingrese identificación</Label>
+                              <Input
+                                type="text"
+                                id="accDni"
+                                onChange={(e) => setAccDni(e.target.value)}
+                              />
+                            </FormGroup>
+                          </div>
                         )
                         :
                         null

@@ -38,6 +38,8 @@ function Dashboard() {
   const [totalGbp, setTotalGbp] = useState([]);
   const [totalBs, setTotalBs] = useState([]);
 
+  const [currencyPrice, setCurrencyPrice] = useState([]);
+
   const [admin, setAdmin] = useState([]);
 
   const [day, setDay] = useState(new Date().getDate().toString())
@@ -89,7 +91,7 @@ function Dashboard() {
       setAdmin(response.data);
     } catch (error) {
     }
-  },[setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken]);
   const fetchDataUsers = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Users');
@@ -171,6 +173,15 @@ function Dashboard() {
     }
   }, [setTotalBs, setDay, setMonth, setYear, day, month, year]);
 
+  const fetchDataCurrency = useCallback(async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/currencyPrice/1');
+      setCurrencyPrice(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setCurrencyPrice]);
+
   useEffect(() => {
     fetchData();
     fetchDataUsers();
@@ -181,7 +192,8 @@ function Dashboard() {
     fetchDataTotalUsd();
     fetchDataTotalBs();
     fetchDataAdmin();
-  }, [fetchDataTotalEur, fetchDataTotalGbp, fetchDataTotalUsd, fetchDataTotalBs, fetchDataAdmin]);
+    fetchDataCurrency();
+  }, [fetchDataTotalEur, fetchDataTotalGbp, fetchDataTotalUsd, fetchDataTotalBs, fetchDataAdmin, fetchDataCurrency]);
 
   const handleSubmitSummary = () => {
 
@@ -250,11 +262,13 @@ function Dashboard() {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('mov_status', 'V');
     formData.append('mov_accEurId', 0);
     formData.append('mov_img', mov_img);
+    formData.append('mov_currency', (select.mov_currency === 'USD' || select.mov_currency === 'EUR' || select.mov_currency === 'GBP' ? payment : select.mov_currency));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accBsId', (payment === 'BS' ? parseInt(bankOptionPay) : 0));
+
+    console.log(select.mov_currency)
 
     try {
       await axios.put(
@@ -265,7 +279,55 @@ function Dashboard() {
             'Content-Type': 'multipart/form-data',
           },
         }
+      )
+      ;
+
+      await axios.get(
+        `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
       );
+
+      if (select.mov_currency ===  'EUR' && payment === 'BS') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accBsId: parseInt(bankOptionPay),
+            tor_currencyPrice: currencyPrice.cur_EurToBs
+        });
+      }
+      if (select.mov_currency ===  'EUR' && payment === 'USD') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdId: parseInt(bankOptionPay),
+            tor_currencyPrice: currencyPrice.cur_EurToUsd
+        });
+      }
+      if (select.mov_currency ===  'USD' && payment === 'BS') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accBsId: parseInt(bankOptionPay),
+            tor_currencyPrice: currencyPrice.cur_UsdToBs
+        });
+      }
+      if (select.mov_currency ===  'USD' && payment === 'USD') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdId: parseInt(bankOptionPay),
+            tor_currencyPrice: 1
+        });
+      }
+      if (select.mov_currency ===  'GBP' && payment === 'BS') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accBsId: parseInt(bankOptionPay),
+            tor_currencyPrice: currencyPrice.cur_GbpToBs
+        });
+      }
+      if (select.mov_currency ===  'GBP' && payment === 'USD') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdId: parseInt(bankOptionPay),
+            tor_currencyPrice: currencyPrice.cur_GbpToUsd
+        });
+      }
 
       // Cerrar el modal
       toggleModalEgreso();
@@ -290,19 +352,32 @@ function Dashboard() {
   const handleSubmitVerify = async event => {
     event.preventDefault();
 
-    const formData = new FormData();
-    formData.append('mov_status', 'V');
-
     try {
-      await axios.put(
-        `https://apiremesa.up.railway.app/Movements/${select.mov_id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+      await axios.get(
+        `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
       );
+
+      if (select.mov_currency ===  'EUR') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accEurId: select.AccountsEur.acceur_id,
+            tor_currencyPrice: currencyPrice.cur_EurToBs
+        });
+      }
+      if (select.mov_currency ===  'USD') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdId: select.AccountsUsd.accusd_id,
+            tor_currencyPrice: currencyPrice.cur_UsdToBs
+        });
+      }
+      if (select.mov_currency ===  'GBP') {
+        await axios.post(
+          `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accGbpId: select.AccountsGbp.accgbp_id,
+            tor_currencyPrice: currencyPrice.cur_GbpToBs
+        });
+      }
 
       // Cerrar el modal
       toggleModalIngreso();

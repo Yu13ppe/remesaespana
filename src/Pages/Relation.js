@@ -1,20 +1,121 @@
-// import React, { useState, useEffect, useCallback } from 'react';
-// import {
-//   Button,
-//   Table,
-//   Input,
-//   Nav,
-//   NavItem,
-//   NavLink,
-// } from 'reactstrap';
-// import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  // Button,
+  Table,
+  Input
+  // Nav,
+  // NavItem,
+  // NavLink,
+} from 'reactstrap';
+import axios from 'axios';
 // import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
-// import { NavBar } from '../Components/NavBar';
-// import { useDataContext } from '../Context/dataContext';
-// import { NotFound404 } from './NotFound404';
+import { NavBar } from '../Components/NavBar';
+import { useDataContext } from '../Context/dataContext';
+import { NotFound404 } from './NotFound404';
 
+function Relation() {
+  const { accessAdminToken } = useDataContext();
+  const [admin, setAdmin] = useState([]);
+  const [movements, setMovements] = useState([]);
+  // const [filteredMovements, setFilteredMovements] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredRelation = movements.filter((mov) => {
+    const fullName = `${mov.mov_date}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/movements');
+      setMovements(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchDataAdmin = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      setAdmin(response.data);
+    } catch (error) {
+    }
+  }, [setAdmin, accessAdminToken]);
+
+
+  useEffect(() => {
+    fetchData();
+    fetchDataAdmin();
+  }, [fetchDataAdmin]);
+
+  return (
+    admin.adm_role === 'A' ? (
+      <div>
+        <NavBar />
+        <div className='userContent'>
+          <h1 className='titleUser'>Relación</h1>
+          <div className="container">
+            <div className='row m-5 col-12'>
+              <div className='d-flex align-items-center col-12'>
+                <Input
+                  type="text"
+                  className="form-control search-input"
+                  defaultValue={searchQuery}
+                  onChange={handleSearch}
+                  placeholder="Buscar Usuario..."
+                />
+              </div>
+            </div>
+          </div>
+          <Table success bordered hover responsive striped className='userTable table-success'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Banco</th>
+                <th>Moneda</th>
+                <th>Total Ingreso</th>
+                <th>Total Egreso</th>
+                <th>Total</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRelation.map((mov, index) => (
+                <tr key={mov.mov_id}>
+                  <th scope="row">{index + 1}</th>
+                  <td>{mov.mov_currency === 'EUR' ? mov.AccountsEur?.acceur_Bank :
+                    mov.mov_currency === 'GBP' ? mov.AccountsGbp?.accgbp_Bank :
+                      mov.AccountsUsd?.accusd_Bank}</td>
+                  <td>{mov.mov_currency}</td>
+                  <td>{mov.mov_currency === 'EUR' ? mov.mov_amount :
+                    mov.mov_currency === 'GBP' ? mov.mov_amount :
+                      mov.mov_currency === 'USD' ? mov.mov_amount : 0}</td>
+                  <td>{mov.mov_currency === 'EUR' ? mov.mov_amount :
+                    mov.mov_currency === 'GBP' ? mov.mov_amount :
+                      mov.mov_currency === 'USD' ? mov.mov_amount : 0}</td>
+                  <td>{mov.mov_currency === 'EUR' ? mov.mov_amount :
+                    mov.mov_currency === 'GBP' ? mov.mov_amount :
+                      mov.mov_currency === 'USD' ? mov.mov_amount : 0}</td>
+                  <td>{mov.mov_date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </div>
+    ) : (
+      <NotFound404 />
+    )
+  );
+}
+
+export { Relation }
 // function Relation() {
-//   const { accessToken } = useDataContext();
+
 //   const [movements, setMovements] = useState([]);
 //   const [filteredMovements, setFilteredMovements] = useState([]);
 //   const [admin, setAdmin] = useState([]);

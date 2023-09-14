@@ -298,7 +298,7 @@ function UserNoVerificated() {
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
               <img style={{ width: '100%' }} alt='ImageUser1' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
-              <img style={{ width: '100%' }} alt='ImageUser2' src={`https://apiremesa.up.railway.app/Users/image/${select.use_imgDni}`} />
+              <img style={{ width: '100%' }} alt='ImageUser2' src={`https://apiremesa.up.railway.app/Users/imageDni/${select.use_imgDni}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>
