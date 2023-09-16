@@ -2,10 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Table, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import axios from 'axios'
 import { NavBar } from '../Components/NavBar';
-import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle, AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { useDataContext } from '../Context/dataContext';
-import { AiOutlinePound, AiOutlineDollar, AiOutlineEuro } from 'react-icons/ai';
 
 function Movements() {
   const { accessToken } = useDataContext();

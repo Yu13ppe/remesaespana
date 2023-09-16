@@ -42,10 +42,6 @@ function Dashboard() {
 
   const [admin, setAdmin] = useState([]);
 
-  const [day, setDay] = useState(new Date().getDate().toString())
-  const [month, setMonth] = useState((new Date().getMonth() + 1).toString())
-  const [year, setYear] = useState(new Date().getFullYear().toString())
-
   const [payment, setPayment] = useState('');
   const [amount, setAmount] = useState('')
 
@@ -71,11 +67,6 @@ function Dashboard() {
     setSelect(move);
     setModal(!modal);
   };
-
-  const addZeros = Number => {
-    if (Number.toString().length < 1) return "0".concat(Number)
-    return Number;
-  }
 
   const fetchData = async () => {
     try {
@@ -117,61 +108,52 @@ function Dashboard() {
     }
   };
   const fetchDataTotalEur = useCallback(async () => {
-    const nowDay = new Date().getDate();
-    const nowMonth = new Date().getMonth();
-    const nowYear = new Date().getFullYear();
-    setDay(addZeros(nowDay));
-    setMonth(addZeros(nowMonth));
-    setYear(nowYear);
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${year}-${month.length < 2 ? '0'.concat(month) : month}-${day.length < 2 ? '0'.concat(day) : day}/`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totaleur/${formattedDate}/`);
       setTotalEur(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setTotalEur, setDay, setMonth, setYear, day, month, year]);
+  }, [setTotalEur]);
+
   const fetchDataTotalGbp = useCallback(async () => {
-    const nowDay = new Date().getDate();
-    const nowMonth = new Date().getMonth();
-    const nowYear = new Date().getFullYear();
-    setDay(addZeros(nowDay));
-    setMonth(addZeros(nowMonth));
-    setYear(nowYear);
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalgbp/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalgbp/${formattedDate}/`);
       setTotalGbp(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setTotalGbp, setDay, setMonth, setYear, day, month, year]);
+  }, [setTotalGbp]);
+
   const fetchDataTotalUsd = useCallback(async () => {
-    const nowDay = new Date().getDate();
-    const nowMonth = new Date().getMonth();
-    const nowYear = new Date().getFullYear();
-    setDay(addZeros(nowDay));
-    setMonth(addZeros(nowMonth));
-    setYear(nowYear);
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalusd/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalusd/${formattedDate}/`);
       setTotalUsd(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setTotalUsd, setDay, setMonth, setYear, day, month, year]);
+  }, [setTotalUsd]);
+
   const fetchDataTotalBs = useCallback(async () => {
-    const nowDay = new Date().getDate();
-    const nowMonth = new Date().getMonth();
-    const nowYear = new Date().getFullYear();
-    setDay(addZeros(nowDay));
-    setMonth(addZeros(nowMonth));
-    setYear(nowYear);
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalbs/${year}-${'0'.concat(month)}-${'0'.concat(day)}/`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/totalbs/${formattedDate}/`);
       setTotalBs(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setTotalBs, setDay, setMonth, setYear, day, month, year]);
+  }, [setTotalBs]);
 
   const fetchDataCurrency = useCallback(async () => {
     try {
@@ -262,13 +244,12 @@ function Dashboard() {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('mov_accEurId', 0);
-    formData.append('mov_img', mov_img);
     formData.append('mov_currency', (select.mov_currency === 'USD' || select.mov_currency === 'EUR' || select.mov_currency === 'GBP' ? payment : select.mov_currency));
+    formData.append('mov_accEurId', 0);
+    formData.append('mov_accGbpId', 0);
+    formData.append('mov_img', mov_img);
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accBsId', (payment === 'BS' ? parseInt(bankOptionPay) : 0));
-
-    console.log(select.mov_currency)
 
     try {
       await axios.put(
@@ -280,52 +261,52 @@ function Dashboard() {
           },
         }
       )
-      ;
+        ;
 
       await axios.get(
         `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
       );
 
-      if (select.mov_currency ===  'EUR' && payment === 'BS') {
+      if (select.mov_currency === 'EUR' && payment === 'BS') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accBsId: parseInt(bankOptionPay),
-            tor_currencyPrice: currencyPrice.cur_EurToBs
+          tor_accBsId: parseInt(bankOptionPay),
+          tor_currencyPrice: currencyPrice.cur_EurToBs
         });
       }
-      if (select.mov_currency ===  'EUR' && payment === 'USD') {
+      if (select.mov_currency === 'EUR' && payment === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdId: parseInt(bankOptionPay),
-            tor_currencyPrice: currencyPrice.cur_EurToUsd
+          tor_accUsdId: parseInt(bankOptionPay),
+          tor_currencyPrice: currencyPrice.cur_EurToUsd
         });
       }
-      if (select.mov_currency ===  'USD' && payment === 'BS') {
+      if (select.mov_currency === 'USD' && payment === 'BS') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accBsId: parseInt(bankOptionPay),
-            tor_currencyPrice: currencyPrice.cur_UsdToBs
+          tor_accBsId: parseInt(bankOptionPay),
+          tor_currencyPrice: currencyPrice.cur_UsdToBs
         });
       }
-      if (select.mov_currency ===  'USD' && payment === 'USD') {
+      if (select.mov_currency === 'USD' && payment === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdId: parseInt(bankOptionPay),
-            tor_currencyPrice: 1
+          tor_accUsdId: parseInt(bankOptionPay),
+          tor_currencyPrice: 1
         });
       }
-      if (select.mov_currency ===  'GBP' && payment === 'BS') {
+      if (select.mov_currency === 'GBP' && payment === 'BS') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accBsId: parseInt(bankOptionPay),
-            tor_currencyPrice: currencyPrice.cur_GbpToBs
+          tor_accBsId: parseInt(bankOptionPay),
+          tor_currencyPrice: currencyPrice.cur_GbpToBs
         });
       }
-      if (select.mov_currency ===  'GBP' && payment === 'USD') {
+      if (select.mov_currency === 'GBP' && payment === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdId: parseInt(bankOptionPay),
-            tor_currencyPrice: currencyPrice.cur_GbpToUsd
+          tor_accUsdId: parseInt(bankOptionPay),
+          tor_currencyPrice: currencyPrice.cur_GbpToUsd
         });
       }
 
@@ -357,25 +338,25 @@ function Dashboard() {
         `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
       );
 
-      if (select.mov_currency ===  'EUR') {
+      if (select.mov_currency === 'EUR') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accEurId: select.AccountsEur.acceur_id,
-            tor_currencyPrice: currencyPrice.cur_EurToBs
+          tor_accEurId: select.AccountsEur.acceur_id,
+          tor_currencyPrice: currencyPrice.cur_EurToBs
         });
       }
-      if (select.mov_currency ===  'USD') {
+      if (select.mov_currency === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdId: select.AccountsUsd.accusd_id,
-            tor_currencyPrice: currencyPrice.cur_UsdToBs
+          tor_accUsdId: select.AccountsUsd.accusd_id,
+          tor_currencyPrice: currencyPrice.cur_UsdToBs
         });
       }
-      if (select.mov_currency ===  'GBP') {
+      if (select.mov_currency === 'GBP') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accGbpId: select.AccountsGbp.accgbp_id,
-            tor_currencyPrice: currencyPrice.cur_GbpToBs
+          tor_accGbpId: select.AccountsGbp.accgbp_id,
+          tor_currencyPrice: currencyPrice.cur_GbpToBs
         });
       }
 
@@ -637,13 +618,12 @@ function Dashboard() {
               </Input>
             </FormGroup>
             <FormGroup>
-              <Label for="attachments">Adjuntar Archivo</Label>
+              <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
               <Input
-                disabled={showCommentBox}
                 type="file"
                 className="form-control-file"
-                name="attachments"
                 id="imageInput"
+                disabled={payment === ''}
                 onChange={(e) => setMovImg(e.target.files[0])}
               />
             </FormGroup>

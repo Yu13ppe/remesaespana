@@ -200,7 +200,7 @@ function Changes() {
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
     formData.append('mov_comment', `Numero de cuenta: ${accNumber} \n Banco: ${accBank} \n Propietario: ${accOwner} \n Número Telefónico: ${accTlf} \n DNI: ${accDni} \n` + note);
-    formData.append('mov_img', "Retiro de Divisa");
+    formData.append('mov_img', 'Retiro de Divisa');
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? 99 : 0));
     formData.append('mov_accGbpId', (payment === 'GBP' ? 99 : 0));
