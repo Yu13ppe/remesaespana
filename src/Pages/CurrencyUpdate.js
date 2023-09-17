@@ -89,12 +89,11 @@ function CurrencyUpdate() {
     admin.adm_role === 'A' ? (
       <div>
         <NavBar />
-
         <div className='currencyContainer'>
           {/* Cambios */}
 
           <div className='currency'>
-            {currencyPrice.map((coin) => {
+            {currencyPrice.map(() => {
               return (
                 <div className="input-group-container">
                   <InputGroup className='Change-Input1'>
@@ -153,7 +152,7 @@ function CurrencyUpdate() {
                       onChange={handleInputChange}
                     />
                     <Button >
-                      Bs <img src={Usa} alt='Venezuela' width={45} />
+                    Usd <img src={Usa} alt='Venezuela' width={45} />
                     </Button>
                   </InputGroup>
 
@@ -168,13 +167,9 @@ function CurrencyUpdate() {
                       onChange={handleInputChange}
                     />
                     <Button >
-                      Bs <img src={Usa} alt='USA' width={45} />
+                      Usd <img src={Usa} alt='USA' width={45} />
                     </Button>
-
-
                   </InputGroup>
-
-
                 </div>
               )
             })}

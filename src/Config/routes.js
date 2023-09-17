@@ -14,6 +14,7 @@ import { UserNoVerificated } from '../Pages/UserNoVerificated';
 import { Relation } from '../Pages/Relation';
 import { Banks } from '../Pages/Banks';
 import { CurrencyUpdate } from '../Pages/CurrencyUpdate';
+import { Privacy } from '../Pages/Privacy';
 
 const routes = [
     {
@@ -90,6 +91,11 @@ const routes = [
         title: 'Login',
         path: '/Login',
         component: Login,
+    },
+    {
+        title: 'Privacy',
+        path: '/Privacy',
+        component: Privacy,
     },
     {
         title: '',

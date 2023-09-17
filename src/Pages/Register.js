@@ -13,6 +13,7 @@ function Register() {
   const [use_email, setUse_email] = useState('');
   const [use_password, setUse_password] = useState('');
   const [use_confirm, setUse_confirm] = useState('');
+  const [termsCheckbox, setTermsCheckbox] = useState(false);
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -102,7 +103,7 @@ function Register() {
               </div>
             </div>
             <div className='row col-12'>
-              <div className='d-flex align-items-center col-12'>
+              <InputGroup className='d-flex align-items-center col-12'>
                 <FaLock style={{ marginTop: '30px', paddingTop: '5px', paddingRight: '5px', fontSize: '35px' }} />
                 <Input
                   className='input'
@@ -110,8 +111,14 @@ function Register() {
                   placeholder="Contraseña"
                   onChange={e => setUse_password(e.target.value)}
                   required
+                  invalid={use_password.length < 8}
                 />
-              </div>
+                {use_password.length < 8 && (
+                  <FormFeedback invalid>
+                    Su contraseña debe contener mínimo 8 caracteres
+                  </FormFeedback>
+                )}
+              </InputGroup>
             </div>
             <div className='row col-12'>
               <div className='d-flex align-items-center col-12'>
@@ -132,20 +139,37 @@ function Register() {
                   )}
                 </InputGroup>
               </div>
-
             </div>
-
           </div>
 
           <div className="checkboxes">
-            <Label>
-              <Input type="checkbox" />
-              Aceptar los términos y condiciones
+            <Input
+              type="checkbox"
+              className="form-check-input"
+              id="termsCheckbox"
+              checked={termsCheckbox}
+              onChange={(e) => setTermsCheckbox(e.target.checked)}
+            />
+            <Label className="form-check-label" htmlFor="termsCheckbox">
+              Acepto los términos y condiciones
             </Label>
           </div>
 
-          <Button type='submit' >Registrar</Button>
-          <Link to='/Login'><Button color='secondary'>Volver</Button></Link>
+          <Button
+            type='submit'
+            disabled={
+              use_name === '' ||
+              use_lastName === '' ||
+              use_email === '' ||
+              use_password === '' ||
+              use_password.length < 8 ||
+              use_confirm !== use_password ||
+              !termsCheckbox
+            }
+          >Registrar</Button>
+          <Link to='/Login'>
+            <Button type='button' color='secondary'>Volver</Button>
+            </Link>
         </form>
 
         <div>

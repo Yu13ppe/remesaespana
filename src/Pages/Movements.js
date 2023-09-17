@@ -54,7 +54,7 @@ function Movements() {
           </tr>
         </thead>
         <tbody>
-          {movements.filter((move) => move.User.use_id === user.use_id).map((move) => (
+          {movements.filter((move) => move.User.use_id === user.use_id).reverse().map((move) => (
             // move.User.use_id === user.use_id ?
             <tr key={move.mov_id}>
               <th scope="row">{move.mov_id}</th>

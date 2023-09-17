@@ -6,8 +6,8 @@ function Footer() {
     <footer>
       <div className="footer-left">
         <p> remesaespana.com ©2023 </p>
-
       </div>
+      
       <div className="footer-right">
         <ul>
           <Link className='linkFooter' to='/'>
@@ -16,9 +16,9 @@ function Footer() {
           <Link className='linkFooter' to='/'>
             <li>Privacidad</li>
           </Link>
-          <Link className='linkFooter' to='/'>
+          <a className='linkFooter' href='https://wa.me/+34722850962'>
             <li>Contacto</li>
-          </Link>
+          </a>
           <Link className='linkFooter' to='/Faqs'>
             <li>Faqs</li>
           </Link>

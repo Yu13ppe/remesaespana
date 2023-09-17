@@ -46,8 +46,8 @@ function NavBar() {
         {logged ?
           admin.adm_role === 'A' ? (
             <ul className={menuOpen ? "open" : ""}>
-              <Link className='' to='/'>
-                <li className=''>Inicio</li>
+              <Link className='' to='/Relation'>
+                <li className=''>Relación</li>
               </Link>
               <Link className='' to='/CurrencyUpdate'>
                 <li className=''>Tasa</li>

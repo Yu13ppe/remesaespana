@@ -390,7 +390,7 @@ function Banks() {
                     className="form-control search-input"
                     value={searchQuery}
                     onChange={handleSearch}
-                    placeholder="Buscar Usuario..."
+                    placeholder="Buscar Banco..."
                   />
                   <button
                     type="button"
@@ -740,6 +740,7 @@ function Banks() {
                     >
                       <option value="">Selecciona una opción</option>
                       <option value="Revolut">Revolut</option>
+                      <option value="Wise">Wise</option>
                     </Input>
                   </div>
                   :

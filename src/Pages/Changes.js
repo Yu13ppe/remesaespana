@@ -57,6 +57,8 @@ function Changes() {
   const [accTlf, setAccTlf] = useState('');
   const [accDni, setAccDni] = useState('');
   const [showAccNumber, setShowAccNumber] = useState(false);
+  const [porcents, setPorcents] = useState([])
+  const [porcent, setPorcent] = useState('')
 
   const toggleTridModal = () => {
     setTridModalOpen(!tridModalOpen);
@@ -86,6 +88,14 @@ function Changes() {
     document.body.style.paddingRight = '0';
   }
 
+  const fetchDataPorcent = async () => {
+    try {
+      const response = await axios.get('https://apiremesa.up.railway.app/PorcentPrice');
+      setPorcents(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const fetchDataAccEur = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
@@ -124,6 +134,7 @@ function Changes() {
     fetchDataAccGbp();
     fetchDataAccUsd();
     fetchDataUser();
+    fetchDataPorcent();
   }, [fetchDataUser]);
 
   // Cambios de monto
@@ -134,13 +145,13 @@ function Changes() {
     currencyPrice.forEach((coin) => {
       if (payment === 'EUR') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) * coin.cur_EurToUsd);
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) * coin.cur_GbpToUsd);
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
       } else if (payment === 'USD') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount));
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
       }
     });
   };
@@ -199,7 +210,7 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', `Numero de cuenta: ${accNumber} \n Banco: ${accBank} \n Propietario: ${accOwner} \n Número Telefónico: ${accTlf} \n DNI: ${accDni} \n` + note);
+    formData.append('mov_comment', `${accNumber} \n ${accBank} \n ${accOwner} \n ${accTlf} \n ${accDni} \n` + note);
     formData.append('mov_img', 'Retiro de Divisa');
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? 99 : 0));
@@ -317,7 +328,8 @@ function Changes() {
                 {/* Spain - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} width={45} alt='Spain' /> €</Button>
+                    <img src={Spain} width={45} alt='Spain' /> Eur
+                    </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -329,7 +341,7 @@ function Changes() {
                 {/* Uk - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Uk} width={45} alt='Uk' /> £
+                    <img src={Uk} width={45} alt='Uk' /> Gbp
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_GbpToBs))}
@@ -342,7 +354,7 @@ function Changes() {
                 {/* Usa - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Usa} alt='Usa' width={45} /> $
+                    <img src={Usa} alt='Usa' width={45} /> Usd
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_UsdToBs))}
@@ -356,20 +368,22 @@ function Changes() {
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} alt='Spain' width={45} /> €
+                    <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
                   >
                   </Input>
                   <Button >
-                    $ <img src={Usa} alt='Usa' width={45} />
+                    Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
                 </InputGroup>
+                
+                {/* Buttons */}
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
                     <Button color='primary' onClick={toggleforthModal}>
-                      Cargar
+                      Recargar
                     </Button>
                     <Button color='success' onClick={toggleTridModal}>
                       Retirar
@@ -379,7 +393,7 @@ function Changes() {
               </div>
 
               {/* Retirar */}
-              <Modal isOpen={tridModalOpen} size='lg' toggle={toggleTridModal}>
+              <Modal isOpen={tridModalOpen} size='lg' centered toggle={toggleTridModal}>
                 <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
                 <ModalBody>
                   <Form>
@@ -398,6 +412,42 @@ function Changes() {
                         <option value="USD">Dolar</option>
                       </Input>
                     </FormGroup>
+                    {/* Seleccionar Banco a recibir */}
+                    <FormGroup>
+                      <Label>Ingresa tus datos bancarios</Label>
+                      <Input
+                        type="select"
+                        id="bankOptionSelect"
+                        defaultValue={sendOption}
+                        disabled={payment === ''}
+                        onChange={(e) => {
+                          setSendOption(e.target.value);
+                          setShowAccNumber(e.target.value === 'Cuenta Bancaria');
+                        }}
+                      >
+                        <option value="">Selecciona una opción</option>
+                        <option value="Efectivo">Efectivo (Dolares)</option>
+                        <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                        <option value="Pago Movil">Pago Móvil</option>
+                      </Input>
+                    </FormGroup>
+                    {/* Seleccionar Lugar de Retiro */}
+                    {sendOption === 'Efectivo' &&
+                      <FormGroup>
+                        <Label>Ingresa tus datos bancarios</Label>
+                        <Input
+                          type="select"
+                          id="bankOptionSelect"
+                          defaultValue={sendOption}
+                          disabled={payment === ''}
+                          onChange={(e) => { setPorcent(e.target.value) }}
+                        >
+                          <option value="">Selecciona una opción</option>
+                          {porcents.map((por) => {
+                            return <option value={por.por_porcent}>{por.por_location}</option>
+                          })}
+                        </Input>
+                      </FormGroup>}
                     {/* Monto a debitar */}
                     <FormGroup>
                       <Label for="amountInput">Coloca el monto que deseas retirar</Label>
@@ -421,39 +471,28 @@ function Changes() {
                               El monto mínimo a retirar es de 20
                             </FormFeedback>
                             : null) ||
-                          (payment === 'EUR' ? user.use_amountEur < sendAmount :
+                          (payment === 'EUR' ? user.use_amountEur < sendAmount ?
                             <FormFeedback>
-                              El monto excede la cantidad que tiene disponible
+                              El monto excede la cantidad que tiene disponible en su cuenta
                             </FormFeedback>
+                            : null
+                            : null
                           ) ||
-                          (payment === 'USD' ? user.use_amountUsd < sendAmount :
+                          (payment === 'USD' ? user.use_amountUsd < sendAmount ?
                             <FormFeedback>
-                              El monto excede la cantidad que tiene disponible
+                              El monto excede la cantidad que tiene disponible en su cuenta
                             </FormFeedback>
+                            : null
+                            : null
                           ) ||
-                          (payment === 'GBP' ? user.use_amountGbp < sendAmount : <FormFeedback>
-                            El monto excede la cantidad que tiene disponible
-                          </FormFeedback>
+                          (payment === 'GBP' ? user.use_amountGbp < sendAmount ?
+                            <FormFeedback>
+                              El monto excede la cantidad que tiene disponible en su cuenta
+                            </FormFeedback>
+                            : null
+                            : null
                           )}
                       </InputGroup>
-                    </FormGroup>
-                    {/* Seleccionar Banco a recibir */}
-                    <FormGroup>
-                      <Label>Ingresa tus datos bancarios</Label>
-                      <Input
-                        type="select"
-                        id="bankOptionSelect"
-                        defaultValue={sendOption}
-                        onChange={(e) => {
-                          setSendOption(e.target.value);
-                          setShowAccNumber(e.target.value === 'Cuenta Bancaria');
-                        }}
-                      >
-                        <option value="">Selecciona una opción</option>
-                        <option value="Efectivo">Efectivo (Dolares)</option>
-                        <option value="Cuenta Bancaria">Cuenta Bancaria</option>
-                        <option value="Pago Movil">Pago Móvil</option>
-                      </Input>
                     </FormGroup>
                     {/* Seleccionar forma de pago a recibir */}
                     {
@@ -521,7 +560,7 @@ function Changes() {
                               const inputValue = e.target.value;
                               // Usar una expresión regular para eliminar cualquier carácter que no sea número
                               const numericValue = inputValue.replace(/[^0-9]/g, '');
-                              setAccNumber(numericValue);
+                              setAccNumber(`Numero de cuenta: ${numericValue}`);
                             }}
                             maxLength={20}
                             pattern="[0-9]*" // Aceptar solo números
@@ -546,7 +585,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accBank"
-                                onChange={(e) => setAccBank(e.target.value)}
+                                onChange={(e) => setAccBank(`Banco: ${e.target.value}`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -554,7 +593,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="setAccOwner"
-                                onChange={(e) => setAccOwner(e.target.value)}
+                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value}`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -562,7 +601,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accTlf"
-                                onChange={(e) => setAccTlf(e.target.value)}
+                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value}`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -570,7 +609,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accDni"
-                                onChange={(e) => setAccDni(e.target.value)}
+                                onChange={(e) => setAccDni(`DNI: ${e.target.value}`)}
                               />
                             </FormGroup>
                           </div>
@@ -597,22 +636,77 @@ function Changes() {
                         :
                         null
                     }
-                    <Button disabled={
-                      payment === '' ||
-                      sendOption === '' ||
-                      accNumber === '' ||
-                      accBank === '' ||
-                      accOwner === '' ||
-                      accTlf === '' ||
-                      accDni === '' ||
-                      sendAmount === "" ||
-                      sendAmount < 20 ||
-                      (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
-                      (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                      (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                      onClick={handleSubmitSend} className='btn col-md-12' color="primary">
-                      Enviar
-                    </Button>
+                    {
+                      sendOption === "Efectivo" ?
+                        (<FormGroup>
+                          <Label for="receiveAmountInput">Ingrese Los datos requeridos </Label>
+                          <Input
+                            type="textarea"
+                            id="noteTextArea"
+                            rows="4"
+                            disabled={payment === ''}
+                            placeholder="Ingrese la ubicacion a donde desea recibir y un numero de contacto"
+                            onChange={(e) => setNote(
+                              `Nota: ${e.target.value}`
+                            )}
+                          />
+                        </FormGroup>
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Pago Movil" &&
+                      <Button disabled={
+                        payment === '' ||
+                        sendOption === '' ||
+                        accBank === '' ||
+                        accOwner === '' ||
+                        accTlf === '' ||
+                        accDni === '' ||
+                        sendAmount === "" ||
+                        sendAmount < 20 ||
+                        (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                        (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        Enviar
+                      </Button>
+                    }
+                    {
+                      sendOption === "Efectivo" &&
+                      <Button disabled={
+                        payment === '' ||
+                        sendOption === '' ||
+                        sendAmount === "" ||
+                        note === "" ||
+                        sendAmount < 20 ||
+                        (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                        (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        Enviar
+                      </Button>
+                    }
+                    {
+                      sendOption === "Cuenta bancaria" &&
+                      <Button disabled={
+                        payment === '' ||
+                        sendOption === '' ||
+                        accNumber === '' ||
+                        accBank === '' ||
+                        accOwner === '' ||
+                        accTlf === '' ||
+                        accDni === '' ||
+                        sendAmount === "" ||
+                        sendAmount < 20 ||
+                        (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                        (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        Enviar
+                      </Button>
+                    }
                   </Form>
                 </ModalBody>
               </Modal>
@@ -788,7 +882,8 @@ function Changes() {
                 {/* Spain - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} width={45} alt='Spain' /> €</Button>
+                    <img src={Spain} width={45} alt='Spain' /> Eur
+                    </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -800,7 +895,7 @@ function Changes() {
                 {/* Uk - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Uk} width={45} alt='Uk' /> £
+                    <img src={Uk} width={45} alt='Uk' /> Gbp
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_GbpToBs))}
@@ -813,7 +908,7 @@ function Changes() {
                 {/* Usa - Bs */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Usa} alt='Usa' width={45} /> $
+                    <img src={Usa} alt='Usa' width={45} /> Usd
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_UsdToBs))}
@@ -827,21 +922,21 @@ function Changes() {
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1'>
                   <Button>
-                    <img src={Spain} alt='Spain' width={45} /> €
+                    <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
                   >
                   </Input>
                   <Button >
-                    $ <img src={Usa} alt='Usa' width={45} />
+                    Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
                 </InputGroup>
 
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
                     <Button color='primary' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
-                      Cargar
+                      Recargar
                     </Button>
                     <Button color='success' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
                       Retirar
@@ -921,7 +1016,15 @@ function Changes() {
                     </div>
                     <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
 
-                    <Button disabled={!termsCheckbox} type='submit' className="btn col-md-12" color='success'>
+                    <Button
+                      disabled={
+                        !termsCheckbox ||
+                        use_dni === '' ||
+                        use_img === '' ||
+                        use_imgDni === ''}
+                      type='submit'
+                      className="btn col-md-12"
+                      color='success'>
                       Enviar
                     </Button>
                   </form>

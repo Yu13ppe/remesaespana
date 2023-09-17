@@ -73,9 +73,11 @@ function Recover() {
             <Button type="submit" color='primary'>
               Recuperar contraseña
             </Button>
-            <Button color='secondary'>
-              Volver
-            </Button>
+            <Link to='/Login'>
+              <Button color='secondary'>
+                Volver
+              </Button>
+            </Link>
           </form>
         </div>
       </div>

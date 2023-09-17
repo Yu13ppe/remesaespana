@@ -8,7 +8,7 @@ footer {
   text-align: center; // Centramos el contenido en dispositivos móviles
 
   .footer-left {
-    width: 100%; // Ocupa todo el ancho en dispositivos móviles
+    width: 100%; 
 
     p {
       font-family: Roboto;
@@ -21,15 +21,15 @@ footer {
 
   .footer-right {
     margin-top: 1em;
-
+    width: 100%;
+    
     ul {
       list-style: none;
       font-size: 1rem;
       font-style: normal;
       font-weight: 900;
       display: flex;
-      flex-wrap: wrap; // Hacemos que los enlaces se envuelvan en dispositivos móviles
-      justify-content: center; // Centramos los enlaces en dispositivos móviles
+      justify-content: center;
       gap: 20px;
 
       .linkFooter {
