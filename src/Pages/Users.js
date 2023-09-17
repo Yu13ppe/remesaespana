@@ -17,41 +17,34 @@ import {
 import axios from 'axios';
 import { NotFound404 } from './NotFound404';
 import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 
 function Users() {
   const { accessAdminToken } = useDataContext();
   const [users, setUsers] = useState([]);
-
   const [modalImageUser, setModalImageUser] = useState(false);
   const [modalUser, setModalUser] = useState(false);
   const [modalMovements, setModalMovements] = useState(false);
   const [modalViewer, setModalViewer] = useState(false);
   const [modalImageMov, setModalImageMov] = useState(false);
-
   const [select, setSelect] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-
   const [use_name, setNombre] = useState('');
   const [use_lastName, setLastName] = useState('');
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
-  const [use_NIE, setNie] = useState('');
-  const [use_passport, setPassport] = useState('');
-  const [use_phone, setPhone] = useState('');
+  const [use_dni, setDNI] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
   const [use_amountEur, setAmountEur] = useState(Number);
   const [use_amountUsd, setAmountUsd] = useState(Number);
   const [use_amountGbp, setAmountGbp] = useState(Number);
   const [selectedUser, setSelectedUser] = useState(null);
-
   const [movements, setMovements] = useState([]);
   const [selectMov, setSelectMov] = useState([]);
-
   const [admin, setAdmin] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 9; // Número máximo de usuarios por página
 
@@ -63,9 +56,7 @@ function Users() {
       setLastName('');
       setEmail('');
       setPassword('');
-      setNie('');
-      setPassport('');
-      setPhone('');
+      setDNI('');
       setVerif('');
       setAmountEur('');
       setAmountUsd('');
@@ -78,7 +69,7 @@ function Users() {
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
 
   const filteredUsuarios = users.filter((user) => {
-    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_NIE} ${user.use_passport}`.toLowerCase();
+    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
 
@@ -101,7 +92,7 @@ function Users() {
       setAdmin(response.data);
     } catch (error) {
     }
-  },[setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchData();
@@ -127,9 +118,7 @@ function Users() {
     setLastName(user.use_lastName);
     setEmail(user.use_email);
     setPassword(user.use_password);
-    setNie(user.use_NIE);
-    setPassport(user.use_passport);
-    setPhone(user.use_phone);
+    setDNI(user.use_dni);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
     setAmountUsd(user.use_amountUsd);
@@ -146,11 +135,9 @@ function Users() {
           {
             use_name,
             use_lastName,
-            use_NIE,
-            use_passport,
+            use_dni,
             use_email,
             use_password,
-            use_phone,
             use_img,
             use_verif,
             use_amountUsd,
@@ -167,11 +154,9 @@ function Users() {
         await axios.post('https://apiremesa.up.railway.app/Users/create', {
           use_name,
           use_lastName,
-          use_NIE,
-          use_passport,
+          use_dni,
           use_email,
           use_password,
-          use_phone,
           use_img,
           use_verif,
           use_amountUsd,
@@ -293,7 +278,7 @@ function Users() {
           <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img width={300} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>
@@ -368,42 +353,16 @@ function Users() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="nie" className="form-label">
-                    NIE:
+                  <label htmlFor="dni" className="form-label">
+                    DNI:
                   </label>
                   <Input
                     type="number"
-                    defaultValue={use_NIE}
-                    onChange={e => setNie(e.target.value)}
+                    defaultValue={use_dni}
+                    onChange={e => setDNI(e.target.value)}
                     className="form-control"
-                    id="nie"
-                    placeholder="NIE"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="passport" className="form-label">
-                    Pasaporte:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_passport}
-                    onChange={e => setPassport(e.target.value)}
-                    className="form-control"
-                    id="passport"
-                    placeholder="passport"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="phone" className="form-label">
-                    Telefono:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="form-control"
-                    id="phone"
-                    placeholder="Phone"
+                    id="dni"
+                    placeholder="DNI"
                   />
                 </div>
                 <div className="col-md-6">
@@ -535,17 +494,17 @@ function Users() {
               </Table>
             </ModalBody>
             <ModalFooter>
-              {select.use_verif === 'S'|| select.use_verif === 's'?
-              <Button
-                color="success"
-                id="PopoverLegacy1"
-                type="button"
-                onClick={toggleMovements}
-              >
-                Movimientos
-              </Button>
-              :
-              null
+              {select.use_verif === 'S' || select.use_verif === 's' ?
+                <Button
+                  color="success"
+                  id="PopoverLegacy1"
+                  type="button"
+                  onClick={toggleMovements}
+                >
+                  Movimientos
+                </Button>
+                :
+                null
               }
               <Button
                 color="danger"
@@ -591,10 +550,10 @@ function Users() {
           </Modal>
 
           {/* Modal De Imagen Movimientos */}
-          <Modal isOpen={modalImageMov} size='l' centered toggle={toggleImageMov}>
+          <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
             <ModalHeader toggle={toggleImageMov}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img width={300} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
+              <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageMov}>
@@ -613,28 +572,35 @@ function Users() {
                     <th>#</th>
                     <th>Moneda</th>
                     <th>Monto</th>
-                    <th>Referencia</th>
                     <th>Tipo</th>
                     <th>Estado</th>
-                    <th>Banco</th>
                     <th>Fecha</th>
                     <th>Comentario</th>
                     <th>Imagen</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {movements.map((move) => (
+                  {movements.reverse().map((move) => (
                     move.User.use_id === select.use_id ?
                       <tr key={move.mov_id}>
                         <th scope="row">{move.mov_id}</th>
                         <td>{move.mov_currency}</td>
                         <td>{move.mov_amount}</td>
-                        <td>{move.mov_ref}</td>
-                        <td>{move.mov_type}</td>
-                        <td>{move.mov_status}</td>
-                        <td>{move.mov_acc}</td>
+                        <td>
+                          {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
+                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
+                        </td>
+                        <td>
+                          {move.mov_status === 'R' ? (
+                            <AiOutlineCloseCircle style={{ color: 'red', fontSize: '2em' }} /> // Icono de reloj
+                          ) : move.mov_status === 'V' ? (
+                            <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} /> // Icono de equis
+                          ) : (
+                            <AiOutlineClockCircle style={{ color: 'blue', fontSize: '2em' }} /> // Icono de check
+                          )}
+                        </td>
                         <td>{move.mov_date}</td>
-                        <td>{move.mov_comment}</td>
+                        <td dangerouslySetInnerHTML={{ __html: move.mov_comment.replace(/\n/g, "<br/>") }} />
                         <td>
                           {move.mov_img ?
                             <Button

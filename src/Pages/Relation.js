@@ -157,7 +157,7 @@ function Relation() {
                   className="form-control search-input"
                   defaultValue={searchQuery}
                   onChange={handleSearch}
-                  placeholder="Buscar Usuario..."
+                  placeholder="Buscar Relacion..."
                 />
               </div>
             </div>

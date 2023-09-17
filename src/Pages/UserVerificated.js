@@ -13,7 +13,8 @@ import {
 } from 'reactstrap'
 import { NotFound404 } from './NotFound404';
 import axios from 'axios'
-import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai'
+import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineClockCircle } from 'react-icons/ai'
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
 
@@ -37,7 +38,6 @@ function UserVerificated() {
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
   const [use_dni, setDNI] = useState('');
-  const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
   const [use_amountEur, setAmountEur] = useState(Number);
@@ -57,7 +57,6 @@ function UserVerificated() {
       setEmail('');
       setPassword('');
       setDNI('');
-      setPhone('');
       setVerif('');
       setAmountEur('');
       setAmountUsd('');
@@ -70,7 +69,7 @@ function UserVerificated() {
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
 
   const filteredUsuarios = users.filter(user => {
-    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_NIE} ${user.use_passport}`.toLowerCase();
+    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
 
@@ -84,7 +83,7 @@ function UserVerificated() {
       setAdmin(response.data);
     } catch (error) {
     }
-  },[setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchData();
@@ -119,7 +118,6 @@ function UserVerificated() {
     setEmail(user.use_email);
     setPassword(user.use_password);
     setDNI(user.use_dni);
-    setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
     setAmountUsd(user.use_amountUsd);
@@ -139,7 +137,6 @@ function UserVerificated() {
             use_dni,
             use_email,
             use_password,
-            use_phone,
             use_img,
             use_verif,
             use_amountUsd,
@@ -160,7 +157,6 @@ function UserVerificated() {
             use_dni,
             use_email,
             use_password,
-            use_phone,
             use_img,
             use_verif,
             use_amountUsd,
@@ -226,7 +222,7 @@ function UserVerificated() {
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>DNI</th>
-                <th>Verificacion</th>
+                <th>Verificación</th>
                 <th>USD</th>
                 <th>EUR</th>
                 <th>GBP</th>
@@ -262,7 +258,7 @@ function UserVerificated() {
           <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img width={300} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>
@@ -347,19 +343,6 @@ function UserVerificated() {
                     className="form-control"
                     id="dni"
                     placeholder="DNI"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="phone" className="form-label">
-                    Telefono:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="form-control"
-                    id="phone"
-                    placeholder="Phone"
                   />
                 </div>
                 <div className="col-md-6">
@@ -457,7 +440,7 @@ function UserVerificated() {
                   <tr>
                     <th>Correo</th>
                     <th>DNI</th>
-                    <th>Telefono</th>
+                    <th>Teléfono</th>
                     <th>Imagen</th>
                     <th>USD</th>
                     <th>EUR</th>
@@ -545,10 +528,10 @@ function UserVerificated() {
           </Modal>
 
           {/* Modal De Imagen Movimientos */}
-          <Modal isOpen={modalImageMov} size='l' centered toggle={toggleImageMov}>
+          <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
             <ModalHeader toggle={toggleImageMov}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img width={300} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
+              <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageMov}>
@@ -567,28 +550,35 @@ function UserVerificated() {
                     <th>#</th>
                     <th>Moneda</th>
                     <th>Monto</th>
-                    <th>Referencia</th>
                     <th>Tipo</th>
                     <th>Estado</th>
-                    <th>Banco</th>
                     <th>Fecha</th>
                     <th>Comentario</th>
                     <th>Imagen</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {movements.map((move) => (
+                  {movements.reverse().map((move) => (
                     move.User.use_id === select.use_id ?
                       <tr key={move.mov_id}>
                         <th scope="row">{move.mov_id}</th>
                         <td>{move.mov_currency}</td>
                         <td>{move.mov_amount}</td>
-                        <td>{move.mov_ref}</td>
-                        <td>{move.mov_type}</td>
-                        <td>{move.mov_status}</td>
-                        <td>{move.mov_acc}</td>
+                        <td>
+                          {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
+                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
+                        </td>
+                        <td>
+                          {move.mov_status === 'R' ? (
+                            <AiOutlineCloseCircle style={{ color: 'red', fontSize: '2em' }} /> // Icono de reloj
+                          ) : move.mov_status === 'V' ? (
+                            <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} /> // Icono de equis
+                          ) : (
+                            <AiOutlineClockCircle style={{ color: 'blue', fontSize: '2em' }} /> // Icono de check
+                          )}
+                        </td>
                         <td>{move.mov_date}</td>
-                        <td>{move.mov_comment}</td>
+                        <td dangerouslySetInnerHTML={{ __html: move.mov_comment.replace(/\n/g, "<br/>") }} />
                         <td>
                           {move.mov_img ?
                             <Button

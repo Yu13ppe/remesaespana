@@ -50,6 +50,7 @@ function Movements() {
             <th>Tipo</th>
             <th>Estado</th>
             <th>Fecha</th>
+            <th>Comentario</th>
             <th>Imagen</th>
           </tr>
         </thead>
@@ -93,6 +94,7 @@ function Movements() {
                 )}
               </td>
               <td>{move.mov_date}</td>
+              <td>{move.mov_comment}</td>
               <td>
                 {move.mov_img ?
                   <Button

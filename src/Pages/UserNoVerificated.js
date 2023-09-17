@@ -39,7 +39,6 @@ function UserNoVerificated() {
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
   const [use_dni, setDNI] = useState('');
-  const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const [use_amountEur, setAmountEur] = useState(Number);
   const [use_amountUsd, setAmountUsd] = useState(Number);
@@ -55,7 +54,6 @@ function UserNoVerificated() {
       setEmail('');
       setPassword('');
       setDNI('');
-      setPhone('');
       setVerif('');
       setAmountEur('');
       setAmountUsd('');
@@ -89,7 +87,7 @@ function UserNoVerificated() {
       setAdmin(response.data);
     } catch (error) {
     }
-  },[setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken]);
 
   useEffect(() => {
     fetchData();
@@ -107,7 +105,6 @@ function UserNoVerificated() {
     setDNI(user.use_dni);
     setUserImage1(user.use_img);
     setUserImage2(user.use_imgDni);
-    setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
     setAmountUsd(user.use_amountUsd);
@@ -127,7 +124,6 @@ function UserNoVerificated() {
             use_dni,
             use_email,
             use_password,
-            use_phone,
             use_img,
             use_imgDni,
             use_verif,
@@ -159,7 +155,6 @@ function UserNoVerificated() {
             use_dni,
             use_email,
             use_password,
-            use_phone,
             use_img,
             use_imgDni,
             use_verif,
@@ -207,13 +202,6 @@ function UserNoVerificated() {
                   onChange={handleSearch}
                   placeholder="Buscar Usuario..."
                 />
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={toggleUser}
-                >
-                  Agregar Usuario
-                </button>
               </div>
             </div>
           </div>
@@ -388,20 +376,6 @@ function UserNoVerificated() {
                     disabled={selectedUser}
                     id="dni"
                     placeholder="DNI"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="phone" className="form-label">
-                    Telefono:
-                  </label>
-                  <Input
-                    type="number"
-                    defaultValue={use_phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="form-control"
-                    disabled={selectedUser}
-                    id="phone"
-                    placeholder="Phone"
                   />
                 </div>
                 <div className="col-md-6">

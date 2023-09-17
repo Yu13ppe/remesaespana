@@ -22,6 +22,7 @@ import Usa from '../Assets/Images/usa.png'
 import Venezuela from '../Assets/Images/venezuela.png'
 import VerificationImage from '../Assets/Images/verification.png';
 import ImageVerification from '../Assets/Images/ImageVerification.png'
+import DniVerification from '../Assets/Images/DniVerification.png'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NavBar } from '../Components/NavBar';
@@ -329,7 +330,7 @@ function Changes() {
                 <InputGroup className='Change-Input1'>
                   <Button>
                     <img src={Spain} width={45} alt='Spain' /> Eur
-                    </Button>
+                  </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -378,7 +379,7 @@ function Changes() {
                     Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
                 </InputGroup>
-                
+
                 {/* Buttons */}
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
@@ -883,7 +884,7 @@ function Changes() {
                 <InputGroup className='Change-Input1'>
                   <Button>
                     <img src={Spain} width={45} alt='Spain' /> Eur
-                    </Button>
+                  </Button>
                   <Input disabled className='centered-input'
                     placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
                   />
@@ -982,10 +983,10 @@ function Changes() {
                       Ingresa el número de documento de identidad. Lo utilizaremos para comprobar que eres realmente tú quien utilizará la plataforma.
                     </p>
                     <p style={{ color: '#a91111', padding: '10px' }}>
-                      <strong >IMPORTANTE:</strong> Debes subir la imagen de tu DNI o Pasaporte junto a tu rostro como en el ejemplo que se muestra. Los datos deben ser legibles y no debes cubrirlos de ninguna manera. El uso de esta información será únicamente para comprobar que realmente eres tú quien realizará el cambio.
+                      <strong >IMPORTANTE:</strong> Debes subir la imágen de tu DNI o Pasaporte y otra imágen junto a tu rostro como en el ejemplo que se muestra. Los datos deben ser legibles y no debes cubrirlos de ninguna manera. El uso de esta información será únicamente para comprobar que realmente eres tú quien realizará el cambio.
                     </p>
                     <div className="form-group">
-                      <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
+                      <Label htmlFor="imageInput">Seleccionar Imagen del Dni:</Label>
                       <Input
                         type="file"
                         className="form-control-file"
@@ -993,8 +994,9 @@ function Changes() {
                         onChange={(e) => setUseImg(e.target.files[0])}
                       />
                     </div>
+                    <img style={{ marginLeft: '35%', marginTop: '1em', width: '200px' }} src={DniVerification} alt='Dni'></img>
                     <div className="form-group">
-                      <Label htmlFor="imageInput">Seleccionar Imagen del DNI:</Label>
+                      <Label htmlFor="imageInput">Seleccionar Imagen Tipo Selfie:</Label>
                       <Input
                         type="file"
                         className="form-control-file"
@@ -1002,6 +1004,7 @@ function Changes() {
                         onChange={(e) => setUseImgDni(e.target.files[0])}
                       />
                     </div>
+                    <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
                     <div style={{ marginTop: '1em', marginLeft: '.5em' }} className="form-check">
                       <Input
                         type="checkbox"
@@ -1014,17 +1017,8 @@ function Changes() {
                         Acepto los términos y condiciones
                       </Label>
                     </div>
-                    <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
 
-                    <Button
-                      disabled={
-                        !termsCheckbox ||
-                        use_dni === '' ||
-                        use_img === '' ||
-                        use_imgDni === ''}
-                      type='submit'
-                      className="btn col-md-12"
-                      color='success'>
+                    <Button disabled={!termsCheckbox} type='submit' className="btn col-md-12" color='success'>
                       Enviar
                     </Button>
                   </form>
