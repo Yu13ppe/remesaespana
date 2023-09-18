@@ -6,30 +6,30 @@ import { Input, Button } from 'reactstrap';
 import { Link, useHistory } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useDataContext } from '../Context/dataContext';
 
 function Recover() {
   const history = useHistory();
-  const { accessToken } = useDataContext();
   const [user, setUser] = useState([]);
   const [to, setTo] = useState("");
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Users`);
       setUser(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, accessToken]);
+  }, [setUser]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   const handleSubmit = async (event) => {
+
+    const verifUser = user.find((user) => user.usu_email === to)
     event.preventDefault();
-    if (user.use_email !== to) {
+    if (!verifUser) {
       toast.error('El correo no existe');
       return;
     }
