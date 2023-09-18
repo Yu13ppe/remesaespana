@@ -525,8 +525,7 @@ function Dashboard() {
                   <>
                     <p>{select.User.use_name} {select.User.use_lastName}</p>
                     <p>{select.User.use_email}</p>
-                    <p>{select.User.use_phone ? select.User.use_phone : "No cuenta con número celular"}</p>
-                    <p>{select.User.use_NIE}</p>
+                    <p>{select.User.use_dni}</p>
                   </>
                 )}
               </Col>
@@ -575,58 +574,73 @@ function Dashboard() {
               <p dangerouslySetInnerHTML={{ __html: select && select.mov_comment.replace(/\n/g, "<br/>") }} />
             </Alert>
             <FormGroup>
-              <Label for="amount">Monto a transferir</Label>
+              <Label for="amount">
+                {
+                  (select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil') ?
+                  'Monto a transferir':
+                  'Monto a Entregar'
+                }
+              </Label>
               <Input type="text" name="amount" id="amount" disabled defaultValue={select && `${select.mov_amount}`} />
             </FormGroup>
-            <FormGroup>
-              <Label for="currency">Elige la Moneda</Label>
-              <Input
-                type="select"
-                id="payment"
-                defaultValue={payment}
-                onChange={(e) => setPayment(e.target.value)}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="BS">Bolívar</option>
-                <option value="USD">Dólar</option>
-              </Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Selecciona el Banco a transferir</Label>
-              <Input
-                type="select"
-                id="bankOptionPaySelect"
-                defaultValue={bankOptionPay}
-                disabled={payment === ''}
-                onChange={(e) => { setBankOptionPay(e.target.value) }}
-              >
-                <option value="">Selecciona una opción</option>
-                {payment === 'BS' ?
-                  banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
-                    return bank.accbs_bank ?
-                      <option value={bank.accbs_id}>{bank.accbs_bank}</option>
-                      : null
-                  })
-                  : payment === 'USD' ?
-                    banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
-                      return bank.accusd_Bank ?
-                        <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
+            {
+              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+              <FormGroup>
+                <Label for="currency">Elige la Moneda</Label>
+                <Input
+                  type="select"
+                  id="payment"
+                  defaultValue={payment}
+                  onChange={(e) => setPayment(e.target.value)}
+                >
+                  <option value="">Selecciona una opción</option>
+                  <option value="BS">Bolívar</option>
+                  <option value="USD">Dólar</option>
+                </Input>
+              </FormGroup>
+            }
+            {
+              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+              <FormGroup>
+                <Label>Selecciona el Banco a transferir</Label>
+                <Input
+                  type="select"
+                  id="bankOptionPaySelect"
+                  defaultValue={bankOptionPay}
+                  disabled={payment === ''}
+                  onChange={(e) => { setBankOptionPay(e.target.value) }}
+                >
+                  <option value="">Selecciona una opción</option>
+                  {payment === 'BS' ?
+                    banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
+                      return bank.accbs_bank ?
+                        <option value={bank.accbs_id}>{bank.accbs_bank}</option>
                         : null
                     })
-                    : null
-                }
-              </Input>
-            </FormGroup>
-            <FormGroup>
-              <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
-              <Input
-                type="file"
-                className="form-control-file"
-                id="imageInput"
-                disabled={payment === ''}
-                onChange={(e) => setMovImg(e.target.files[0])}
-              />
-            </FormGroup>
+                    : payment === 'USD' ?
+                      banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
+                        return bank.accusd_Bank ?
+                          <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
+                          : null
+                      })
+                      : null
+                  }
+                </Input>
+              </FormGroup>
+            }
+            {
+              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+              <FormGroup>
+                <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
+                <Input
+                  type="file"
+                  className="form-control-file"
+                  id="imageInput"
+                  disabled={payment === ''}
+                  onChange={(e) => setMovImg(e.target.files[0])}
+                />
+              </FormGroup>
+            }
             {showCommentBox && (
               <FormGroup>
                 <Label for="comment">Comentario</Label>
@@ -640,7 +654,6 @@ function Dashboard() {
                 <Button color="danger" onClick={() => setShowCommentBox(true)}>
                   Rechazar
                 </Button>
-
                 <Button color="success" onClick={handleSubmitSendVerify}>
                   Enviar
                 </Button>

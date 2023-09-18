@@ -26,8 +26,8 @@ import DniVerification from '../Assets/Images/DniVerification.png'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NavBar } from '../Components/NavBar';
-import { Footer } from '../Components/Footer';
 import { NotFound404 } from '../Pages/NotFound404';
+import { FixeedAlert } from '../Components/FixeedAlert';
 
 function Changes() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,6 +60,24 @@ function Changes() {
   const [showAccNumber, setShowAccNumber] = useState(false);
   const [porcents, setPorcents] = useState([])
   const [porcent, setPorcent] = useState('')
+  const [length, setLength] = useState('')
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
+
+  const showUserStatusAlert = (userStatus) => {
+    if (userStatus === 'N') {
+      setAlertMessage('Usuario no verificado');
+      setAlertType('error');
+    } else if (userStatus === 'E') {
+      setAlertMessage('Usuario en proceso de verificación');
+      setAlertType('info');
+    } else if (userStatus === 'S') {
+      setAlertMessage('Usuario verificado');
+      setAlertType('success');
+    }
+    setShowAlert(true);
+  };
 
   const toggleTridModal = () => {
     setTridModalOpen(!tridModalOpen);
@@ -136,7 +154,8 @@ function Changes() {
     fetchDataAccUsd();
     fetchDataUser();
     fetchDataPorcent();
-  }, [fetchDataUser]);
+    showUserStatusAlert(user.use_verif);
+  }, [fetchDataUser, user]);
 
   // Cambios de monto
   const handleAmountChange = (e) => {
@@ -211,8 +230,9 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', `${accNumber} \n ${accBank} \n ${accOwner} \n ${accTlf} \n ${accDni} \n` + note);
+    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} \n` + note);
     formData.append('mov_img', 'Retiro de Divisa');
+    formData.append('mov_typeOutflow', sendOption);
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? 99 : 0));
     formData.append('mov_accGbpId', (payment === 'GBP' ? 99 : 0));
@@ -462,6 +482,7 @@ function Changes() {
                           onChange={(e) => handleAmountChange(e)}
                           invalid={
                             (sendAmount !== "" && sendAmount < 20) ||
+                            (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
                             (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                             (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                             (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
@@ -471,6 +492,12 @@ function Changes() {
                             <FormFeedback>
                               El monto mínimo a retirar es de 20
                             </FormFeedback>
+                            : null) ||
+                          (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 ?
+                            <FormFeedback>
+                              El monto mínimo a retirar en efectivo es de 100
+                            </FormFeedback>
+                            : null
                             : null) ||
                           (payment === 'EUR' ? user.use_amountEur < sendAmount ?
                             <FormFeedback>
@@ -524,7 +551,7 @@ function Changes() {
                               disabled
                             />
                             <FormFeedback valid>
-                              Multiplos de 20 (Valido solo en Caracas y Maracaibo)
+                              Multiplos de 20
                             </FormFeedback>
                           </InputGroup>
                         </FormGroup>
@@ -550,29 +577,69 @@ function Changes() {
                     {/* Datos para Nota */}
                     {
                       sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup >
+                        (
+                        <FormGroup >
                           <Label for="receiveAmountInput">Ingrese su número de cuenta</Label>
                           <Input
                             type="text"
                             id="accNumber"
                             placeholder='01080000000000000000'
-                            value={accNumber}
                             onChange={(e) => {
-                              const inputValue = e.target.value;
-                              // Usar una expresión regular para eliminar cualquier carácter que no sea número
-                              const numericValue = inputValue.replace(/[^0-9]/g, '');
-                              setAccNumber(`Numero de cuenta: ${numericValue}`);
+                              const target = e.target.value
+                              setLength(target.length)
+                              setAccNumber(`Numero de cuenta: ${target} \n`);
                             }}
                             maxLength={20}
                             pattern="[0-9]*" // Aceptar solo números
-                            invalid={showAccNumber && (accNumber.length !== 20)}
-                            valid={showAccNumber && (accNumber.length === 20)}
+                            invalid={showAccNumber && length !== 20}
+                            valid={showAccNumber && length === 20}
                           />
                           <FormFeedback invalid>
                             El número de cuenta debe tener exactamente 20 dígitos.
                           </FormFeedback>
                         </FormGroup>
 
+                        )
+                        :
+                        null
+                    }
+                    {
+                      sendOption === "Efectivo" ?
+                        (
+                          <div className='row col-12'>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Nombre completo de quien recibe</Label>
+                              <Input
+                                type="text"
+                                id="accBank"
+                                onChange={(e) => setAccBank(`Persona a recibir: ${e.target.value} \n`)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Cédula de quien recibe</Label>
+                              <Input
+                                type="text"
+                                id="accDni"
+                                onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">¿Quien le envia?</Label>
+                              <Input
+                                type="text"
+                                id="setAccOwner"
+                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
+                              />
+                            </FormGroup>
+                            <FormGroup className='col-6'>
+                              <Label for="receiveAmountInput">Telefono de contacto</Label>
+                              <Input
+                                type="text"
+                                id="accTlf"
+                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
+                              />
+                            </FormGroup>
+                          </div>
                         )
                         :
                         null
@@ -586,7 +653,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accBank"
-                                onChange={(e) => setAccBank(`Banco: ${e.target.value}`)}
+                                onChange={(e) => setAccBank(`Banco: ${e.target.value} \n`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -594,7 +661,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="setAccOwner"
-                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value}`)}
+                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -602,7 +669,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accTlf"
-                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value}`)}
+                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
                               />
                             </FormGroup>
                             <FormGroup className='col-6'>
@@ -610,7 +677,7 @@ function Changes() {
                               <Input
                                 type="text"
                                 id="accDni"
-                                onChange={(e) => setAccDni(`DNI: ${e.target.value}`)}
+                                onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
                               />
                             </FormGroup>
                           </div>
@@ -620,7 +687,8 @@ function Changes() {
                     }
                     {
                       sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (<FormGroup>
+                        (
+                        <FormGroup>
                           <Label for="receiveAmountInput">Ingrese un comentario (opcional)</Label>
                           <Input
                             type="textarea"
@@ -640,13 +708,13 @@ function Changes() {
                     {
                       sendOption === "Efectivo" ?
                         (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese Los datos requeridos </Label>
+                          <Label for="receiveAmountInput">Ingrese la direccion de entrega </Label>
                           <Input
                             type="textarea"
                             id="noteTextArea"
                             rows="4"
                             disabled={payment === ''}
-                            placeholder="Ingrese la ubicacion a donde desea recibir y un numero de contacto"
+                            placeholder="Direccion de entrega"
                             onChange={(e) => setNote(
                               `Nota: ${e.target.value}`
                             )}
@@ -690,7 +758,7 @@ function Changes() {
                       </Button>
                     }
                     {
-                      sendOption === "Cuenta bancaria" &&
+                      sendOption === "Cuenta Bancaria" &&
                       <Button disabled={
                         payment === '' ||
                         sendOption === '' ||
@@ -699,7 +767,7 @@ function Changes() {
                         accOwner === '' ||
                         accTlf === '' ||
                         accDni === '' ||
-                        sendAmount === "" ||
+                        sendAmount === '' ||
                         sendAmount < 20 ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
@@ -723,8 +791,7 @@ function Changes() {
                         type="select"
                         id="payment"
                         defaultValue={payment}
-                        onChange={(e) => setPayment(e.target.value)}
-                      >
+                        onChange={(e) => setPayment(e.target.value)}>
                         <option value="">Selecciona una opción</option>
                         <option value="EUR">Euro</option>
                         <option value="GBP">Libra Esterlina</option>
@@ -733,7 +800,7 @@ function Changes() {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="amountInput">Coloca el monto que deseas cargar</Label>
+                      <Label htmlFor="sendAmount">Coloca el monto que deseas cargar</Label>
                       <InputGroup>
                         <Input
                           type="number"
@@ -753,14 +820,13 @@ function Changes() {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label>Selecciona el Banco a transferir</Label>
+                      <Label htmlFor='bankOptionPaySelect' >Selecciona el método de carga</Label>
                       <Input
                         type="select"
                         id="bankOptionPaySelect"
                         defaultValue={bankOptionPay}
                         disabled={payment === ''}
-                        onChange={(e) => { setBankOptionPay(e.target.value) }}
-                      >
+                        onChange={(e) => { setBankOptionPay(e.target.value) }}>
                         <option value="">Selecciona una opción</option>
                         {payment === 'EUR' ?
                           banksEUR.filter((bank) => bank.acceur_status === 'Activo').map((bank) => {
@@ -871,6 +937,7 @@ function Changes() {
           ) : (
             <div style={{ height: '100vh' }}>
               <NavBar />
+              {showAlert && <FixeedAlert message={alertMessage} type={alertType} />}
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
                 <h2>Hola {user.use_name} {user.use_lastName}</h2>
@@ -1039,7 +1106,6 @@ function Changes() {
               </Modal>
 
               <ToastContainer />
-              <Footer />
             </div>
           )
         ) : (

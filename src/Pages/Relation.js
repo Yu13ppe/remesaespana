@@ -3,6 +3,7 @@ import axios from 'axios';
 import { NavBar } from '../Components/NavBar';
 import { useDataContext } from '../Context/dataContext';
 import { NotFound404 } from './NotFound404';
+import { toast, ToastContainer } from 'react-toastify';
 import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert } from 'reactstrap';
 
 function Relation() {
@@ -45,22 +46,106 @@ function Relation() {
   //   }
   // };
 
+  const handleSubmit = async event => {
+    event.preventDefault();
+
+    if (operationType === 'Ingreso') {
+      const formData = new FormData();
+      formData.append('bal_currency', selectedCurrency);
+      formData.append('bal_amount', amount);
+      formData.append('bal_type', 'Deposito');
+      formData.append('bal_comment', 'Ingreso de Administración');
+      formData.append('bal_accEurId', (selectedCurrency === 'EUR' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accUsdId', (selectedCurrency === 'USD' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accGbpId', (selectedCurrency === 'GBP' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accBsId', (selectedCurrency === 'BS' ? parseInt(selectedBank) : 0));
+
+      try {
+        await axios.post(
+          'https://apiremesa.up.railway.app/BalanceAcc/create',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        toggleModal();
+        fetchData();
+        toast.success('Cambio realizado con exito!', {
+          position: 'bottom-right',
+          autoClose: 10000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        console.log('Request sent successfully');
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    if (operationType === 'Egreso') {
+      const formData = new FormData();
+      formData.append('bal_currency', selectedCurrency);
+      formData.append('bal_amount', amount);
+      formData.append('bal_type', 'Retiro');
+      formData.append('bal_comment', 'Retiro de Administración');
+      formData.append('bal_accEurId', (selectedCurrency === 'EUR' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accUsdId', (selectedCurrency === 'USD' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accGbpId', (selectedCurrency === 'GBP' ? parseInt(selectedBank) : 0));
+      formData.append('bal_accBsId', (selectedCurrency === 'BS' ? parseInt(selectedBank) : 0));
+
+      try {
+        await axios.post(
+          'https://apiremesa.up.railway.app/BalanceAcc/create',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        toggleModal();
+        fetchData();
+        toast.success('Cambio realizado con exito!', {
+          position: 'bottom-right',
+          autoClose: 10000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        console.log('Request sent successfully');
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  };
+
   const calculateTotals = () => {
     let totalEur = 0;
     let totalGbp = 0;
     let totalUsd = 0;
     let totalBs = 0;
 
-    movements.forEach((movement) => {
-      const total = parseFloat(movement.tor_total);
+    movements.forEach((totalReg) => {
+      const total = parseFloat(totalReg.tor_total);
 
-      if (movement.AccountsEur) {
+      if (totalReg.AccountsEur) {
         totalEur += total;
-      } else if (movement.AccountsGbp) {
+      } else if (totalReg.AccountsGbp) {
         totalGbp += total;
-      } else if (movement.AccountsUsd) {
+      } else if (totalReg.AccountsUsd) {
         totalUsd += total;
-      } else if (movement.AccountsBs) {
+      } else if (totalReg.AccountsBs) {
         totalBs += total;
       }
     });
@@ -92,7 +177,6 @@ function Relation() {
       console.log(error);
     }
   };
-
   const fetchDataAdmin = useCallback(async () => {
     try {
       const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
@@ -100,7 +184,6 @@ function Relation() {
     } catch (error) {
     }
   }, [setAdmin, accessAdminToken]);
-
   const fetchDataEUR = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
@@ -175,12 +258,12 @@ function Relation() {
               </tr>
             </thead>
             <tbody>
-              {filteredRelation.map((movement) => (
-                (movement.AccountsEur?.acceur_Bank !== 'Ghost' &&
-                  movement.AccountsBs?.accbs_bank !== 'Ghost' &&
-                  movement.AccountsGbp?.accgbp_Bank !== 'Ghost' &&
-                  movement.AccountsUsd?.accusd_Bank !== 'Ghost') ? (
-                  <tr key={movement.tor_id}>
+              {filteredRelation.map((totalReg) => (
+                (totalReg.AccountsEur?.acceur_Bank !== 'Ghost' &&
+                  totalReg.AccountsBs?.accbs_bank !== 'Ghost' &&
+                  totalReg.AccountsGbp?.accgbp_Bank !== 'Ghost' &&
+                  totalReg.AccountsUsd?.accusd_Bank !== 'Ghost') ? (
+                  <tr key={totalReg.tor_id}>
                     <td>
                       {filteredRelation
                         .filter((mov) => (
@@ -189,20 +272,20 @@ function Relation() {
                           mov.AccountsGbp?.accgbp_Bank !== 'Ghost' &&
                           mov.AccountsUsd?.accusd_Bank !== 'Ghost'
                         ))
-                        .indexOf(movement) + 1
+                        .indexOf(totalReg) + 1
                       }
                     </td>
                     <td>
-                      {movement.AccountsBs ? `${movement.AccountsBs.accbs_bank} (${movement.AccountsBs.accbs_owner}) `: ''}
-                      {movement.AccountsEur ? `${movement.AccountsEur.acceur_Bank} (${movement.AccountsEur.acceur_owner}) `: ''}
-                      {movement.AccountsGbp ? `${movement.AccountsGbp.accgbp_Bank} (${movement.AccountsGbp.accgbp_owner}) `: ''}
-                      {movement.AccountsUsd ? `${movement.AccountsUsd.accusd_Bank} (${movement.AccountsUsd.accusd_owner}) `: ''}
+                      {totalReg.AccountsBs ? `${totalReg.AccountsBs.accbs_bank} (${totalReg.AccountsBs.accbs_owner}) ` : ''}
+                      {totalReg.AccountsEur ? `${totalReg.AccountsEur.acceur_Bank} (${totalReg.AccountsEur.acceur_owner}) ` : ''}
+                      {totalReg.AccountsGbp ? `${totalReg.AccountsGbp.accgbp_Bank} (${totalReg.AccountsGbp.accgbp_owner}) ` : ''}
+                      {totalReg.AccountsUsd ? `${totalReg.AccountsUsd.accusd_Bank} (${totalReg.AccountsUsd.accusd_owner}) ` : ''}
                     </td>
-                    <td>{movement.tor_totalIn}</td>
-                    <td>{movement.tor_totalOut}</td>
-                    <td>{movement.tor_total}</td>
-                    <td>{movement.tor_date}</td>
-                    <td>{movement.tor_currencyPrice}</td>
+                    <td>{totalReg.tor_totalIn}</td>
+                    <td>{totalReg.tor_totalOut}</td>
+                    <td>{totalReg.tor_total}</td>
+                    <td>{totalReg.tor_date}</td>
+                    <td>{totalReg.tor_currencyPrice}</td>
                   </tr>
                 ) : null
               ))}
@@ -249,8 +332,7 @@ function Relation() {
                     id="operationType"
                     className="form-control"
                     value={operationType}
-                    onChange={(e) => setOperationType(e.target.value)}
-                  >
+                    onChange={(e) => setOperationType(e.target.value)}>
                     <option value="">Seleccione una opción</option>
                     <option value="Ingreso">Ingreso</option>
                     <option value="Egreso">Egreso</option>
@@ -262,13 +344,13 @@ function Relation() {
                     <select
                       id="currency"
                       className="form-control"
-                      value={selectedCurrency}
+                      defaultValue={selectedCurrency}
                       onChange={(e) => setSelectedCurrency(e.target.value)}
                     >
                       <option value="">Seleccione una opción</option>
-                      <option value="EUR">Euros</option>
-                      <option value="GBP">Libras</option>
-                      <option value="USD">Dólares</option>
+                      <option value="EUR">Euro</option>
+                      <option value="GBP">Libra Esterlina</option>
+                      <option value="USD">Dolar</option>
                       <option value="BS">Bolívares</option>
                     </select>
                   </div>
@@ -395,7 +477,7 @@ function Relation() {
               </form>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" >
+              <Button color="primary" onClick={handleSubmit}>
                 Realizar Operación
               </Button>{' '}
               <Button color="secondary" onClick={toggleModal}>
@@ -404,6 +486,7 @@ function Relation() {
             </ModalFooter>
           </Modal>
         </div>
+        <ToastContainer />
       </div>
     ) : (
       <NotFound404 />

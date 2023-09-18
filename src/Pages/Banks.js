@@ -372,7 +372,7 @@ function Banks() {
     {
       name: "Caixa",
       Component: Caixa
-    },
+    }
   ]
 
   return (

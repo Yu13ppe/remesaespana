@@ -26,7 +26,6 @@ function Register() {
           use_dni: '',
           use_email,
           use_password,
-          use_phone: '',
           use_verif: 'N',
           use_img: ''
         }
