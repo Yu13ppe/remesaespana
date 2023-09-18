@@ -27,7 +27,7 @@ function Recover() {
 
   const handleSubmit = async (event) => {
 
-    const verifUser = user.find((user) => user.usu_email === to)
+    const verifUser = user.find((user) => user.usu_email !== to)
     event.preventDefault();
     if (!verifUser) {
       toast.error('El correo no existe');
