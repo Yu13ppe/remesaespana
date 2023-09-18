@@ -647,7 +647,7 @@ function Banks() {
                     >
                       <option value="">Selecciona una opción</option>
                       <option value="BBVA">BBVA</option>
-                      <option value="SANTANDER">Santander</option>
+                      <option value="Santander">Santander</option>
                       <option value="Revolut">Revolut</option>
                       <option value="Wise">Wise</option>
                       <option value="Cajamar">Cajamar</option>
