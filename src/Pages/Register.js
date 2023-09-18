@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import { Input, Button, Label, FormFeedback, InputGroup } from 'reactstrap';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, Redirect } from 'react-router-dom';
 import { FaUser, FaLock, FaRegEnvelope } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
+import { useDataContext } from '../Context/dataContext';
 
 function Register() {
+  const { logged } = useDataContext();
   const history = useHistory();
   const [use_name, setUse_name] = useState('');
   const [use_lastName, setUse_lastName] = useState('');
@@ -58,6 +60,9 @@ function Register() {
     }
   };
   return (
+    logged ? (
+      <Redirect to="/Changes" />
+    ) :
     <div className='RegisterBody'>
       <div className="card-register" style={{ width: '600px' }}>
         <Link to='/'>

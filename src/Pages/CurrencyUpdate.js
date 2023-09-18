@@ -14,6 +14,7 @@ import Uk from '../Assets/Images/uk.png'
 import Usa from '../Assets/Images/usa.png'
 import Venezuela from '../Assets/Images/venezuela.png'
 import { Footer } from '../Components/Footer';
+import {Spinner} from '../Components/Spinner'; 
 
 function CurrencyUpdate() {
   const { accessAdminToken } = useDataContext();
@@ -85,10 +86,23 @@ function CurrencyUpdate() {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); 
+  }, [])
+
   return (
-    admin.adm_role === 'A' ? (
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className='currencyContainer'>
           {/* Cambios */}
 
@@ -184,9 +198,13 @@ function CurrencyUpdate() {
         <Footer />
       </div>
 
-    )
-      : <NotFound404 />
-  )
+) : (
+  <NotFound404 />
+)}
+</>
+)}
+</div>
+);
 }
 
 export { CurrencyUpdate }

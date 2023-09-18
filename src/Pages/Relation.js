@@ -5,6 +5,7 @@ import { useDataContext } from '../Context/dataContext';
 import { NotFound404 } from './NotFound404';
 import { toast, ToastContainer } from 'react-toastify';
 import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert } from 'reactstrap';
+import {Spinner} from '../Components/Spinner'; 
 
 function Relation() {
   const { accessAdminToken } = useDataContext();
@@ -27,24 +28,13 @@ function Relation() {
     setModalOpen(!modalOpen);
   };
 
-  // JOSE MARDITO PARA BOLAS
-  // Aqui para hacer un ingreso o egreso manualmente hice esto pero aja no lo terminexdd
-  //Mi idea es hacer algo igual a changes (Crear un movimiento de retiro o carga por banco seleccionado pero aja se me quemo el cerebro por la hora)
-  // const performOperation = async () => {
-  //   try {
+  const [isLoading, setIsLoading] = useState(true);
 
-  //     const response = await axios.put(`https://apiremesa.up.railway.app/Movements`, {
-  //       operationType,
-  //       amount,
-  //     });
-
-  //     fetchData();
-
-  //     toggleModal();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); 
+  }, []);
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -161,7 +151,11 @@ function Relation() {
   const { totalEur, totalGbp, totalUsd, totalBs } = calculateTotals();
 
   const filteredRelation = movements.filter((mov) => {
-    const fullName = `${mov.tor_date}`.toLowerCase();
+    const fullName = `${mov.tor_date} 
+    ${mov.AccountsBs? mov.AccountsBs.accbs_bank : null} 
+    ${mov.AccountsEur? mov.AccountsEur.acceur_Bank : null} 
+    ${mov.AccountsGbp? mov.AccountsGbp.accgbp_Bank : null} 
+    ${mov.AccountsUsd? mov.AccountsUsd.accusd_Bank: null} `.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
 
@@ -227,9 +221,14 @@ function Relation() {
   }, [fetchDataAdmin]);
 
   return (
-    admin.adm_role === 'A' ? (
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className='userContent'>
           <h1 className='titleUser'>Relación</h1>
           <div className="container">
@@ -487,11 +486,15 @@ function Relation() {
           </Modal>
         </div>
         <ToastContainer />
-      </div>
-    ) : (
-      <NotFound404 />
-    )
+        </div>
+        
+        ) : (
+          <NotFound404 />
+        )}
+      </>
+    )}
+  </div>
   );
-}
+        }
 
 export { Relation };

@@ -13,7 +13,7 @@ function Footer() {
           <Link className='linkFooter' to='/'>
             <li>Cookies</li>
           </Link>
-          <Link className='linkFooter' to='/'>
+          <Link className='linkFooter' to='/Privacy'>
             <li>Privacidad</li>
           </Link>
           <a className='linkFooter' href='https://wa.me/+34722850962'>

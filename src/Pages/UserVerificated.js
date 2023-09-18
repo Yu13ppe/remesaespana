@@ -17,6 +17,8 @@ import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineClockCircle } from
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
+import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+
 
 function UserVerificated() {
   const { accessAdminToken } = useDataContext();
@@ -67,6 +69,14 @@ function UserVerificated() {
   const toggleMovements = () => setModalMovements(!modalMovements);
   const toggleViewer = () => setModalViewer(!modalViewer);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); // Simula que la carga demora 2 segundos
+  }, []);
 
   const filteredUsuarios = users.filter(user => {
     const fullName = `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
@@ -186,9 +196,14 @@ function UserVerificated() {
   };
 
   return (
-    admin.adm_role === 'A' ?
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className='userContent'>
           <h1 className='titleUser'>
             Usuarios
@@ -612,9 +627,13 @@ function UserVerificated() {
 
         </div >
       </div>
-      :
+     ) : (
       <NotFound404 />
-  )
+    )}
+  </>
+)}
+</div>
+)
 }
 
 export { UserVerificated }

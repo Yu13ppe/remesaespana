@@ -17,6 +17,8 @@ import axios from 'axios'
 import { AiOutlineClockCircle } from 'react-icons/ai'
 import { useDataContext } from '../Context/dataContext'
 import { NavBar } from '../Components/NavBar';
+import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+
 
 function UserNoVerificated() {
   const { accessAdminToken } = useDataContext();
@@ -44,6 +46,7 @@ function UserNoVerificated() {
   const [use_amountUsd, setAmountUsd] = useState(Number);
   const [use_amountGbp, setAmountGbp] = useState(Number);
   const [selectedUser, setSelectedUser] = useState(null);
+  
 
   const toggleImageUser = () => setModalImageUser(!modalImageUser);
   const toggleUser = () => {
@@ -172,6 +175,14 @@ function UserNoVerificated() {
     }
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); // Simula que la carga demora 2 segundos
+  }, []);
+
   const handleDelete = async id => {
     try {
       await axios.delete(
@@ -185,9 +196,14 @@ function UserNoVerificated() {
   };
 
   return (
-    admin.adm_role === 'A' ?
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className='userContent'>
           <h1 className='titleUser'>
             Usuarios
@@ -466,8 +482,12 @@ function UserNoVerificated() {
 
         </div >
       </div>
-      :
-      <NotFound404 />
+      ) : (
+        <NotFound404 />
+      )}
+    </>
+  )}
+</div>
   )
 }
 

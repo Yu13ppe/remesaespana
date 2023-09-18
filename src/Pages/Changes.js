@@ -461,12 +461,28 @@ function Changes() {
                           id="bankOptionSelect"
                           defaultValue={sendOption}
                           disabled={payment === ''}
-                          onChange={(e) => { setPorcent(e.target.value) }}
-                        >
+                          onChange={(e) => { setPorcent(e.target.value) }}>
                           <option value="">Selecciona una opción</option>
-                          {porcents.map((por) => {
-                            return <option value={por.por_porcent}>{por.por_location}</option>
-                          })}
+                          {payment === 'EUR' ?
+                            porcents.map((por) => {
+                              return por.por_porcentEur ?
+                                <option value={por.por_porcentEur}>{por.por_stateLocation}</option>
+                                : null
+                            })
+                            : payment === 'USD' ?
+                              porcents.map((por) => {
+                                return por.por_porcentUsd ?
+                                  <option value={por.por_porcentUsd}>{por.por_stateLocation}</option>
+                                  : null
+                              })
+                              : payment === 'GBP' ?
+                                porcents.map((por) => {
+                                  return por.por_porcentGbp ?
+                                    <option value={por.por_porcentGbp}>{por.por_stateLocation}</option>
+                                    : null
+                                })
+                                : null
+                          }
                         </Input>
                       </FormGroup>}
                     {/* Monto a debitar */}
@@ -523,61 +539,52 @@ function Changes() {
                       </InputGroup>
                     </FormGroup>
                     {/* Seleccionar forma de pago a recibir */}
-                    {
-                      sendOption === "Cuenta Bancaria" ?
-                        <FormGroup>
-                          <Label for="receiveAmountInput">Monto a recibir en Bolivares</Label>
-                          <InputGroup>
-                            <Input
-                              type="text"
-                              id="receiveAmountInput"
-                              value={receiveAmount}
-                              disabled
-                            />
-                          </InputGroup>
-                        </FormGroup>
-                        : null
-                    }
-                    {
-                      sendOption === "Efectivo" ?
-                        <FormGroup >
-                          <Label for="receiveUsdAmountInput">Monto a recibir en Dolares</Label>
-                          <InputGroup>
-                            <Input
-                              type="text"
-                              id="receiveUsdAmountInput"
-                              value={receiveUsdAmount}
-                              valid
-                              disabled
-                            />
-                            <FormFeedback valid>
-                              Multiplos de 20
-                            </FormFeedback>
-                          </InputGroup>
-                        </FormGroup>
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" ?
-                        <FormGroup>
-                          <Label for="receiveAmountInput">Monto a recibir en Bolivares</Label>
-                          <InputGroup>
-                            <Input
-                              type="text"
-                              id="receiveAmountInput"
-                              value={parseInt(receiveAmount)}
-                              disabled
-                            />
-                          </InputGroup>
-                        </FormGroup>
-                        :
-                        null
-                    }
+                    {sendOption === "Cuenta Bancaria" ?
+                      <FormGroup>
+                        <Label for="receiveAmountInput">Monto a recibir en Bolivares</Label>
+                        <InputGroup>
+                          <Input
+                            type="text"
+                            id="receiveAmountInput"
+                            value={receiveAmount}
+                            disabled
+                          />
+                        </InputGroup>
+                      </FormGroup>
+                      : null}
+                    {sendOption === "Efectivo" ?
+                      <FormGroup >
+                        <Label for="receiveUsdAmountInput">Monto a recibir en Dolares</Label>
+                        <InputGroup>
+                          <Input
+                            type="text"
+                            id="receiveUsdAmountInput"
+                            value={receiveUsdAmount}
+                            valid
+                            disabled
+                          />
+                          <FormFeedback valid>
+                            Multiplos de 20
+                          </FormFeedback>
+                        </InputGroup>
+                      </FormGroup>
+                      : null}
+                    {sendOption === "Pago Movil" ?
+                      <FormGroup>
+                        <Label for="receiveAmountInput">Monto a recibir en Bolivares</Label>
+                        <InputGroup>
+                          <Input
+                            type="text"
+                            id="receiveAmountInput"
+                            value={parseInt(receiveAmount)}
+                            disabled
+                          />
+                        </InputGroup>
+                      </FormGroup>
+                      : null}
                     {/* Datos para Nota */}
-                    {
-                      sendOption === "Cuenta Bancaria" ?
-                        (
+                    {sendOption === "Cuenta Bancaria" ?
+                      (
                         <FormGroup >
                           <Label for="receiveAmountInput">Ingrese su número de cuenta</Label>
                           <Input
@@ -599,95 +606,105 @@ function Changes() {
                           </FormFeedback>
                         </FormGroup>
 
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Efectivo" ?
-                        (
-                          <div className='row col-12'>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Nombre completo de quien recibe</Label>
-                              <Input
-                                type="text"
-                                id="accBank"
-                                onChange={(e) => setAccBank(`Persona a recibir: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Cédula de quien recibe</Label>
-                              <Input
-                                type="text"
-                                id="accDni"
-                                onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">¿Quien le envia?</Label>
-                              <Input
-                                type="text"
-                                id="setAccOwner"
-                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Telefono de contacto</Label>
-                              <Input
-                                type="text"
-                                id="accTlf"
-                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                          </div>
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (
-                          <div className='row col-12'>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Ingrese el banco</Label>
-                              <Input
-                                type="text"
-                                id="accBank"
-                                onChange={(e) => setAccBank(`Banco: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Ingrese el propietario de la cuenta bancaria</Label>
-                              <Input
-                                type="text"
-                                id="setAccOwner"
-                                onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Ingrese el número teléfonico</Label>
-                              <Input
-                                type="text"
-                                id="accTlf"
-                                onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                            <FormGroup className='col-6'>
-                              <Label for="receiveAmountInput">Ingrese identificación</Label>
-                              <Input
-                                type="text"
-                                id="accDni"
-                                onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
-                              />
-                            </FormGroup>
-                          </div>
-                        )
-                        :
-                        null
-                    }
-                    {
-                      sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
-                        (
+                      ) : null}
+                    {sendOption === "Efectivo" ?
+                      (
+                        <div className='row col-12'>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Nombre completo de quien recibe</Label>
+                            <Input
+                              type="text"
+                              id="accBank"
+                              maxLength={45}
+                              placeholder='Juan Medina'
+                              onChange={(e) => setAccBank(`Persona a recibir: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Cédula de quien recibe</Label>
+                            <Input
+                              type="text"
+                              id="accDni"
+                              maxLength={11}
+                              placeholder='00000000'
+                              onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">¿Quien le envia?</Label>
+                            <Input
+                              type="text"
+                              id="setAccOwner"
+                              maxLength={45}
+                              placeholder='Maria Gonzalez'
+                              onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Telefono de contacto</Label>
+                            <Input
+                              type="text"
+                              id="accTlf"
+                              maxLength={15}
+                              placeholder='0414-000-0000'
+                              onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                        </div>
+                      )
+                      : null}
+                    {sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                      (
+                        <div className='row col-12'>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Ingrese el banco</Label>
+                            <Input
+                              type="text"
+                              id="accBank"
+                              maxLength={45}
+                              onChange={(e) => setAccBank(`Banco: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Ingrese el propietario de la cuenta bancaria</Label>
+                            <Input
+                              type="text"
+                              id="setAccOwner"
+                              maxLength={45}
+                              onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label htmlFor="receiveAmountInput">Ingrese el número telefónico</Label>
+                            <Input
+                              type="text" // Cambiado a type="text"
+                              id="accTlf"
+                              onInput={(e) => {
+                                const inputValue = e.target.value;
+                                const numericValue = inputValue.replace(/\D/g, ''); // Elimina caracteres que no son dígitos
+                                const truncatedValue = numericValue.slice(0, 15); // Limita a 10 dígitos
+                                e.target.value = truncatedValue; // Actualiza el valor del campo
+                                setAccTlf(`Número Telefónico: ${truncatedValue} \n`);
+                              }}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Ingrese identificación</Label>
+                            <Input
+                              type="text"
+                              id="accDni"
+                              onInput={(e) => {
+                                const inputValue = e.target.value;
+                                const truncatedValue = inputValue.slice(0, 10); // Limita a 10 caracteres
+                                e.target.value = truncatedValue; // Actualiza el valor del campo
+                                setAccDni(`DNI: ${truncatedValue} \n`);
+                              }}
+                            />
+                          </FormGroup>
+                        </div>
+                      ) : null}
+                    {sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
+                      (
                         <FormGroup>
                           <Label for="receiveAmountInput">Ingrese un comentario (opcional)</Label>
                           <Input
@@ -701,9 +718,9 @@ function Changes() {
                             )}
                           />
                         </FormGroup>
-                        )
-                        :
-                        null
+                      )
+                      :
+                      null
                     }
                     {
                       sendOption === "Efectivo" ?
@@ -806,14 +823,19 @@ function Changes() {
                           type="number"
                           id="sendAmount"
                           placeholder="Ej. 100"
-                          defaultValue={sendAmount}
+                          value={sendAmount}
                           disabled={payment === ''}
                           onChange={(e) => handleAmountChange(e)}
-                          invalid={sendAmount !== "" && sendAmount < 20} // Agrega el atributo invalid
+                          invalid={sendAmount !== "" && (sendAmount < 20 || sendAmount.toString().length > 6)}
                         />
+                        {sendAmount !== "" && sendAmount.toString().length > 6 && (
+                          <FormFeedback>
+                            El monto debe contener 6 cifras o menos.
+                          </FormFeedback>
+                        )}
                         {sendAmount !== "" && sendAmount < 20 && (
                           <FormFeedback>
-                            El monto mínimo a retirar es de 20
+                            El monto mínimo a retirar es de 20.
                           </FormFeedback>
                         )}
                       </InputGroup>
@@ -914,6 +936,7 @@ function Changes() {
                         className="form-control-file"
                         id="imageInput"
                         disabled={payment === ''}
+                        accept=".jpg,.jpeg,.png,.gif"
                         onChange={(e) => setMov_img(e.target.files[0])}
                       />
                     </FormGroup>
@@ -923,7 +946,9 @@ function Changes() {
                       mov_img === '' ||
                       sendAmount === '' ||
                       sendAmount === "" ||
-                      sendAmount < 20}
+                      sendAmount < 20 ||
+                      (sendAmount !== "" && sendAmount.toString().length > 6)
+                    }
                       color="primary"
                       onClick={handleSubmitLoad} className='btn col-md-12'>
                       Enviar
@@ -1014,11 +1039,13 @@ function Changes() {
               </div>
 
               {/* Alert */}
-              <Modal isOpen={modalOpen} centered toggle={toggleModal}>
-                <ModalHeader><b style={{ fontFamily: 'Roboto', fontWeight: '900' }}> ¡Necesitas verificación! </b> </ModalHeader>
+              <Modal isOpen={modalOpen} centered toggle={toggleModal} className="responsive-modal">
+                <ModalHeader>
+                  <b style={{ fontFamily: 'Roboto', fontWeight: '900' }}> ¡Necesitas verificación! </b>
+                </ModalHeader>
                 <ModalBody className='custom-modal-content'>
-                  <img src={VerificationImage} style={{ float: 'right' }} alt='Exclamation Triangle' width={120} />
-                  <Button style={{ background: '#409192', border: 'none', borderRadius: '15px', marginLeft: '15px' }} onClick={toggleSecondModal} >NECESITAS VERIFICACIÓN</Button>
+                  <img src={VerificationImage} style={{ float: 'right' }} alt='Exclamation Triangle' width={120} className='modal-image' />
+                  <Button style={{ background: '#409192', border: 'none', borderRadius: '15px', marginLeft: '15px' }} onClick={toggleSecondModal}>NECESITAS VERIFICACIÓN</Button>
                   <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <div className='modal-text' style={{ marginRight: '10px' }}>
                       <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>
@@ -1031,7 +1058,7 @@ function Changes() {
               </Modal>
 
               {/* Verificación de Identidad */}
-              <Modal isOpen={secondModalOpen} size='lg' centered toggle={toggleSecondModal}>
+              <Modal isOpen={secondModalOpen} size='lg' centered toggle={toggleSecondModal} className="responsive-modal">
                 <ModalHeader toggle={toggleSecondModal}>Verificación de Identidad</ModalHeader>
                 <ModalBody>
                   <form onSubmit={handleSubmitVerify}>
@@ -1050,7 +1077,7 @@ function Changes() {
                       Ingresa el número de documento de identidad. Lo utilizaremos para comprobar que eres realmente tú quien utilizará la plataforma.
                     </p>
                     <p style={{ color: '#a91111', padding: '10px' }}>
-                      <strong >IMPORTANTE:</strong> Debes subir la imágen de tu DNI o Pasaporte y otra imágen junto a tu rostro como en el ejemplo que se muestra. Los datos deben ser legibles y no debes cubrirlos de ninguna manera. El uso de esta información será únicamente para comprobar que realmente eres tú quien realizará el cambio.
+                      <strong>IMPORTANTE:</strong> Debes subir la imágen de tu DNI o Pasaporte y otra imágen junto a tu rostro como en el ejemplo que se muestra. Los datos deben ser legibles y no debes cubrirlos de ninguna manera. El uso de esta información será únicamente para comprobar que realmente eres tú quien realizará el cambio.
                     </p>
                     <div className="form-group">
                       <Label htmlFor="imageInput">Seleccionar Imagen del Dni:</Label>
@@ -1058,20 +1085,22 @@ function Changes() {
                         type="file"
                         className="form-control-file"
                         id="imageInput"
+                        accept=".jpg,.jpeg,.png,.gif"
                         onChange={(e) => setUseImg(e.target.files[0])}
                       />
                     </div>
-                    <img style={{ marginLeft: '35%', marginTop: '1em', width: '200px' }} src={DniVerification} alt='Dni'></img>
+                    <img style={{ marginLeft: '3%', marginTop: '1em', width: '200px' }} src={DniVerification} alt='Dni' className="modal-image1" />
                     <div className="form-group">
                       <Label htmlFor="imageInput">Seleccionar Imagen Tipo Selfie:</Label>
                       <Input
                         type="file"
                         className="form-control-file"
                         id="imageInputDNI"
+                        accept=".jpg,.jpeg,.png,.gif"
                         onChange={(e) => setUseImgDni(e.target.files[0])}
                       />
                     </div>
-                    <img style={{ marginLeft: '30%' }} src={ImageVerification} alt='ImageVerification'></img>
+                    <img style={{ marginLeft: '3%' }} src={ImageVerification} alt='ImageVerification' className="modal-image1" />
                     <div style={{ marginTop: '1em', marginLeft: '.5em' }} className="form-check">
                       <Input
                         type="checkbox"

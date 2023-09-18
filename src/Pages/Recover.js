@@ -3,11 +3,13 @@ import axios from 'axios';
 import slogan from '../Assets/Images/sloganremesa.png';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import { Input, Button } from 'reactstrap';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, Redirect } from 'react-router-dom';
+import { useDataContext } from '../Context/dataContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Recover() {
+  const { logged } = useDataContext();
   const history = useHistory();
   const [user, setUser] = useState([]);
   const [to, setTo] = useState("");
@@ -48,6 +50,9 @@ function Recover() {
   };
 
   return (
+    logged ? (
+      <Redirect to="/Changes" />
+    ) :
     <div className='RecoverBody'>
       <div>
         <div className="card-recovertop">

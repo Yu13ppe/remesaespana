@@ -3,7 +3,7 @@ import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
 import slogan from '../Assets/Images/sloganremesa.png';
 import { Input, Alert } from 'reactstrap';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, Redirect } from 'react-router-dom';
 import { useDataContext } from '../Context/dataContext';
 import { FaUser, FaLock, } from 'react-icons/fa';
 
@@ -14,7 +14,7 @@ function Login() {
   const [tkn, setTkn] = useState('');
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const {setLogged, setAccessToken } = useDataContext();
+  const {setLogged, setAccessToken, logged } = useDataContext();
   const [alertVisible, setAlertVisible] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
 
@@ -55,7 +55,10 @@ function Login() {
   };
 
   return (
-    <div className="LoginBody">
+    logged ? (
+      <Redirect to="/Changes" />
+    ) :
+    (<div className="LoginBody">
       <div>
         <div className="card-logintop">
           <img className="slogan" src={slogan} alt="slogan" />
@@ -118,7 +121,7 @@ function Login() {
           </div>
         </div>
       </div>
-    </div>
+    </div>)
   );
 }
 

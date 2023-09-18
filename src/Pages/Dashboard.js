@@ -14,13 +14,14 @@ import {
   FormGroup,
   Alert
 } from 'reactstrap';
-// import { Pie } from 'react-chartjs-2';
 import { FaArrowDown, FaArrowUp, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from './NotFound404';
+import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+
 
 function Dashboard() {
   const { accessAdminToken } = useDataContext();
@@ -415,11 +416,25 @@ function Dashboard() {
       console.error('Error:', error);
     }
   };
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); // Simula que la carga demora 2 segundos
+  }, []);
+  
 
   return (
-    admin.adm_role === 'A' ?
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <>
+            <NavBar />
+
         <div className="DashboardBody">
           <Container>
             <center>
@@ -637,6 +652,7 @@ function Dashboard() {
                   className="form-control-file"
                   id="imageInput"
                   disabled={payment === ''}
+                  accept=".jpg,.jpeg,.png,.gif"
                   onChange={(e) => setMovImg(e.target.files[0])}
                 />
               </FormGroup>
@@ -691,9 +707,13 @@ function Dashboard() {
         </Modal>
 
         <ToastContainer />
-      </div>
-      :
-      <NotFound404 />
+        </>
+        ) : (
+          <NotFound404 />
+        )}
+      </>
+    )}
+  </div>
   );
 }
 

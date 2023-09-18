@@ -20,6 +20,8 @@ import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
+import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+
 
 function Users() {
   const { accessAdminToken } = useDataContext();
@@ -191,10 +193,23 @@ function Users() {
     setCurrentPage(pageNumber);
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); // Simula que la carga demora 2 segundos
+  }, []);
+
   return (
-    admin.adm_role === 'A' ?
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className='userContent'>
           <h1 className='titleUser'>
             Usuarios
@@ -634,8 +649,12 @@ function Users() {
 
         </div >
       </div>
-      :
-      <NotFound404 />
+      ) : (
+        <NotFound404 />
+      )}
+    </>
+  )}
+</div>
   )
 }
 

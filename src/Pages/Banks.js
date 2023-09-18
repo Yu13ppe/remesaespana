@@ -32,6 +32,8 @@ import Unicaja from '../Assets/Images/Banks/UNICAJA.png'
 import Bankinter from '../Assets/Images/Banks/BANKINTER.png'
 import Bizum from '../Assets/Images/Banks/BIZUM.jpg'
 import Caixa from '../Assets/Images/Banks/CAIXABANK.png'
+import {Spinner} from '../Components/Spinner'; 
+
 
 function Banks() {
   const { accessAdminToken } = useDataContext();
@@ -69,6 +71,13 @@ function Banks() {
   const toggle = () => { setModal(!modal) };
   const [modal1, setModal1] = useState(false);
   const toggle1 = () => { setModal1(!modal1) };
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 900); 
+  }, [])
 
   const filteredBanks = [...banksEur, ...banksGbp, ...banksUsd].filter(Bank => {
     const fullName = `${Bank.acceur_Bank} ${Bank.accgbp_Bank} ${Bank.accusd_Bank} `.toLowerCase();
@@ -376,9 +385,14 @@ function Banks() {
   ]
 
   return (
-    admin.adm_role === 'A' ?
-      <div>
-        <NavBar />
+    <div>
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <>
+        {admin.adm_role === 'A' ? (
+          <div>
+            <NavBar />
         <div className="BanksBody">
           <Container>
             <h1 className="my-4">Cuentas bancarias</h1>
@@ -926,9 +940,13 @@ function Banks() {
 
         <ToastContainer />
       </div >
-      :
-      <NotFound404 />
+      ) : (
+          <NotFound404 />
+        )}
+      </>
+    )}
+  </div>
   );
-}
+        }
 
 export { Banks }
