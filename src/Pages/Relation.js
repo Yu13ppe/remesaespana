@@ -61,6 +61,31 @@ function Relation() {
           }
         );
 
+        if (selectedCurrency === 'EUR') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accEurId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'USD') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdsId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'GBP') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accGbpId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'BS') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accBsId: parseInt(selectedBank)
+          });
+        }
+
         toggleModal();
         fetchData();
         toast.success('Cambio realizado con exito!', {
@@ -100,6 +125,31 @@ function Relation() {
             },
           }
         );
+
+        if (selectedCurrency === 'EUR') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accEurId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'USD') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accUsdsId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'GBP') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accGbpId: parseInt(selectedBank)
+          });
+        }
+        if (selectedCurrency === 'BS') {
+          await axios.post(
+            `https://apiremesa.up.railway.app/TotalRegister/create`, {
+            tor_accBsId: parseInt(selectedBank)
+          });
+        }
 
         toggleModal();
         fetchData();

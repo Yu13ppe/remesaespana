@@ -59,7 +59,8 @@ function Changes() {
   const [accDni, setAccDni] = useState('');
   const [showAccNumber, setShowAccNumber] = useState(false);
   const [porcents, setPorcents] = useState([])
-  const [porcent, setPorcent] = useState('')
+  const [porcent, setPorcent] = useState(null)
+  const [delivery, setDelivery] = useState('')
   const [length, setLength] = useState('')
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -115,6 +116,14 @@ function Changes() {
       console.log(error);
     }
   }
+  const fetchDataPorcentId = async (id) => {
+    try {
+      const response = await axios.get(`https://apiremesa.up.railway.app/PorcentPrice/${id}`);
+      setPorcent(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const fetchDataAccEur = async () => {
     try {
       const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
@@ -147,7 +156,6 @@ function Changes() {
       console.log(error);
     }
   }, [setUser, accessToken]);
-
   useEffect(() => {
     fetchDataAccEur();
     fetchDataAccGbp();
@@ -165,13 +173,13 @@ function Changes() {
     currencyPrice.forEach((coin) => {
       if (payment === 'EUR') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100) + parseFloat(delivery)));
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100)));
       } else if (payment === 'USD') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent) / 100)));
+        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100)));
       }
     });
   };
@@ -414,7 +422,7 @@ function Changes() {
               </div>
 
               {/* Retirar */}
-              <Modal isOpen={tridModalOpen} size='lg' centered toggle={toggleTridModal}>
+              <Modal isOpen={tridModalOpen} size='xl' centered toggle={toggleTridModal}>
                 <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
                 <ModalBody>
                   <Form>
@@ -455,36 +463,33 @@ function Changes() {
                     {/* Seleccionar Lugar de Retiro */}
                     {sendOption === 'Efectivo' &&
                       <FormGroup>
-                        <Label>Ingresa tus datos bancarios</Label>
+                        <Label>Ingresa tu Localidad</Label>
                         <Input
                           type="select"
                           id="bankOptionSelect"
                           defaultValue={sendOption}
                           disabled={payment === ''}
-                          onChange={(e) => { setPorcent(e.target.value) }}>
+                          onChange={(e) => { fetchDataPorcentId(e.target.value) } }>
                           <option value="">Selecciona una opción</option>
-                          {payment === 'EUR' ?
-                            porcents.map((por) => {
-                              return por.por_porcentEur ?
-                                <option value={por.por_porcentEur}>{por.por_stateLocation}</option>
-                                : null
-                            })
-                            : payment === 'USD' ?
-                              porcents.map((por) => {
-                                return por.por_porcentUsd ?
-                                  <option value={por.por_porcentUsd}>{por.por_stateLocation}</option>
-                                  : null
-                              })
-                              : payment === 'GBP' ?
-                                porcents.map((por) => {
-                                  return por.por_porcentGbp ?
-                                    <option value={por.por_porcentGbp}>{por.por_stateLocation}</option>
-                                    : null
-                                })
-                                : null
-                          }
+                           {porcents.map((por) => {
+                              return <option value={por.por_id}>{por.por_stateLocation}</option>
+                            })}
                         </Input>
                       </FormGroup>}
+
+                    { porcent  &&
+                      <FormGroup>
+                        <Label>¿Desea delivery?</Label>
+                        <Input
+                          type="select"
+                          id="delivery"
+                          onChange={(e) => {setDelivery(e.target.value)}}>
+                          <option value="">Selecciona una opción</option>
+                          <option value={0}>No</option>
+                          {porcent && <option value={porcent.por_deliveryPrice}>Si</option>}
+                        </Input>
+                      </FormGroup>}
+
                     {/* Monto a debitar */}
                     <FormGroup>
                       <Label for="amountInput">Coloca el monto que deseas retirar</Label>
@@ -495,7 +500,7 @@ function Changes() {
                           placeholder="Ej. 100"
                           defaultValue={sendAmount}
                           disabled={payment === ''}
-                          onChange={(e) => handleAmountChange(e)}
+                          onChange={(e) => {handleAmountChange(e)}}
                           invalid={
                             (sendAmount !== "" && sendAmount < 20) ||
                             (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
