@@ -18,10 +18,11 @@ function Faqs() {
     {
       question: '¿Qué bancos tienen para enviar a Venezuela?',
       answer: 'Tenemos disponibles cuentas en las siguientes entidades bancarias...',
+      banks: ['Mercantil', 'Venezuela', 'Banesco', 'Provincial', 'Banco Nacional de crédito', 'Pago Movil'],
     },
     {
       question: '¿Entregan dólares en efectivo en Venezuela?',
-      answer: 'Sí, sólo en Caracas y Maracaibo. El mínimo necesario para entregar dólares en efectivo es de 100$ (cien dólares).',
+      answer: 'Sí, entregamos en todo el territorio nacional. El mínimo necesario para entregar dólares en efectivo es de 100$ (cien dólares), consulta el porcentaje por tu estado.',
     },
     {
       question: '¿Reciben transferencias desde toda la Unión Europea?',
@@ -57,6 +58,13 @@ function Faqs() {
               </Label>
               <div className={`content-faqs ${activeTabs.includes(index) ? 'open' : ''}`}>
                 <p>{faq.answer}</p>
+                {faq.banks && (
+                  <ul>
+                    {faq.banks.map((bank, bankIndex) => (
+                      <li key={bankIndex}>{bank}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           ))}

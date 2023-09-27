@@ -93,7 +93,7 @@ function NavBar() {
               <Link className='' to='/Faqs'>
                 <li className=''>Faqs</li>
               </Link>
-              <a className='' href='/#hero2'>
+              <a className='' href='https://wa.me/+34722850962'>
                 <li className=''>Contacto</li>
               </a>
               <Link className='' to='/Login'>
