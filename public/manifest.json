@@ -1,6 +1,10 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "background_color":"#ffffff",
+  "categories": ["productivity","navigation","travel"],
+  "description":"The best way to get around town",
+  "dir":"ltr",
+  "display_override":["standalone","fullscreen"],
+  "display":"standalone",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,8 +12,12 @@
       "type": "image/x-icon"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "lang":"es",
+  "name":"Remesa Espana",
+  "orientation":"portrait",
+  "prefer_related_applications":false,
+  "scope":"/",
+  "short_name":"Remesaespana",
+  "start_url":"/",
+  "theme_color":"#ffffff"
 }
