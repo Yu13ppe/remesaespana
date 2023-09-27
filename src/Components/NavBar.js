@@ -21,6 +21,11 @@ function NavBar() {
     }
   },[setAdmin, accessAdminToken]);
 
+  const clearLocal = ()=>{
+    clearLocalStorage();
+    clearLocalStorage();
+  }
+
   useEffect(() => {
     fetchDataAdmin();
   }, [fetchDataAdmin]);
@@ -59,7 +64,7 @@ function NavBar() {
                 <Button className='log-btn'>Panel</Button>
               </Link>
               <a className='' href='/'>
-                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocalStorage} />
+                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocal} />
               </a>
             </ul>
           ) : (
@@ -77,7 +82,7 @@ function NavBar() {
                 <Button className='log-btn'>Cambios</Button>
               </Link>
               <a className='links' href='/'>
-                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocalStorage} />
+                <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192' }} onClick={clearLocal} />
               </a>
             </ul>
           ) : (

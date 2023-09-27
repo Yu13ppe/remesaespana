@@ -87,6 +87,7 @@ function Changes() {
     setSendOption('');
     setSendAmount('');
     setBankOptionPay('');
+    setDelivery('');
     setPayment('');
     setNote('')
   };
@@ -173,13 +174,34 @@ function Changes() {
     currencyPrice.forEach((coin) => {
       if (payment === 'EUR') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100) + parseFloat(delivery)));
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100) + parseFloat(delivery)));
+        }
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100)));
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100) + parseFloat(delivery)));
+        }
       } else if (payment === 'USD') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
-        setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100)));
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100) + parseFloat(delivery)));
+        }
+      }
+    });
+  };
+
+  const handleAmountChangeBs = (e) => {
+    const inputAmount = e.target.value;
+    setSendAmount(inputAmount);
+
+    currencyPrice.forEach((coin) => {
+      if (payment === 'EUR') {
+        setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
+      } else if (payment === 'GBP') {
+        setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
+      } else if (payment === 'USD') {
+        setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
       }
     });
   };
@@ -195,7 +217,6 @@ function Changes() {
     formData.append('mov_status', 'E');
     formData.append('mov_comment', 'Carga de Divisa');
     formData.append('mov_img', mov_img);
-    formData.append('use_imgDni', use_imgDni);
     formData.append('mov_accEurId', (payment === 'EUR' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accGbpId', (payment === 'GBP' ? parseInt(bankOptionPay) : 0));
@@ -461,6 +482,7 @@ function Changes() {
                       </Input>
                     </FormGroup>
                     {/* Seleccionar Lugar de Retiro */}
+
                     {sendOption === 'Efectivo' &&
                       <FormGroup>
                         <Label>Ingresa tu Localidad</Label>
@@ -469,23 +491,34 @@ function Changes() {
                           id="bankOptionSelect"
                           defaultValue={sendOption}
                           disabled={payment === ''}
-                          onChange={(e) => { fetchDataPorcentId(e.target.value) } }>
+                          onChange={(e) => { fetchDataPorcentId(e.target.value) }}>
                           <option value="">Selecciona una opción</option>
-                           {porcents.map((por) => {
-                              return <option value={por.por_id}>{por.por_stateLocation}</option>
-                            })}
+                          {porcents.map((por) => {
+                            return <option value={por.por_id}>{por.por_stateLocation}</option>
+                          })}
                         </Input>
                       </FormGroup>}
 
-                    { porcent  &&
+                    {porcent && porcent.por_status === 'No obligatorio' && sendOption === 'Efectivo' &&
                       <FormGroup>
                         <Label>¿Desea delivery?</Label>
                         <Input
                           type="select"
                           id="delivery"
-                          onChange={(e) => {setDelivery(e.target.value)}}>
+                          onChange={(e) => { setDelivery(e.target.value) }}>
                           <option value="">Selecciona una opción</option>
                           <option value={0}>No</option>
+                          {porcent && <option value={porcent.por_deliveryPrice}>Si</option>}
+                        </Input>
+                      </FormGroup>}
+
+                    {porcent && porcent.por_status === 'Obligatorio' && sendOption === 'Efectivo' &&
+                      <FormGroup>
+                        <Label>Delivery</Label>
+                        <Input
+                          type="select"
+                          id="delivery"
+                          disabled>
                           {porcent && <option value={porcent.por_deliveryPrice}>Si</option>}
                         </Input>
                       </FormGroup>}
@@ -499,8 +532,8 @@ function Changes() {
                           id="sendAmount"
                           placeholder="Ej. 100"
                           defaultValue={sendAmount}
-                          disabled={payment === ''}
-                          onChange={(e) => {handleAmountChange(e)}}
+                          disabled={payment === '' || sendOption === '' || ((sendOption === 'Efectivo' && porcent === null) || (sendOption === 'Efectivo' && delivery === ''))}
+                          onChange={(e) => { handleAmountChange(e) }}
                           invalid={
                             (sendAmount !== "" && sendAmount < 20) ||
                             (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
@@ -830,7 +863,7 @@ function Changes() {
                           placeholder="Ej. 100"
                           value={sendAmount}
                           disabled={payment === ''}
-                          onChange={(e) => handleAmountChange(e)}
+                          onChange={(e) => handleAmountChangeBs(e)}
                           invalid={sendAmount !== "" && (sendAmount < 20 || sendAmount.toString().length > 6)}
                         />
                         {sendAmount !== "" && sendAmount.toString().length > 6 && (
