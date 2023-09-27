@@ -65,6 +65,12 @@ function Changes() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmationMobile, setShowConfirmationMobile] = useState(false);
+  const [showConfirmationCash, setShowConfirmationCash] = useState(false);
+  const [showConfirmationBank, setShowConfirmationBank] = useState(false);
+
+
 
   const showUserStatusAlert = (userStatus) => {
     if (userStatus === 'N') {
@@ -175,17 +181,38 @@ function Changes() {
       if (payment === 'EUR') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
         if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100) + porcent.por_deliveryPrice));
+        }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'No obligatorio') {
           setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100) + parseFloat(delivery)));
         }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Oficina') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100)));
+        }
+
+
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
         if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100) + porcent.por_deliveryPrice));
+        }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'No obligatorio') {
           setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100) + parseFloat(delivery)));
         }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Oficina') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentGbp) / 100)));
+        }
+
       } else if (payment === 'USD') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
         if (sendOption === 'Efectivo' && porcent.por_status === 'Obligatorio') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100) + porcent.por_deliveryPrice));
+        }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'No obligatorio') {
           setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100) + parseFloat(delivery)));
+        }
+        if (sendOption === 'Efectivo' && porcent.por_status === 'Oficina') {
+          setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentUsd) / 100)));
         }
       }
     });
@@ -244,6 +271,8 @@ function Changes() {
         progress: undefined,
       });
 
+      setShowConfirmation(false);
+
       console.log('Request sent successfully');
     } catch (error) {
       console.error('Error:', error);
@@ -259,7 +288,7 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} \n` + note);
+    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} ${sendOption === 'Efectivo' && porcent? porcent.por_stateLocation + '\n' : null } ${sendOption === 'Efectivo' && porcent.por_comment !== ''? porcent.por_comment + '\n' : null } \n` + note);
     formData.append('mov_img', 'Retiro de Divisa');
     formData.append('mov_typeOutflow', sendOption);
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
@@ -267,10 +296,31 @@ function Changes() {
     formData.append('mov_accGbpId', (payment === 'GBP' ? 99 : 0));
     formData.append('mov_userId', user.use_id);
 
+    const formDataUser = new FormData();
+    if (sendOption === 'Efectivo') {
+      formDataUser.append('use_amountUsd', (payment === 'USD' ? user.use_amountUsd - receiveUsdAmount : user.use_amountUsd));
+      formDataUser.append('use_amountGbp', (payment === 'GBP' ? user.use_amountGbp - receiveUsdAmount : user.use_amountGbp));
+      formDataUser.append('use_amountEur', (payment === 'EUR' ? user.use_amountEur - receiveUsdAmount : user.use_amountEur));
+    } else {
+      formDataUser.append('use_amountUsd', (payment === 'USD' ? user.use_amountUsd - sendAmount : user.use_amountUsd));
+      formDataUser.append('use_amountGbp', (payment === 'GBP' ? user.use_amountGbp - sendAmount : user.use_amountGbp));
+      formDataUser.append('use_amountEur', (payment === 'EUR' ? user.use_amountEur - sendAmount : user.use_amountEur));
+    }
+
     try {
       await axios.post(
         'https://apiremesa.up.railway.app/Movements/create',
         formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      await axios.put(
+        `https://apiremesa.up.railway.app/Users/${user.use_id}`,
+        formDataUser,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -288,6 +338,11 @@ function Changes() {
         draggable: true,
         progress: undefined,
       });
+
+      setShowConfirmationMobile(false);
+      setShowConfirmationBank(false);
+      setShowConfirmationCash(false);
+
 
       console.log('Request sent successfully');
     } catch (error) {
@@ -447,6 +502,7 @@ function Changes() {
                 <ModalHeader toggle={toggleTridModal}>Ingresa tus datos bancarios</ModalHeader>
                 <ModalBody>
                   <Form>
+
                     {/* Seleccionar Moneda a debitar */}
                     <FormGroup>
                       <Label>Selecciona el tipo de moneda a retirar</Label>
@@ -462,7 +518,7 @@ function Changes() {
                         <option value="USD">Dolar</option>
                       </Input>
                     </FormGroup>
-                    {/* Seleccionar Banco a recibir */}
+                    {/* Seleccionar Metodo de recibo */}
                     <FormGroup>
                       <Label>Ingresa tus datos bancarios</Label>
                       <Input
@@ -481,6 +537,8 @@ function Changes() {
                         <option value="Pago Movil">Pago Móvil</option>
                       </Input>
                     </FormGroup>
+
+                    {/* SendOption en Efectivo */}
                     {/* Seleccionar Lugar de Retiro */}
 
                     {sendOption === 'Efectivo' &&
@@ -512,6 +570,18 @@ function Changes() {
                         </Input>
                       </FormGroup>}
 
+                    {porcent && ((porcent.por_status === 'No obligatorio' && delivery === '0') || (porcent.por_status === 'Oficina')) && sendOption === 'Efectivo' &&
+                      <FormGroup>
+                        <Label>Pase por Oficina</Label>
+                        <Input
+                          type="textarea"
+                          id="comment"
+                          placeholder="Ej. Pase por oficina"
+                          value={porcent.por_comment}
+                          disabled>
+                        </Input>
+                      </FormGroup>}
+
                     {porcent && porcent.por_status === 'Obligatorio' && sendOption === 'Efectivo' &&
                       <FormGroup>
                         <Label>Delivery</Label>
@@ -524,58 +594,117 @@ function Changes() {
                       </FormGroup>}
 
                     {/* Monto a debitar */}
-                    <FormGroup>
-                      <Label for="amountInput">Coloca el monto que deseas retirar</Label>
-                      <InputGroup>
-                        <Input
-                          type="number"
-                          id="sendAmount"
-                          placeholder="Ej. 100"
-                          defaultValue={sendAmount}
-                          disabled={payment === '' || sendOption === '' || ((sendOption === 'Efectivo' && porcent === null) || (sendOption === 'Efectivo' && delivery === ''))}
-                          onChange={(e) => { handleAmountChange(e) }}
-                          invalid={
-                            (sendAmount !== "" && sendAmount < 20) ||
-                            (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
-                            (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
-                            (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                            (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        />
-                        {
-                          (sendAmount !== "" && sendAmount < 20 ?
-                            <FormFeedback>
-                              El monto mínimo a retirar es de 20
-                            </FormFeedback>
-                            : null) ||
-                          (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 ?
-                            <FormFeedback>
-                              El monto mínimo a retirar en efectivo es de 100
-                            </FormFeedback>
-                            : null
-                            : null) ||
-                          (payment === 'EUR' ? user.use_amountEur < sendAmount ?
-                            <FormFeedback>
-                              El monto excede la cantidad que tiene disponible en su cuenta
-                            </FormFeedback>
-                            : null
-                            : null
-                          ) ||
-                          (payment === 'USD' ? user.use_amountUsd < sendAmount ?
-                            <FormFeedback>
-                              El monto excede la cantidad que tiene disponible en su cuenta
-                            </FormFeedback>
-                            : null
-                            : null
-                          ) ||
-                          (payment === 'GBP' ? user.use_amountGbp < sendAmount ?
-                            <FormFeedback>
-                              El monto excede la cantidad que tiene disponible en su cuenta
-                            </FormFeedback>
-                            : null
-                            : null
-                          )}
-                      </InputGroup>
-                    </FormGroup>
+                    {(sendOption === 'Cuenta Bancaria' || sendOption === "Pago Movil") &&
+                      <FormGroup>
+                        <Label for="amountInput">Coloca el monto que deseas retirar</Label>
+                        <InputGroup>
+                          <Input
+                            type="number"
+                            id="sendAmount"
+                            placeholder="Ej. 100"
+                            defaultValue={sendAmount}
+                            disabled={payment === '' || sendOption === ''}
+                            onChange={(e) => { handleAmountChange(e) }}
+                            invalid={
+                              (sendAmount !== "" && sendAmount < 20) ||
+                              (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
+                              (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                              (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                              (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                          />
+                          {
+                            (sendAmount !== "" && sendAmount < 20 ?
+                              <FormFeedback>
+                                El monto mínimo a retirar es de 20
+                              </FormFeedback>
+                              : null) ||
+                            (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 ?
+                              <FormFeedback>
+                                El monto mínimo a retirar en efectivo es de 100
+                              </FormFeedback>
+                              : null
+                              : null) ||
+                            (payment === 'EUR' ? user.use_amountEur < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'USD' ? user.use_amountUsd < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'GBP' ? user.use_amountGbp < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            )}
+                        </InputGroup>
+                      </FormGroup>}
+
+                    {sendOption === 'Efectivo' && porcent &&
+                      <FormGroup>
+                        <Label for="amountInput">Monto a recibir en dolares</Label>
+                        <InputGroup>
+                          <Input
+                            type="number"
+                            id="sendAmount"
+                            placeholder="Ej. 100"
+                            defaultValue={sendAmount}
+                            disabled={payment === '' || sendOption === '' || (porcent.por_status === 'No obligatorio' && delivery === '')}
+                            onChange={(e) => { handleAmountChange(e) }}
+                            invalid={
+                              sendAmount === "" ||
+                              sendAmount < 100 ||
+                              sendAmount % 20 !== 0 ||
+                              (payment === 'EUR' && user.use_amountEur < sendAmount) ||
+                              (payment === 'USD' && user.use_amountUsd < sendAmount) ||
+                              (payment === 'GBP' && user.use_amountGbp < sendAmount)
+                            }
+                          />
+                          {
+                            (sendAmount !== "" && sendAmount < 100 ?
+                              <FormFeedback>
+                                El monto mínimo a retirar es de 100
+                              </FormFeedback>
+                              : null) ||
+                            (sendOption === 'Efectivo' && sendAmount % 20 !== 0 ?
+                              <FormFeedback>
+                                {sendAmount % 20 !== 0
+                                  ? "El monto debe ser un múltiplo de 20"
+                                  : "El monto mínimo a retirar en efectivo es de 100"}
+                              </FormFeedback>
+                              : null) ||
+                            (payment === 'EUR' ? user.use_amountEur < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'USD' ? user.use_amountUsd < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'GBP' ? user.use_amountGbp < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            )}
+                        </InputGroup>
+                      </FormGroup>}
+
                     {/* Seleccionar forma de pago a recibir */}
                     {sendOption === "Cuenta Bancaria" ?
                       <FormGroup>
@@ -590,20 +719,44 @@ function Changes() {
                         </InputGroup>
                       </FormGroup>
                       : null}
-                    {sendOption === "Efectivo" ?
+                    {porcent && sendOption === "Efectivo" ?
                       <FormGroup >
-                        <Label for="receiveUsdAmountInput">Monto a recibir en Dolares</Label>
+                        <Label for="receiveUsdAmountInput">Monto a debitar</Label>
                         <InputGroup>
                           <Input
                             type="text"
                             id="receiveUsdAmountInput"
                             value={receiveUsdAmount}
-                            valid
                             disabled
+                            invalid={
+                              (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
+                              (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
+                              (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
+                            }
                           />
-                          <FormFeedback valid>
-                            Multiplos de 20
-                          </FormFeedback>
+                          {
+                            (payment === 'EUR' ? user.use_amountEur < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'USD' ? user.use_amountUsd < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'GBP' ? user.use_amountGbp < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            )
+                          }
                         </InputGroup>
                       </FormGroup>
                       : null}
@@ -761,14 +914,14 @@ function Changes() {
                       null
                     }
                     {
-                      sendOption === "Efectivo" ?
+                      porcent && sendOption === "Efectivo" ?
                         (<FormGroup>
                           <Label for="receiveAmountInput">Ingrese la direccion de entrega </Label>
                           <Input
                             type="textarea"
                             id="noteTextArea"
                             rows="4"
-                            disabled={payment === ''}
+                            disabled={payment === '' || porcent.por_status === 'Oficina' || (porcent.por_status === 'No obligatorio' && delivery === '0')}
                             placeholder="Direccion de entrega"
                             onChange={(e) => setNote(
                               `Nota: ${e.target.value}`
@@ -793,22 +946,40 @@ function Changes() {
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                         (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        onClick={() => setShowConfirmationMobile(true)} className='btn col-md-12'>
                         Enviar
                       </Button>
                     }
                     {
-                      sendOption === "Efectivo" &&
+                      porcent && sendOption === "Efectivo" &&
                       <Button disabled={
                         payment === '' ||
                         sendOption === '' ||
                         sendAmount === "" ||
-                        note === "" ||
+                        ((porcent.por_status === 'Obligatorio' || (porcent.por_status === 'No obligatorio' && (delivery !== '0' || delivery !== '')) ) && note === "") ||
+                        (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
+                        (porcent.por_status === 'Obligatorio' && note === "") ||
+                        // (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
+                        // (porcent.por_status === 'No obligatorio' && delivery === '0' && note !== '') ||
+                        // (porcent.por_status === 'Oficina' && note === "") ||
+                        accDni === '' ||
+                        accOwner === '' ||
+                        accTlf === '' ||
+                        accBank === '' ||
                         sendAmount < 20 ||
+                        sendAmount === "" ||
+                        sendAmount < 100 ||
+                        sendAmount % 20 !== 0 ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                        (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
+
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
+
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null) ||
+                        (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
+                      }
+                        onClick={() => setShowConfirmationCash(true)} className='btn col-md-12' color="success">
                         Enviar
                       </Button>
                     }
@@ -827,7 +998,7 @@ function Changes() {
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                         (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        onClick={handleSubmitSend} className='btn col-md-12' color="primary">
+                        onClick={() => setShowConfirmationBank(true)} className='btn col-md-12'>
                         Enviar
                       </Button>
                     }
@@ -835,6 +1006,81 @@ function Changes() {
                 </ModalBody>
               </Modal>
 
+              {/* Confirmacion Pago Movil */}
+              <Modal isOpen={showConfirmationMobile} centered toggle={() => setShowConfirmationMobile(!showConfirmationMobile)}>
+                <ModalHeader toggle={() => setShowConfirmationMobile(!showConfirmationMobile)}>Confirmación de Datos</ModalHeader>
+                <ModalBody>
+                  <h5>Tipo de Moneda: {payment}</h5>
+                  <h5>Monto a Retirar: {sendAmount}</h5>
+                  <Button
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default form submission behavior
+                      handleSubmitSend(e); // Pass the event object to the function
+                      setShowConfirmationMobile(false);
+                    }}
+                  >
+                    Confirmar
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => setShowConfirmationMobile(false)} // Cierra el modal de confirmación
+                  >
+                    Cancelar
+                  </Button>
+                </ModalBody>
+              </Modal>
+
+              {/* Confirmacion Transferencias Bancarias */}
+              <Modal isOpen={showConfirmationBank} centered toggle={() => setShowConfirmationBank(!showConfirmationBank)}>
+                <ModalHeader toggle={() => setShowConfirmationBank(!showConfirmationBank)}>Confirmación de Datos</ModalHeader>
+                <ModalBody>
+                  <h5>Tipo de Moneda: {payment}</h5>
+                  <h5>Monto a Retirar: {sendAmount}</h5>
+                  <Button
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default form submission behavior
+                      handleSubmitSend(e); // Pass the event object to the function
+                      setShowConfirmationBank(false);
+                    }}
+                  >
+                    Confirmar
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => setShowConfirmationBank(false)} // Cierra el modal de confirmación
+                  >
+                    Cancelar
+                  </Button>
+                </ModalBody>
+              </Modal>
+
+
+              {/* Confirmacion Efectivo */}
+              <Modal isOpen={showConfirmationCash} centered toggle={() => setShowConfirmationCash(!showConfirmationCash)}>
+                <ModalHeader toggle={() => setShowConfirmationCash(!showConfirmationCash)}>Confirmación de Datos</ModalHeader>
+                <ModalBody>
+                  <h5>Tipo de Moneda: {payment}</h5>
+                  <h5>Monto a Retirar: {sendAmount}</h5>
+                  <Button
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default form submission behavior
+                      handleSubmitSend(e); // Pass the event object to the function
+                      setShowConfirmationCash(false);
+                    }}
+                  >
+                    Confirmar
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => setShowConfirmationCash(false)} // Cierra el modal de confirmación
+                  >
+                    Cancelar
+                  </Button>
+                </ModalBody>
+              </Modal>
               {/* Cargar */}
               <Modal centered isOpen={forthModalOpen} size='lg' toggle={toggleforthModal}>
                 <ModalHeader toggle={toggleforthModal}>Realiza tu Carga</ModalHeader>
@@ -988,12 +1234,37 @@ function Changes() {
                       (sendAmount !== "" && sendAmount.toString().length > 6)
                     }
                       color="primary"
-                      onClick={handleSubmitLoad} className='btn col-md-12'>
+                      onClick={() => setShowConfirmation(true)} className='btn col-md-12'>
                       Enviar
                     </Button>
                   </Form>
                 </ModalBody>
               </Modal>
+
+              <Modal isOpen={showConfirmation} centered toggle={() => setShowConfirmation(!showConfirmation)}>
+                <ModalHeader toggle={() => setShowConfirmation(!showConfirmation)}>Confirmación de Datos</ModalHeader>
+                <ModalBody>
+                  <h5>Tipo de Moneda: {payment}</h5>
+                  <h5>Monto a Retirar: {sendAmount}</h5>
+                  <Button
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default form submission behavior
+                      handleSubmitLoad(e); // Pass the event object to the function
+                      setShowConfirmation(false);
+                    }}
+                  >
+                    Confirmar
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => setShowConfirmation(false)} // Cierra el modal de confirmación
+                  >
+                    Cancelar
+                  </Button>
+                </ModalBody>
+              </Modal>
+
 
               <ToastContainer />
             </div>

@@ -33,6 +33,10 @@ function Register() {
         }
       );
 
+      await axios.post(
+        `https://apiremesa.up.railway.app/Mailer/EmailWelcome/${use_email}`
+      );
+
       toast.success('¡Registro exitoso!', {
         position: 'bottom-right',
         autoClose: 5000,

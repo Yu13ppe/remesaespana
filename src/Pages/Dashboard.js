@@ -20,12 +20,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useDataContext } from '../Context/dataContext';
 import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from './NotFound404';
-import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+import { Spinner } from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
 
 
 function Dashboard() {
   const { accessAdminToken } = useDataContext();
-
+  
   const [movements, setMovements] = useState([]);
   const [user, setUsers] = useState([]);
   const [select, setSelect] = useState(null);
@@ -216,13 +216,13 @@ function Dashboard() {
     const totalAmountGbp = parseInt(select.User.use_amountGbp);
     const formData = new FormData();
     if (select.mov_currency === 'EUR') {
-      formData.append('use_amountEur', totalAmountEur - amount);
+      formData.append('use_amountEur', totalAmountEur + amount);
     }
     if (select.mov_currency === 'USD') {
-      formData.append('use_amountUsd', totalAmountUsd - amount);
+      formData.append('use_amountUsd', totalAmountUsd + amount);
     }
     if (select.mov_currency === 'GBP') {
-      formData.append('use_amountGbp', totalAmountGbp - amount);
+      formData.append('use_amountGbp', totalAmountGbp + amount);
     }
 
     try {
@@ -266,6 +266,10 @@ function Dashboard() {
 
       await axios.get(
         `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
+      );
+
+      await axios.post(
+        `https://apiremesa.up.railway.app/Mailer/EmailVtransfer/${select.User.use_email}/${select.mov_id}`
       );
 
       if (select.mov_currency === 'EUR' && payment === 'BS') {
@@ -322,7 +326,7 @@ function Dashboard() {
         draggable: true,
         progress: undefined,
       });
-      handleSubmit();
+
       fetchData();
 
       console.log('Request send successfully');
@@ -337,6 +341,10 @@ function Dashboard() {
     try {
       await axios.get(
         `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
+      );
+
+      await axios.post(
+        `https://apiremesa.up.railway.app/Mailer/EmailVtransfer/${select.User.use_email}/${select.mov_id}`
       );
 
       if (select.mov_currency === 'EUR') {
@@ -398,8 +406,11 @@ function Dashboard() {
         }
       );
 
+      await axios.post(
+        `https://apiremesa.up.railway.app/Mailer/EmailRtransfer/${select.User.use_email}/${select.mov_id}`
+      );
+
       // Cerrar el modal
-      toggleModalIngreso();
       toast.success('¡Datos enviados con exito!', {
         position: 'bottom-right',
         autoClose: 10000,
@@ -409,6 +420,7 @@ function Dashboard() {
         draggable: true,
         progress: undefined,
       });
+      handleSubmit();
       fetchData();
 
       console.log('Request send successfully');
@@ -423,297 +435,312 @@ function Dashboard() {
       setIsLoading(false);
     }, 900); // Simula que la carga demora 2 segundos
   }, []);
-  
+
 
   return (
     <div>
-    {isLoading ? (
-      <Spinner />
-    ) : (
-      <>
-        {admin.adm_role === 'A' ? (
-          <>
-            <NavBar />
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          {admin.adm_role === 'A' ? (
+            <>
+              <NavBar />
+              <div className="DashboardBody">
+                <Container>
+                  <center>
+                    <h1 className="my-4">Panel de control</h1></center>
+                  <Row>
+                    <Col md="6" lg="4">
+                      <Link to='/Users'>
+                        <div className="stat-box total-users">
+                          <h2>Total de usuarios</h2>
+                          <p>{user ? user.length : <b>No hay usuarios</b>}</p>
+                        </div>
+                      </Link>
+                    </Col>
+                    <Col md="6" lg="4">
+                      <Link to='/userVerificated'>
+                        <div className="stat-box verified-users">
+                          <h2>Usuario verificados</h2>
+                          <p>{user ? user.filter((user) => user.use_verif === "S").length : <b>No hay usuarios</b>}</p>
+                        </div>
+                      </Link>
+                    </Col>
+                    <Col md="6" lg="4">
+                      <Link to='/UserNoVerificated'>
+                        <div className="stat-box unverified-users">
+                          <h2>Usuario sin verificación</h2>
+                          <p>{user ? user.filter((user) => user.use_verif === "E").length : <b>No hay usuarios</b>}</p>
+                        </div>
+                      </Link>
+                    </Col>
+                    <Col md="6" lg="3">
+                      <div className="stat-box total-euros">
+                        <h2>Total Euros</h2>
+                        <p>{totalEur.totalIn - totalEur.totalOut}</p>
+                      </div>
+                    </Col>
+                    <Col md="6" lg="3">
+                      <div className="stat-box total-euros">
+                        <h2>Total Libras</h2>
+                        <p>{totalGbp.totalIn - totalGbp.totalOut}</p>
+                      </div>
+                    </Col>
+                    <Col md="6" lg="3" >
+                      <div className="stat-box total-bolivars">
+                        <h2>Total Dolares</h2>
+                        <p>{totalUsd.totalIn - totalUsd.totalOut}</p>
+                      </div>
+                    </Col>
+                    <Col md="6" lg="3" >
+                      <div className="stat-box total-bolivars">
+                        <h2>Total Bolivares</h2>
+                        <p>{totalBs.totalIn - totalBs.totalOut}</p>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <table className="transaction-table">
+                        <thead>
+                          <tr>
+                            <th>Usuario</th>
+                            <th>Moneda</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Tipo</th>
+                            <th>Detalles</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {movements.filter((mov) => mov.mov_status === 'E').map(move => (
+                            <tr key={move.mov_id}>
+                              <td>{move.User.use_name} {move.User.use_lastName}</td>
+                              <td>{move.mov_currency}</td>
+                              <td>{move.mov_amount}</td>
+                              <td>{move.mov_date}</td>
+                              <td>
+                                {move.mov_status === 'E' && <FaClock className="pending-icon" />}
+                              </td>
+                              <td>
+                                {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
+                                {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
+                              </td>
+                              <td>
+                                <button className="details-button" onClick={() => toggle(move)}>Ver detalles</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </Col>
+                  </Row>
+                </Container>
+              </div>
 
-        <div className="DashboardBody">
-          <Container>
-            <center>
-              <h1 className="my-4">Panel de control</h1></center>
-            <Row>
-              <Col md="6" lg="4">
-                <Link to='/Users'>
-                  <div className="stat-box total-users">
-                    <h2>Total de usuarios</h2>
-                    <p>{user ? user.length : <b>No hay usuarios</b>}</p>
-                  </div>
-                </Link>
-              </Col>
-              <Col md="6" lg="4">
-                <Link to='/userVerificated'>
-                  <div className="stat-box verified-users">
-                    <h2>Usuario verificados</h2>
-                    <p>{user ? user.filter((user) => user.use_verif === "S").length : <b>No hay usuarios</b>}</p>
-                  </div>
-                </Link>
-              </Col>
-              <Col md="6" lg="4">
-                <Link to='/UserNoVerificated'>
-                  <div className="stat-box unverified-users">
-                    <h2>Usuario sin verificación</h2>
-                    <p>{user ? user.filter((user) => user.use_verif === "E").length : <b>No hay usuarios</b>}</p>
-                  </div>
-                </Link>
-              </Col>
-              <Col md="6" lg="3">
-                <div className="stat-box total-euros">
-                  <h2>Total Euros</h2>
-                  <p>{totalEur.totalIn - totalEur.totalOut}</p>
-                </div>
-              </Col>
-              <Col md="6" lg="3">
-                <div className="stat-box total-euros">
-                  <h2>Total Libras</h2>
-                  <p>{totalGbp.totalIn - totalGbp.totalOut}</p>
-                </div>
-              </Col>
-              <Col md="6" lg="3" >
-                <div className="stat-box total-bolivars">
-                  <h2>Total Dolares</h2>
-                  <p>{totalUsd.totalIn - totalUsd.totalOut}</p>
-                </div>
-              </Col>
-              <Col md="6" lg="3" >
-                <div className="stat-box total-bolivars">
-                  <h2>Total Bolivares</h2>
-                  <p>{totalBs.totalIn - totalBs.totalOut}</p>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <table className="transaction-table">
-                  <thead>
-                    <tr>
-                      <th>Usuario</th>
-                      <th>Moneda</th>
-                      <th>Monto</th>
-                      <th>Fecha</th>
-                      <th>Estado</th>
-                      <th>Tipo</th>
-                      <th>Detalles</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {movements.filter((mov) => mov.mov_status === 'E').map(move => (
-                      <tr key={move.mov_id}>
-                        <td>{move.User.use_name} {move.User.use_lastName}</td>
-                        <td>{move.mov_currency}</td>
-                        <td>{move.mov_amount}</td>
-                        <td>{move.mov_date}</td>
-                        <td>
-                          {move.mov_status === 'E' && <FaClock className="pending-icon" />}
-                        </td>
-                        <td>
-                          {(move.mov_type === 'Deposito') ? (<FaArrowDown color='green' />) : null}
-                          {(move.mov_type === 'Retiro') ? (<FaArrowUp color='red' />) : null}
-                        </td>
-                        <td>
-                          <button className="details-button" onClick={() => toggle(move)}>Ver detalles</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Col>
-            </Row>
-          </Container>
-        </div>
+              {/*  Ingreso */}
+              <Modal centered isOpen={modalIngreso} size='lg' toggle={toggleModalIngreso}>
+                <ModalHeader toggle={toggleModalIngreso}>Verificar Ingreso</ModalHeader>
+                <ModalBody>
+                  <Row>
+                    <Col>
+                      <h5>Usuario</h5>
+                      {select && (
+                        <>
+                          <p>{select.User.use_name} {select.User.use_lastName}</p>
+                          <p>{select.User.use_email}</p>
+                          <p>{select.User.use_dni}</p>
+                        </>
+                      )}
+                    </Col>
+                    <Col>
+                      <h5>Transacción</h5>
+                      {select && (
+                        <>
+                          <p>{select.mov_date}</p>
+                          <p>{select.mov_amount}</p>
+                          <p>{select.mov_currency}</p>
+                        </>
+                      )}
+                      <Button
+                        color='primary'
+                        onClick={() => {
+                          toggleImageMov();
+                        }}>
+                        Ver Imagen
+                      </Button>
+                    </Col>
+                  </Row>
+                </ModalBody>
+                <ModalFooter>
+                  {select &&
+                    <Button color="success" onClick={handleSubmitVerify}>
+                      Aprobar
+                    </Button>}
+                  {select &&
+                    <Button color="danger" onClick={(e)=>{
+                      handleSubmitCancel(e);
+                      toggleModalIngreso();
+                      }}>
+                      Rechazar
+                    </Button>}
+                  <Button color="secondary" onClick={toggleModalIngreso}>
+                    Volver
+                  </Button>
+                </ModalFooter>
+              </Modal>
 
-        {/*  Ingreso */}
-        <Modal centered isOpen={modalIngreso} size='lg' toggle={toggleModalIngreso}>
-          <ModalHeader toggle={toggleModalIngreso}>Verificar Ingreso</ModalHeader>
-          <ModalBody>
-            <Row>
-              <Col>
-                <h5>Usuario</h5>
-                {select && (
-                  <>
-                    <p>{select.User.use_name} {select.User.use_lastName}</p>
-                    <p>{select.User.use_email}</p>
-                    <p>{select.User.use_dni}</p>
-                  </>
-                )}
-              </Col>
-              <Col>
-                <h5>Transacción</h5>
-                {select && (
-                  <>
-                    <p>{select.mov_date}</p>
-                    <p>{select.mov_amount}</p>
-                    <p>{select.mov_currency}</p>
-                  </>
-                )}
-                <Button
-                  color='primary'
-                  onClick={() => {
-                    toggleImageMov();
-                  }}>
-                  Ver Imagen
-                </Button>
-              </Col>
-            </Row>
-          </ModalBody>
-          <ModalFooter>
-            {select &&
-              <Button color="success" onClick={handleSubmitVerify}>
-                Aprobar
-              </Button>}
-            {select &&
-              <Button color="danger" onClick={handleSubmitCancel}>
-                Rechazar
-              </Button>}
-            <Button color="secondary" onClick={toggleModalIngreso}>
-              Volver
-            </Button>
-          </ModalFooter>
-        </Modal>
-
-        {/*  Egreso */}
-        <Modal centered isOpen={modalEgreso} toggle={() => setModalEgreso(false)}>
-          <ModalHeader toggle={() => setModalEgreso(false)}>Generar retiro</ModalHeader>
-          <ModalBody>
-            <Alert color="success">
-              <h4 className="alert-heading">
-                Datos bancarios:
-              </h4>
-              <p dangerouslySetInnerHTML={{ __html: select && select.mov_comment.replace(/\n/g, "<br/>") }} />
-            </Alert>
-            <FormGroup>
-              <Label for="amount">
-                {
-                  (select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil') ?
-                  'Monto a transferir':
-                  'Monto a Entregar'
-                }
-              </Label>
-              <Input type="text" name="amount" id="amount" disabled defaultValue={select && `${select.mov_amount}`} />
-            </FormGroup>
-            {
-              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
-              <FormGroup>
-                <Label for="currency">Elige la Moneda</Label>
-                <Input
-                  type="select"
-                  id="payment"
-                  defaultValue={payment}
-                  onChange={(e) => setPayment(e.target.value)}
-                >
-                  <option value="">Selecciona una opción</option>
-                  <option value="BS">Bolívar</option>
-                  <option value="USD">Dólar</option>
-                </Input>
-              </FormGroup>
-            }
-            {
-              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
-              <FormGroup>
-                <Label>Selecciona el Banco a transferir</Label>
-                <Input
-                  type="select"
-                  id="bankOptionPaySelect"
-                  defaultValue={bankOptionPay}
-                  disabled={payment === ''}
-                  onChange={(e) => { setBankOptionPay(e.target.value) }}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {payment === 'BS' ?
-                    banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
-                      return bank.accbs_bank ?
-                        <option value={bank.accbs_id}>{bank.accbs_bank}</option>
-                        : null
-                    })
-                    : payment === 'USD' ?
-                      banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
-                        return bank.accusd_Bank ?
-                          <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
-                          : null
-                      })
-                      : null
+              {/*  Egreso */}
+              <Modal centered isOpen={modalEgreso} toggle={() => setModalEgreso(false)}>
+                <ModalHeader toggle={() => setModalEgreso(false)}>Generar retiro</ModalHeader>
+                <ModalBody>
+                  <Alert color="success">
+                    <h4 className="alert-heading">
+                      Datos bancarios:
+                    </h4>
+                    <p dangerouslySetInnerHTML={{ __html: select && select.mov_comment.replace(/\n/g, "<br/>") }} />
+                  </Alert>
+                  <FormGroup>
+                    <Label for="amount">
+                      {
+                        (select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil') ?
+                          'Monto a transferir' :
+                          'Monto a Entregar'
+                      }
+                    </Label>
+                    <Input 
+                    type="text" 
+                    name="amount" 
+                    id="amount" 
+                    disabled 
+                    defaultValue={select && `${select.mov_amount}`} />
+                  </FormGroup>
+                  {
+                    ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+                    <FormGroup>
+                      <Label for="currency">Elige la Moneda</Label>
+                      <Input
+                        type="select"
+                        id="payment"
+                        defaultValue={payment}
+                        onChange={(e) => setPayment(e.target.value)}
+                      >
+                        <option value="">Selecciona una opción</option>
+                        <option value="BS">Bolívar</option>
+                        <option value="USD">Dólar</option>
+                      </Input>
+                    </FormGroup>
                   }
-                </Input>
-              </FormGroup>
-            }
-            {
-              ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
-              <FormGroup>
-                <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
-                <Input
-                  type="file"
-                  className="form-control-file"
-                  id="imageInput"
-                  disabled={payment === ''}
-                  accept=".jpg,.jpeg,.png,.gif"
-                  onChange={(e) => setMovImg(e.target.files[0])}
-                />
-              </FormGroup>
-            }
-            {showCommentBox && (
-              <FormGroup>
-                <Label for="comment">Comentario</Label>
-                <Input type="textarea" name="comment" id="comment" />
-              </FormGroup>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            {!showCommentBox ? (
-              <>
-                <Button color="danger" onClick={() => setShowCommentBox(true)}>
-                  Rechazar
-                </Button>
-                <Button color="success" onClick={handleSubmitSendVerify}>
-                  Enviar
-                </Button>
-                <Button color="primary" onClick={toggleModalEgreso}>
-                  Cancelar
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button color="warning" onClick={handleSubmitCancel}>
-                  Enviar (Rechazado)
-                </Button>
-                <Button color="secondary" onClick={() => setShowCommentBox(false)}>
-                  Volver
-                </Button>
-                <Button color="primary" onClick={toggleModalEgreso}>
-                  Cancelar
-                </Button>
-              </>
-            )}
-          </ModalFooter>
-        </Modal>
+                  {
+                    ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+                    <FormGroup>
+                      <Label>Selecciona el Banco a transferir</Label>
+                      <Input
+                        type="select"
+                        id="bankOptionPaySelect"
+                        defaultValue={bankOptionPay}
+                        disabled={payment === ''}
+                        onChange={(e) => { setBankOptionPay(e.target.value) }}
+                      >
+                        <option value="">Selecciona una opción</option>
+                        {payment === 'BS' ?
+                          banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
+                            return bank.accbs_bank ?
+                              <option value={bank.accbs_id}>{bank.accbs_bank}</option>
+                              : null
+                          })
+                          : payment === 'USD' ?
+                            banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
+                              return bank.accusd_Bank ?
+                                <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
+                                : null
+                            })
+                            : null
+                        }
+                      </Input>
+                    </FormGroup>
+                  }
+                  {
+                    ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
+                    <FormGroup>
+                      <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
+                      <Input
+                        type="file"
+                        className="form-control-file"
+                        id="imageInput"
+                        disabled={payment === ''}
+                        accept=".jpg,.jpeg,.png,.gif"
+                        onChange={(e) => setMovImg(e.target.files[0])}
+                      />
+                    </FormGroup>
+                  }
+                  {showCommentBox && (
+                    <FormGroup>
+                      <Label for="comment">Comentario</Label>
+                      <Input type="textarea" name="comment" id="comment" />
+                    </FormGroup>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  {!showCommentBox ? (
+                    <>
+                      <Button 
+                      color="danger" 
+                      onClick={() => setShowCommentBox(true)}>
+                        Rechazar
+                      </Button>
+                      <Button 
+                      color="success" 
+                      disabled={((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) && (payment === '' || bankOptionPay === '' || mov_img === '')}
+                      onClick={handleSubmitSendVerify}>
+                        Enviar
+                      </Button>
+                      <Button color="primary" onClick={toggleModalEgreso}>
+                        Cancelar
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button color="warning" onClick={(e)=>{
+                        handleSubmitCancel(e);
+                        toggleModalEgreso();
+                        }}>
+                        Enviar (Rechazado)
+                      </Button>
+                      <Button color="secondary" onClick={() => setShowCommentBox(false)}>
+                        Volver
+                      </Button>
+                      <Button color="primary" onClick={toggleModalEgreso}>
+                        Cancelar
+                      </Button>
+                    </>
+                  )}
+                </ModalFooter>
+              </Modal>
 
-        {/* Modal De Imagen Movimientos */}
-        <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
-          <ModalHeader toggle={toggleImageMov}>Verificación de imagén</ModalHeader>
-          <ModalBody>
-            {select && <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${select.mov_img}`} />}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={toggleImageMov}>
-              Volver
-            </Button>
-          </ModalFooter>
-        </Modal>
+              {/* Modal De Imagen Movimientos */}
+              <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
+                <ModalHeader toggle={toggleImageMov}>Verificación de imagén</ModalHeader>
+                <ModalBody>
+                  {select && <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${select.mov_img}`} />}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="secondary" onClick={toggleImageMov}>
+                    Volver
+                  </Button>
+                </ModalFooter>
+              </Modal>
 
-        <ToastContainer />
+              <ToastContainer />
+            </>
+          ) : (
+            <NotFound404 />
+          )}
         </>
-        ) : (
-          <NotFound404 />
-        )}
-      </>
-    )}
-  </div>
+      )}
+    </div>
   );
 }
 

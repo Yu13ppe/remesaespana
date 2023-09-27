@@ -475,7 +475,6 @@ function Users() {
                   <tr>
                     <th>Correo</th>
                     <th>DNI</th>
-                    <th>Telefono</th>
                     <th>Imagen</th>
                     <th>USD</th>
                     <th>EUR</th>
@@ -486,7 +485,6 @@ function Users() {
                   <tr>
                     <td>{select.use_email}</td>
                     <td>{select.use_dni ? select.use_dni : <p>No se encontraron resultados</p>}</td>
-                    <td>{select.use_phone ? select.use_phone : <p>No se encontraron resultados</p>}</td>
                     <td>
                       {select.use_verif === "s" || select.use_verif === "S" ?
                         <Button

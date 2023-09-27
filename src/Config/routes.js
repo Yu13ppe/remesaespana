@@ -15,6 +15,7 @@ import { Relation } from '../Pages/Relation';
 import { Banks } from '../Pages/Banks';
 import { CurrencyUpdate } from '../Pages/CurrencyUpdate';
 import { Privacy } from '../Pages/Privacy';
+import { RecoverUpdate } from '../Pages/RecoverUpdate';
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
         title: 'UserNoVerificated',
         path: '/UserNoVerificated',
         component: UserNoVerificated,
+    },
+    {
+        title: 'RecoverUpdate',
+        path: '/RecoverUpdate',
+        component: RecoverUpdate,
     },
     {
         title: 'Banks',
