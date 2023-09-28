@@ -415,7 +415,7 @@ function CurrencyUpdate() {
                                   <img src={Delivery} width={45} alt='Delivery' />
                                 </Button>
                                 <Input
-                                  name="cur_EurToBs"
+                                  name="delivery"
                                   value={formDataPorcent.por_deliveryPrice}
                                   className='centered-input'
                                   placeholder='Delivery'

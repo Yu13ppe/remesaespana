@@ -16,6 +16,8 @@ import { Banks } from '../Pages/Banks';
 import { CurrencyUpdate } from '../Pages/CurrencyUpdate';
 import { Privacy } from '../Pages/Privacy';
 import { RecoverUpdate } from '../Pages/RecoverUpdate';
+import { Cookies } from '../Pages/Cookies';
+import { TermsAndConditions } from '../Pages/TermsAndConditions';
 
 const routes = [
     {
@@ -35,7 +37,7 @@ const routes = [
     },
     {
         title: 'RecoverUpdate',
-        path: '/RecoverUpdate',
+        path: '/RecoverUpdate/:id',
         component: RecoverUpdate,
     },
     {
@@ -69,9 +71,19 @@ const routes = [
         component: Users,
     },
     {
+        title: 'TermsAndConditions',
+        path: '/TermsAndConditions',
+        component: TermsAndConditions,
+    },
+    {
         title: 'Faqs',
         path: '/Faqs',
         component: Faqs,
+    },
+    {
+        title: 'Cookies',
+        path: '/Cookies',
+        component: Cookies,
     },
     {
         title: 'Profile',

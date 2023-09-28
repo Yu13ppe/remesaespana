@@ -14,6 +14,7 @@ import {
   FormFeedback
 } from 'reactstrap';
 import { FaExclamationCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import changes from '../Assets/Images/changes.png'
 import Spain from '../Assets/Images/spain.png'
@@ -288,7 +289,7 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} ${sendOption === 'Efectivo' && porcent? porcent.por_stateLocation + '\n' : null } ${sendOption === 'Efectivo' && porcent.por_comment !== ''? porcent.por_comment + '\n' : null } \n` + note);
+    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} ${sendOption === 'Efectivo' && porcent ? porcent.por_stateLocation + '\n' : null} ${sendOption === 'Efectivo' && porcent.por_comment !== '' ? porcent.por_comment + '\n' : null} \n` + note);
     formData.append('mov_img', 'Retiro de Divisa');
     formData.append('mov_typeOutflow', sendOption);
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
@@ -956,7 +957,7 @@ function Changes() {
                         payment === '' ||
                         sendOption === '' ||
                         sendAmount === "" ||
-                        ((porcent.por_status === 'Obligatorio' || (porcent.por_status === 'No obligatorio' && (delivery !== '0' || delivery !== '')) ) && note === "") ||
+                        ((porcent.por_status === 'Obligatorio' || (porcent.por_status === 'No obligatorio' && (delivery !== '0' || delivery !== ''))) && note === "") ||
                         (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
                         (porcent.por_status === 'Obligatorio' && note === "") ||
                         // (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
@@ -1418,8 +1419,10 @@ function Changes() {
                         checked={termsCheckbox}
                         onChange={(e) => setTermsCheckbox(e.target.checked)}
                       />
-                      <Label className="form-check-label" htmlFor="termsCheckbox">
-                        Acepto los términos y condiciones
+                      <Label className="form-check-label" htmlFor="termsCheckbox"> Acepto los
+                        <Link to='/TermsAndConditions' style={{ paddingLeft: '5px' }} >
+                          términos y condiciones
+                        </Link>
                       </Label>
                     </div>
 
@@ -1442,7 +1445,6 @@ function Changes() {
                   </div>
                 </ModalBody>
               </Modal>
-
               <ToastContainer />
             </div>
           )

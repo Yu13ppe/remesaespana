@@ -3,7 +3,13 @@ import axios from 'axios'
 import logo from '../Assets/Images/remesalogo.png'
 import slogan from '../Assets/Images/sloganremesa.png'
 import { Link } from 'react-router-dom'
-import { Button } from 'reactstrap'
+import {
+  Button,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+} from 'reactstrap'
 import { useDataContext } from '../Context/dataContext'
 import { FiLogOut } from 'react-icons/fi'
 import { clearLocalStorage } from '../Hooks/useLocalStorage'
@@ -12,6 +18,7 @@ function NavBar() {
   const { logged, accessAdminToken } = useDataContext()
   const [menuOpen, setMenuOpen] = useState(false);
   const [admin, setAdmin] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const fetchDataAdmin = useCallback(async () => {
     try {
@@ -19,9 +26,9 @@ function NavBar() {
       setAdmin(response.data);
     } catch (error) {
     }
-  },[setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken]);
 
-  const clearLocal = ()=>{
+  const clearLocal = () => {
     clearLocalStorage();
     clearLocalStorage();
   }
@@ -30,17 +37,20 @@ function NavBar() {
     fetchDataAdmin();
   }, [fetchDataAdmin]);
 
+
+  const toggle = () => setDropdownOpen((prevState) => !prevState);
+
   return (
     <div className='Nav'>
       <Link to='/'>
-      <div className='nav__logo'>
-        <img src={logo}
-          alt='remesaespana'
-        />
-        <img className='slogan' src={slogan}
-          alt='sloganremesaespana'
-        />
-      </div>
+        <div className='nav__logo'>
+          <img src={logo}
+            alt='remesaespana'
+          />
+          <img className='slogan' src={slogan}
+            alt='sloganremesaespana'
+          />
+        </div>
       </Link>
       <div className='MenuPrincipal'>
         <div className='menu' onClick={() => setMenuOpen(!menuOpen)}>
@@ -96,9 +106,18 @@ function NavBar() {
               <a className='' href='https://wa.me/+34722850962'>
                 <li className=''>Contacto</li>
               </a>
-              <Link className='' to='/Login'>
-                <Button className='log-btn'>Ingresar</Button>
-              </Link>
+              <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+                <DropdownToggle className='log-btn'>Acceder</DropdownToggle>
+                <DropdownMenu>
+                  <Link className='' to='/Register'>
+                    <DropdownItem>Registrarse</DropdownItem>
+                  </Link>
+                  <DropdownItem divider />
+                  <Link className='' to='/Login'>
+                    <DropdownItem>Ingresar</DropdownItem>
+                  </Link>
+                </DropdownMenu>
+              </Dropdown>
             </ul>
           )
         }

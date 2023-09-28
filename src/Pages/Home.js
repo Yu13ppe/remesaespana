@@ -28,6 +28,7 @@ import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
 import { Link } from 'react-router-dom'
 import { Spinner } from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
+import { CookiesC } from '../Components/CookiesC';
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
@@ -73,8 +74,8 @@ function Home() {
         <Spinner />
       ) : (
         <>
-
           <NavBar />
+          <CookiesC />
           <div className='Segmento-1'>
             <img className='Oval' alt='Oval' src={Oval} />
             <div className='text'>

@@ -22,9 +22,9 @@ import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from './NotFound404';
 import { Spinner } from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
 
-
 function Dashboard() {
   const { accessAdminToken } = useDataContext();
+  const [isLoading, setIsLoading] = useState(true);
   
   const [movements, setMovements] = useState([]);
   const [user, setUsers] = useState([]);
@@ -52,7 +52,7 @@ function Dashboard() {
   const [banksBs, setBanksBS] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
   const [mov_img, setMovImg] = useState('');
-
+  
   const [modalImageMov, setModalImageMov] = useState(false);
   const toggleImageMov = () => setModalImageMov(!modalImageMov);
 
@@ -249,6 +249,7 @@ function Dashboard() {
     formData.append('mov_accEurId', 0);
     formData.append('mov_accGbpId', 0);
     formData.append('mov_img', mov_img);
+    formData.append('mov_amount', (select.mov_currency === payment ? parseInt(select.mov_amount) : select.mov_currency === 'USD' && select.mov_currency !== payment ? parseInt(select.mov_amount) * currencyPrice.cur_UsdToBs : select.mov_currency === 'EUR'? parseInt(select.mov_amount) * currencyPrice.cur_EurToBs : select.mov_currency === 'GBP'? parseInt(select.mov_amount) * currencyPrice.cur_GbpToBs : parseInt(select.mov_amount)));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accBsId', (payment === 'BS' ? parseInt(bankOptionPay) : 0));
 
@@ -262,7 +263,7 @@ function Dashboard() {
           },
         }
       )
-        ;
+      ;
 
       await axios.get(
         `https://apiremesa.up.railway.app/Movements/verif/${select.mov_id}`
@@ -428,7 +429,6 @@ function Dashboard() {
       console.error('Error:', error);
     }
   };
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {

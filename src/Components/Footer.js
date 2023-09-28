@@ -10,7 +10,7 @@ function Footer() {
       
       <div className="footer-right">
         <ul>
-          <Link className='linkFooter' to='/'>
+          <Link className='linkFooter' to='/Cookies'>
             <li>Cookies</li>
           </Link>
           <Link className='linkFooter' to='/Privacy'>
