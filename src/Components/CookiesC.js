@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import Cookies from '../Assets/Images/cookie.svg'
+import { Link } from 'react-router-dom'
+
 
 function CookiesC() {
   useEffect(() => {
@@ -37,7 +39,7 @@ function CookiesC() {
         <h3 className="titulo">Cookies</h3>
         <p className="parrafo">Utilizamos cookies propias y de terceros para mejorar nuestros servicios.</p>
         <button className="boton" id="btn-aceptar-cookies">De acuerdo</button>
-        <a className="enlace" href="aviso-cookies.html">Aviso de Cookies</a>
+        <Link className="enlace" to='/Cookies'>Aviso de Cookies</Link>
       </div>
       <div className="fondo-aviso-cookies" id="fondo-aviso-cookies"></div>
     </div>
