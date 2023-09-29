@@ -1,11 +1,15 @@
 import React from 'react'
+import { Footer } from '../Components/Footer';
+import { NavBar } from '../Components/NavBar';
+import { Link } from 'react-router-dom';
+
 
 function Cookies() {
 	return (
 		<div>
-			<main>
-				<a href="/">Regresar</a>
-				<h1>Aviso de Cookies</h1>
+            <NavBar/>       
+            <main className="cookies-main">
+				<h1 className='text-center text-remesa'>Aviso de Cookies</h1>
 				<h3>¿Qué son las cookies?</h3>
 				<p>Una cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y, dependiendo de la información que contengan y de la forma en que utilice su equipo, pueden utilizarse para reconocer al usuario.</p>
 
@@ -30,13 +34,13 @@ function Cookies() {
 
 				<p>A continuación puede acceder a la configuración de los navegadores webs más frecuentes para aceptar, instalar o desactivar las cookies:</p>
 
-				<p><a href="https://support.google.com/chrome/answer/95647?hl=es" target="_blank" rel="noopener">Configurar cookies en Google Chrome</a></p>
+				<p><a href="https://support.google.com/chrome/answer/95647?hl=es" >Configurar cookies en Google Chrome</a></p>
 
-				<p><a href="http://windows.microsoft.com/es-es/windows7/how-to-manage-cookies-in-internet-explorer-9" target="_blank" rel="noopener">Configurar cookies en Microsoft Internet Explorer</a></p>
+				<p><a href="http://windows.microsoft.com/es-es/windows7/how-to-manage-cookies-in-internet-explorer-9" >Configurar cookies en Microsoft Internet Explorer</a></p>
 
-				<p><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias?redirectlocale=es&amp;redirectslug=habilitar-y-deshabilitar-cookies-que-los-sitios-we" target="_blank" rel="noopener">Configurar cookies en Mozilla Firefox</a></p>
+				<p><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias?redirectlocale=es&amp;redirectslug=habilitar-y-deshabilitar-cookies-que-los-sitios-we">Configurar cookies en Mozilla Firefox</a></p>
 
-				<p><a href="https://support.apple.com/es-es/HT201265" target="_blank" rel="noopener">Configurar cookies en Safari (Apple)</a></p>
+				<p><a href="https://support.apple.com/es-es/HT201265">Configurar cookies en Safari (Apple)</a></p>
 
 
 				<h3>Cookies de terceros.</h3>
@@ -54,6 +58,12 @@ function Cookies() {
 
 				<p>Si tiene cualquier duda acerca de nuestra política de cookies, puede contactar con esta página web a través de nuestros canales de Contacto.</p>
 			</main>
+
+			<Link className='Linkss' to='/home'>Regresa al Inicio </Link>
+
+            <Footer/>
+
+
 		</div>
 	)
 }

@@ -31,28 +31,36 @@ function Login() {
           user: tkn,
         }
       });
+      return true; 
     } catch (error) {
       console.log(error);
+      return false; 
     }
   };
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-
-    fetchData(use_email, use_password)
-
+  
+    const loginSuccessful = await fetchData(use_email, use_password);
+  
+    if (loginSuccessful) {
+      // Redireccionar si el inicio de sesión fue exitoso
+      return;
+    }
+  
     if (attemps === 0) {
       setError("Has superado el número de intentos. Intenta más tarde.");
       setAlertVisible(true);
       setInputDisabled(true);
-    }
-    else {
+    } else {
       setAttemps(attemps - 1);
-      const error = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
-      setError(error);
+      const errorMessage = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
+      setError(errorMessage);
       setAlertVisible(true);
     }
   };
+  
+  
 
   return (
     logged ? (

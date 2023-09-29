@@ -30,26 +30,33 @@ function AdmRe() {
         }
       });
     } catch (error) {
-      console.log(error);
+      throw new Error("Inicio de sesión fallido");
     }
   };
+  
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Previene el comportamiento predeterminado del formulario
-
-    fetchData(adm_email, adm_password)
-
-    if (attemps === 0) {
-      setError("Has superado el número de intentos. Intenta más tarde.");
-      setAlertVisible(true);
-    }
-    else {
-      setAttemps(attemps - 1);
-      const error = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
-      setError(error);
-      setAlertVisible(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+  
+    try {
+      await fetchData(adm_email, adm_password);
+  
+ 
+    } catch (error) {
+      if (attemps === 0) {
+        setError("Has superado el número de intentos. Intenta más tarde.");
+        setAlertVisible(true);
+      } else {
+        setAttemps(attemps - 1);
+        const errorMessage = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps}`;
+        setError(errorMessage);
+        setAlertVisible(true);
+      }
     }
   };
+  
+  
+  
 
   return (
     <div className='AdmBody'>
