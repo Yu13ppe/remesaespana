@@ -400,12 +400,13 @@ function Relation() {
                   <tbody>
                     {movs.map((mov) => (
                       <tr key={mov.mov_id}>
+                        <td>{mov.User.use_name}</td>
                         <td>{mov.mov_currency}</td>
                         <td>{mov.mov_amount}</td>
                         <td>{mov.mov_date}</td>
                         <td>{mov.mov_status}</td>
                         <td>{mov.mov_type}</td>
-                        <td>{mov.mov_comment}</td>
+                        <td>{mov.mov_typeOutflow? mov.mov_typeOutflow : 'Deposito'}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -602,6 +602,7 @@ function Dashboard() {
                     </h4>
                     <p dangerouslySetInnerHTML={{ __html: select && select.mov_comment.replace(/\n/g, "<br/>") }} />
                   </Alert>
+                  {select && 
                   <FormGroup>
                     <Label for="amount">
                       {
@@ -615,8 +616,8 @@ function Dashboard() {
                     name="amount" 
                     id="amount" 
                     disabled 
-                    defaultValue={select && `${select.mov_amount}`} />
-                  </FormGroup>
+                    defaultValue={select && select.mov_currency === 'USD' && select.mov_typeOutflow !== 'Efectivo'? parseInt(select.mov_amount) * currencyPrice.cur_UsdToBs :  select.mov_currency === 'EUR' && select.mov_typeOutflow !== 'Efectivo'? parseInt(select.mov_amount) * currencyPrice.cur_EurToBs : select.mov_currency === 'GBP' && select.mov_typeOutflow !== 'Efectivo'? parseInt(select.mov_amount) * currencyPrice.cur_GbpToBs : select.mov_amount} />
+                  </FormGroup>}
                   {
                     ((select && select.mov_typeOutflow === 'Cuenta Bancaria') || (select && select.mov_typeOutflow === 'Pago Movil')) &&
                     <FormGroup>
@@ -648,13 +649,13 @@ function Dashboard() {
                         {payment === 'BS' ?
                           banksBs.filter((bank) => bank.accbs_status === 'Activo').map((bank) => {
                             return bank.accbs_bank ?
-                              <option value={bank.accbs_id}>{bank.accbs_bank}</option>
+                              <option value={bank.accbs_id}>{bank.accbs_bank} ({bank.accbs_owner})</option>
                               : null
                           })
                           : payment === 'USD' ?
                             banksUSD.filter((bank) => bank.accusd_status === 'Activo').map((bank) => {
                               return bank.accusd_Bank ?
-                                <option value={bank.accusd_id}>{bank.accusd_Bank}</option>
+                                <option value={bank.accusd_id}>{bank.accusd_Bank} ({bank.accusd_owner})</option>
                                 : null
                             })
                             : null

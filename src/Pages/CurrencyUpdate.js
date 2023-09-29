@@ -37,6 +37,7 @@ function CurrencyUpdate() {
     por_porcentGbp: '',
     por_porcentEur: '',
     por_porcentUsd: '',
+    por_deliveryPrice: ''
   });
   const [formData, setFormData] = useState({
     cur_EurToBs: '',
@@ -154,6 +155,7 @@ function CurrencyUpdate() {
         por_porcentGbp: formDataPorcent.por_porcentGbp,
         por_porcentEur: formDataPorcent.por_porcentEur,
         por_porcentUsd: formDataPorcent.por_porcentUsd,
+        por_deliveryPrice: formDataPorcent.por_deliveryPrice,
         por_status: location,
         por_comment: additionalInfo,
       };
@@ -409,17 +411,19 @@ function CurrencyUpdate() {
                           </Col>
                           <Col>
                             <FormGroup>
-                              <Label for="poundInput">Delivery</Label>
+                              <Label for="deliveryPrice">Delivery</Label>
                               <InputGroup>
                                 <Button>
                                   <img src={Delivery} width={45} alt='Delivery' />
                                 </Button>
                                 <Input
-                                  name="delivery"
+                                  type="text"
+                                  name="por_deliveryPrice"
+                                  id="deliveryPriceInput"
                                   value={formDataPorcent.por_deliveryPrice}
+                                  placeholder="delivery"
                                   className='centered-input'
-                                  placeholder='Delivery'
-                                  onChange={handleInputChange}
+                                  onChange={handleInputChangePorcent}
                                 />
                               </InputGroup>
                             </FormGroup>

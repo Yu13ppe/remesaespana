@@ -289,7 +289,7 @@ function Changes() {
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Retiro');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} ${sendOption === 'Efectivo' && porcent ? porcent.por_stateLocation + '\n' : null} ${sendOption === 'Efectivo' && porcent.por_comment !== '' ? porcent.por_comment + '\n' : null} \n` + note);
+    formData.append('mov_comment', `${accNumber} ${accBank} ${accOwner} ${accTlf} ${accDni} ${sendOption} ${sendOption === 'Efectivo' && porcent ? porcent.por_stateLocation + '\n' : ''} ${sendOption === 'Efectivo' && porcent.por_comment !== '' ? porcent.por_comment + '\n' : ''} \n` + note);
     formData.append('mov_img', 'Retiro de Divisa');
     formData.append('mov_typeOutflow', sendOption);
     formData.append('mov_accEurId', (payment === 'EUR' ? 99 : 0));
