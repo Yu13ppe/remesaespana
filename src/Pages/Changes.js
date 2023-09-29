@@ -29,6 +29,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from '../Pages/NotFound404';
 import { FixeedAlert } from '../Components/FixeedAlert';
+import { Contact } from '../Components/Contact';
 
 function Changes() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -421,6 +422,7 @@ function Changes() {
           user.use_verif === 'S' ? (
             <div style={{ height: '100vh' }}>
               <NavBar />
+              <Contact />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
                 <h2>Hola {user.use_name} {user.use_lastName}</h2>

@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
+import { Contact } from '../Components/Contact';
 
 function TermsAndConditions() {
 	return (
 		<div>
 			<NavBar />
+			<Contact />
 			<main className="cookies-main">
 				<h1 className="text-center text-remesa">Términos y Condiciones de Uso</h1>
 				<h5>Fecha de entrada en vigencia: 2023</h5>

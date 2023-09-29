@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Label } from 'reactstrap';
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
+import { Contact } from '../Components/Contact';
 
 function Faqs() {
   const [activeTabs, setActiveTabs] = useState([]);
@@ -41,6 +42,7 @@ function Faqs() {
   return (
     <div>
       <NavBar />
+      <Contact />
       <div className='BodyFaqs'>
         <div className='container-faqs'>
           {faqData.map((faq, index) => (

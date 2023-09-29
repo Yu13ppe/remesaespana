@@ -227,8 +227,10 @@ function Relation() {
     }
   };
   const fetchDataMovs = useCallback(async () => {
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/date/${2023}-${'09'}-${26}`);
+      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/date/${formattedDate}`);
       setMovs(response.data);
     } catch (error) {
       console.log(error);
@@ -392,19 +394,17 @@ function Relation() {
                       <th>Moneda</th>
                       <th>Monto</th>
                       <th>Fecha</th>
-                      <th>Estado</th>
                       <th>Tipo</th>
                       <th>Detalles</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {movs.map((mov) => (
+                    {movs.filter((mov)=> mov.mov_status === 'V').map((mov) => (
                       <tr key={mov.mov_id}>
-                        <td>{mov.User.use_name}</td>
+                        <td>{mov.User.use_name} {mov.User.use_lastName}</td>
                         <td>{mov.mov_currency}</td>
                         <td>{mov.mov_amount}</td>
                         <td>{mov.mov_date}</td>
-                        <td>{mov.mov_status}</td>
                         <td>{mov.mov_type}</td>
                         <td>{mov.mov_typeOutflow? mov.mov_typeOutflow : 'Deposito'}</td>
                       </tr>

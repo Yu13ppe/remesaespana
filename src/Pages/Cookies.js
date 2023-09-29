@@ -1,13 +1,15 @@
 import React from 'react'
 import { Footer } from '../Components/Footer';
 import { NavBar } from '../Components/NavBar';
+import { Contact } from '../Components/Contact';
 import { Link } from 'react-router-dom';
 
 
 function Cookies() {
 	return (
 		<div>
-            <NavBar/>       
+            <NavBar/>   
+			<Contact/>    
             <main className="cookies-main">
 				<h1 className='text-center text-remesa'>Aviso de Cookies</h1>
 				<h3>¿Qué son las cookies?</h3>

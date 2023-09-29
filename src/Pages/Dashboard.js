@@ -277,21 +277,21 @@ function Dashboard() {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
           tor_accBsId: parseInt(bankOptionPay),
-          tor_currencyPrice: currencyPrice.cur_EurToBs
+          tor_currencyPrice: parseInt(currencyPrice.cur_EurToBs)
         });
       }
       if (select.mov_currency === 'EUR' && payment === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
           tor_accUsdId: parseInt(bankOptionPay),
-          tor_currencyPrice: currencyPrice.cur_EurToUsd
+          tor_currencyPrice: parseInt(currencyPrice.cur_EurToUsd)
         });
       }
       if (select.mov_currency === 'USD' && payment === 'BS') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
           tor_accBsId: parseInt(bankOptionPay),
-          tor_currencyPrice: currencyPrice.cur_UsdToBs
+          tor_currencyPrice: parseInt(currencyPrice.cur_UsdToBs)
         });
       }
       if (select.mov_currency === 'USD' && payment === 'USD') {
@@ -305,14 +305,14 @@ function Dashboard() {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
           tor_accBsId: parseInt(bankOptionPay),
-          tor_currencyPrice: currencyPrice.cur_GbpToBs
+          tor_currencyPrice: parseInt(currencyPrice.cur_GbpToBs)
         });
       }
       if (select.mov_currency === 'GBP' && payment === 'USD') {
         await axios.post(
           `https://apiremesa.up.railway.app/TotalRegister/create`, {
           tor_accUsdId: parseInt(bankOptionPay),
-          tor_currencyPrice: currencyPrice.cur_GbpToUsd
+          tor_currencyPrice: parseInt(currencyPrice.cur_GbpToUsd)
         });
       }
 

@@ -1,11 +1,13 @@
 import React from 'react'
 import { NavBar } from '../Components/NavBar';
 import { Footer } from '../Components/Footer';
+import { Contact } from '../Components/Contact';
 
 function Privacy() {
   return (
     <div>
       <NavBar />
+      <Contact />
       <article className="container p-3 p-md-5 text-secondary">
         <h1 className="text-center text-remesa">Política de Privacidad</h1>
         <hr />

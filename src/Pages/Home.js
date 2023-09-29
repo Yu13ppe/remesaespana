@@ -29,6 +29,7 @@ import { Footer } from '../Components/Footer';
 import { Link } from 'react-router-dom'
 import { Spinner } from '../Components/Spinner'; // Ajusta la ruta de importación según tu estructura de archivos
 import { CookiesC } from '../Components/CookiesC';
+import { Contact } from '../Components/Contact';
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
@@ -76,6 +77,8 @@ function Home() {
         <>
           <NavBar />
           <CookiesC />
+        <Contact/>
+
           <div className='Segmento-1'>
             <img className='Oval' alt='Oval' src={Oval} />
             <div className='text'>
@@ -185,7 +188,6 @@ function Home() {
                 </div>
                 <div className="text">
                   <li>Regístrate en nuestra web y llena todos los campos.</li>
-                  <li>Revisa tu correo electrónico y verifica el código de validación que te enviamos.</li>
                   <li>Toma una foto legible de tu identificación.</li>
                   <li>Sube tu identificación a la web.</li>
                   <li>¡Espera tu validación y empieza a cambiar!</li>
