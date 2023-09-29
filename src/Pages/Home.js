@@ -188,6 +188,7 @@ function Home() {
                 </div>
                 <div className="text">
                   <li>Regístrate en nuestra web y llena todos los campos.</li>
+                  <li>Revisa tu correo electrónico, de esta manera te enviamos las notificaciones de tus cambios</li>
                   <li>Toma una foto legible de tu identificación.</li>
                   <li>Sube tu identificación a la web.</li>
                   <li>¡Espera tu validación y empieza a cambiar!</li>
