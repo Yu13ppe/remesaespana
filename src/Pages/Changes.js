@@ -71,6 +71,7 @@ function Changes() {
   const [showConfirmationMobile, setShowConfirmationMobile] = useState(false);
   const [showConfirmationCash, setShowConfirmationCash] = useState(false);
   const [showConfirmationBank, setShowConfirmationBank] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
 
 
@@ -413,6 +414,15 @@ function Changes() {
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+  };
+
+  const handleShow = () => {
+    setShowModal(true);
+    // Aquí puedes realizar la solicitud a la API para obtener los datos necesarios y guardarlos en el estado.
   };
 
   return (
@@ -1329,10 +1339,12 @@ function Changes() {
                   <Button>
                     <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
-                  <Input disabled className='centered-input'
-                    placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
-                  >
-                  </Input>
+                  <Input
+                    disabled
+                    className='centered-input'
+                    placeholder='Consultar estado'
+                    onClick={handleShow} // Abre el modal al hacer clic en el input
+                  ></Input>
                   <Button >
                     Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
@@ -1349,6 +1361,23 @@ function Changes() {
                   </div>
                 </InputGroup>
               </div>
+
+
+          {/* Consultar estado */}
+              <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Consulta tu estado</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* Coloca aquí el contenido del modal, como los datos de la API */}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={handleClose}>
+            Cerrar
+          </Button>
+          {/* Agrega otros botones o acciones según sea necesario */}
+        </Modal.Footer>
+      </Modal>
 
               {/* Alert */}
               <Modal isOpen={modalOpen} centered toggle={toggleModal} className="responsive-modal">
