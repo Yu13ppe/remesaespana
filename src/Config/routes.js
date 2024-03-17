@@ -18,6 +18,7 @@ import { Privacy } from '../Pages/Privacy';
 import { RecoverUpdate } from '../Pages/RecoverUpdate';
 import { Cookies } from '../Pages/Cookies';
 import { TermsAndConditions } from '../Pages/TermsAndConditions';
+import { Notifications } from '../Pages/Notifications';
 
 const routes = [
     {
@@ -25,6 +26,13 @@ const routes = [
         path: '/UserVerificated',
         component: UserVerificated,
     },
+    {
+        title: 'Notifications',
+        path: '/Notifications',
+        component: Notifications,
+    },
+    
+
     {
         title: 'Relation',
         path: '/Relation',
@@ -37,7 +45,7 @@ const routes = [
     },
     {
         title: 'RecoverUpdate',
-        path: '/RecoverUpdate/:id',
+        path: '/RecoverUpdate/:id/:email',
         component: RecoverUpdate,
     },
     {
