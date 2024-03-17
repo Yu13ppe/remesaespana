@@ -21,7 +21,7 @@ import { Spinner } from '../Components/Spinner'; // Ajusta la ruta de importaciÃ
 
 
 function UserNoVerificated() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -41,6 +41,7 @@ function UserNoVerificated() {
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
   const [use_dni, setDNI] = useState('');
+  const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const [use_amountEur, setAmountEur] = useState(Number);
   const [use_amountUsd, setAmountUsd] = useState(Number);
@@ -75,27 +76,37 @@ function UserNoVerificated() {
     setSearchQuery(event.target.value);
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/users');
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setUsers(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [setUsers, accessAdminToken, url]);
+
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
     } catch (error) {
+      console.log(error);
     }
-  }, [setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken, url]);
 
   useEffect(() => {
     fetchData();
     fetchDataAdmin();
-  }, [fetchDataAdmin]);
+  }, [fetchData, fetchDataAdmin]);
 
   const handleEdit = async (user) => {
     setSelectedUser(user);
@@ -106,6 +117,7 @@ function UserNoVerificated() {
     setEmail(user.use_email);
     setPassword(user.use_password);
     setDNI(user.use_dni);
+    setPhone(user.use_phone);
     setUserImage1(user.use_img);
     setUserImage2(user.use_imgDni);
     setVerif(user.use_verif);
@@ -120,11 +132,12 @@ function UserNoVerificated() {
     try {
       if (selectedUser) {
         await axios.put(
-          `https://apiremesa.up.railway.app/Users/${selectedUser.use_id}`,
+          `${url}/Users/${selectedUser.use_id}`,
           {
             use_name,
             use_lastName,
             use_dni,
+            use_phone,
             use_email,
             use_password,
             use_img,
@@ -133,14 +146,35 @@ function UserNoVerificated() {
             use_amountUsd,
             use_amountEur,
             use_amountGbp
-          });
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
+          }
+        );
+
         if (use_verif === 'S') {
           await axios.post(
-            `https://apiremesa.up.railway.app/Mailer/EmailVVerif/${use_email}`
+            `${url}/Mailer/EmailVVerif/${use_email}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            }
           );
-        }else{
+        } else {
           await axios.post(
-            `https://apiremesa.up.railway.app/Mailer/EmailRVerif/${use_email}`
+            `${url}/Mailer/EmailRVerif/${use_email}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            }
           );
         }
 
@@ -161,14 +195,31 @@ function UserNoVerificated() {
         });
       }
 
-
       fetchData();
       toggleUser();
-
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleDelete = async id => {
+    try {
+      await axios.delete(
+        `${url}/Users/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessAdminToken.access_token}`,
+          },
+        }
+      );
+
+      fetchData();
+      toggleViewer();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -178,17 +229,6 @@ function UserNoVerificated() {
     }, 900); // Simula que la carga demora 2 segundos
   }, []);
 
-  const handleDelete = async id => {
-    try {
-      await axios.delete(
-        `https://apiremesa.up.railway.app/Users/${id}`
-      );
-      fetchData();
-      toggleViewer();
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div>
@@ -196,7 +236,7 @@ function UserNoVerificated() {
         <Spinner />
       ) : (
         <>
-          {admin.adm_role === 'A' ? (
+          {admin.adm_role === 'A' || admin.adm_role === 'C' ? (
             <div>
               <NavBar />
               <div className='userContent'>
@@ -225,6 +265,7 @@ function UserNoVerificated() {
                       <th>Nombre</th>
                       <th>Apellido</th>
                       <th>DNI</th>
+                      <th>Telefono</th>
                       <th>Verificacion</th>
                       <th>Imagen</th>
                       <th>Acciones</th>
@@ -240,6 +281,7 @@ function UserNoVerificated() {
                           <th scope="row">{user.use_id}</th>
                           <td>{user.use_name}</td>
                           <td>{user.use_lastName}</td>
+                          <td>{user.use_phone}</td>
                           <td>{user.use_dni ? user.use_dni : <p>No se encontraron resultados</p>}</td>
                           <td><AiOutlineClockCircle style={{ color: "blue", fontSize: "2em" }} /></td>
                           <td>
@@ -295,9 +337,50 @@ function UserNoVerificated() {
                 {/* Modal De Imagen Usuarios */}
                 <Modal centered isOpen={modalImageUser} size='lg' toggle={toggleImageUser}>
                   <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
-                  <ModalBody>
-                    <img style={{ width: '100%' }} alt='ImageUser1' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
-                    <img style={{ width: '100%' }} alt='ImageUser2' src={`https://apiremesa.up.railway.app/Users/imageDni/${select.use_imgDni}`} />
+                  <ModalBody style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                  }}>
+                    {select && select.use_img && select.use_img.toLowerCase().includes('.pdf') ? (
+                      <a href={`${url}/Users/image/${select.use_img}`} target='_blank' rel="noreferrer">
+                        <Button color='success' style={{
+                          margin: '5px'
+                        }}>
+                          Descargar PDF de Usuario
+                        </Button>
+                      </a>
+                    ) : null
+                    }
+                    {select && select.use_imgDni && select.use_imgDni.toLowerCase().includes('.pdf') ? (
+                      <a
+                        href={`${url}/Users/imageDni/${select.use_imgDni}`}
+                        target='_blank'
+                        rel="noreferrer">
+                        <Button color='primary' style={{
+                          margin: '10px'
+                        }}>
+                          Descargar PDF de DNI de Usuario
+                        </Button>
+                      </a>
+                    ) : null
+                    }
+                    {select && select.use_img && !select.use_img.toLowerCase().includes('.pdf') ? (
+                      <img
+                        style={{ width: '100%' }}
+                        alt='ImageUser1'
+                        src={`${url}/Users/image/${select.use_img}`}
+                      />
+                    ) : null
+                    }
+                    {select && select.use_imgDni && !select.use_imgDni.toLowerCase().includes('.pdf') ? (
+                      <img
+                        style={{ width: '100%' }}
+                        alt='ImageUser2'
+                        src={`${url}/Users/imageDni/${select.use_imgDni}`} />
+                    ) : null
+                    }
                   </ModalBody>
                   <ModalFooter>
                     <Button color="secondary" onClick={toggleImageUser}>
@@ -388,6 +471,20 @@ function UserNoVerificated() {
                           id="dni"
                           placeholder="DNI"
                         />
+                        <div className="col-md-6">
+                          <label htmlFor="dni" className="form-label">
+                            Telefono
+                          </label>
+                          <Input
+                            type="number"
+                            defaultValue={use_phone}
+                            onChange={e => setPhone(e.target.value)}
+                            className="form-control"
+                            disabled={selectedUser}
+                            id="phone"
+                            placeholder="Telefono"
+                          />
+                        </div>
                       </div>
                       <div className="col-md-6">
                         <label className="form-label">

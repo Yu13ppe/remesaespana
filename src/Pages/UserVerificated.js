@@ -21,7 +21,7 @@ import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación
 
 
 function UserVerificated() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
   const [users, setUsers] = useState([]);
 
   const [modalImageUser, setModalImageUser] = useState(false);
@@ -89,35 +89,50 @@ function UserVerificated() {
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
     } catch (error) {
+      // Manejo de errores
     }
-  }, [setAdmin, accessAdminToken]);
-
-  useEffect(() => {
-    fetchData();
-    fetchDataMovements();
-    fetchDataAdmin();
-  }, [fetchDataAdmin]);
-
-  const fetchData = async () => {
+  }, [setAdmin, accessAdminToken, url]);
+  
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/users');
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setUsers(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const fetchDataMovements = async () => {
+  }, [accessAdminToken, setUsers, url]);
+  
+  const fetchDataMovements = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Movements');
+      const response = await axios.get(`${url}/Movements`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setMovements(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [accessAdminToken, setMovements, url]);
+  
+  useEffect(() => {
+    fetchData();
+    fetchDataMovements();
+    fetchDataAdmin();
+  }, [fetchData, fetchDataMovements, fetchDataAdmin]);
+
+  
 
   const handleEdit = user => {
     setSelectedUser(user);
@@ -136,11 +151,11 @@ function UserVerificated() {
 
   const handleSubmit = async event => {
     event.preventDefault();
-
+  
     try {
       if (selectedUser) {
         await axios.put(
-          `https://apiremesa.up.railway.app/Users/${selectedUser.use_id}`,
+          `${url}/Users/${selectedUser.use_id}`,
           {
             use_name,
             use_lastName,
@@ -152,15 +167,21 @@ function UserVerificated() {
             use_amountUsd,
             use_amountEur,
             use_amountGbp
-          });
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
+          }
+        );
         setSelectedUser(null);
-
+  
         fetchData();
         toggleUser();
         toggleViewer();
       } else {
         await axios.post(
-          'https://apiremesa.up.railway.app/Users/create',
+          `${url}/Users/create`,
           {
             use_name,
             use_lastName,
@@ -172,21 +193,27 @@ function UserVerificated() {
             use_amountUsd,
             use_amountEur,
             use_amountGbp
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
           }
         );
       }
       fetchData();
       toggleUser();
-
+  
     } catch (error) {
       console.log(error);
     }
   };
+  
 
   const handleDelete = async id => {
     try {
       await axios.delete(
-        `https://apiremesa.up.railway.app/Users/${id}`
+        `${url}/Users/${id}`
       );
       fetchData();
       toggleViewer();
@@ -273,7 +300,8 @@ function UserVerificated() {
           <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser' src={`${url}/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser' src={`${url}/Users/imageDni/${select.use_imgDni}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>
@@ -544,7 +572,7 @@ function UserVerificated() {
           <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
             <ModalHeader toggle={toggleImageMov}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
+              <img style={{ width: '100%' }} alt='ImageMovement' src={`${url}/Movements/image/${selectMov.mov_img}`} />
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageMov}>

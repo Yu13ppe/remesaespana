@@ -33,7 +33,7 @@ import { Contact } from '../Components/Contact';
 
 function Home() {
   const [currencyImage, setCurrencyImage] = useState(Spain);
-  const { currencyPrice, setCurrencyPrice } = useDataContext();
+  const { currencyPrice, setCurrencyPrice, url } = useDataContext();
 
   const handleCurrencyChange = () => {
     if (currencyImage === Spain) {
@@ -47,17 +47,16 @@ function Home() {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/currencyPrice');
+      const response = await axios.get(`${url}/currencyPrice`);
       setCurrencyPrice(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setCurrencyPrice]); // Agregar setCurrencyPrice como dependencia
+  }, [setCurrencyPrice, url]); // Agregar setCurrencyPrice como dependencia
 
   useEffect(() => {
     fetchData();
   }, [fetchData]); // Agregar fetchData como dependencia
-
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,6 +69,7 @@ function Home() {
 
 
   return (
+
     <div>
       {isLoading ? (
         <Spinner />
@@ -77,7 +77,7 @@ function Home() {
         <>
           <NavBar />
           <CookiesC />
-        <Contact/>
+          <Contact />
 
           <div className='Segmento-1'>
             <img className='Oval' alt='Oval' src={Oval} />
@@ -91,30 +91,30 @@ function Home() {
             <div>
               <InputGroup className='Change-Input'>
                 <Button onClick={handleCurrencyChange}>
-                  <img src={currencyImage} alt='Currency' width={45} /> €
+                  {currencyImage === Spain ?
+                    <span><img src={Spain} alt='Spain' width={45} /> €</span> : null}
+                  {currencyImage === Uk ?
+                    <span><img src={Uk} alt='Uk' width={45} /> £</span> : null}
+                  {currencyImage === EEUU ?
+                    <span><img src={EEUU} alt='EEUU' width={45} /> $</span> : null}
                 </Button>
                 {currencyImage === Spain ?
-                  <Input disabled className='centered-input'
-                    placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_EurToBs))}
-                  />
+                  <Input disabled className='centered-input' placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_EurToBs))} />
                   : null
                 }
                 {currencyImage === Uk ?
-                  <Input disabled
-                    placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_GbpToBs))}
-                  />
+                  <Input disabled placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_GbpToBs))} />
                   : null
                 }
                 {currencyImage === EEUU ?
-                  <Input disabled
-                    placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_UsdToBs))}
-                  />
+                  <Input disabled placeholder={'  1     =     ' + (currencyPrice.map(coin => coin.cur_UsdToBs))} />
                   : null
                 }
                 <Button>
                   Bs <img src={Venezuela} alt='Venezuela' width={45} />
                 </Button>
               </InputGroup>
+
               <Link to='/Login'>
                 <Button className='letsGo'>
                   ¡HAZLO YA!

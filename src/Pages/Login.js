@@ -14,15 +14,15 @@ function Login() {
   const [tkn, setTkn] = useState('');
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const {setLogged, setAccessToken, logged } = useDataContext();
+  const {setLogged, setAccessToken, logged, url } = useDataContext();
   const [alertVisible, setAlertVisible] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
 
   const fetchData = async (email, password) => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/login/${email}/${password}`);
+      const response = await axios.get(`${url}/Auth/login/${email}/${password}`);
       setAccessToken(response.data.data);
-      const response2 = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${response.data.data.access_token}`);
+      const response2 = await axios.get(`${url}/Auth/findByToken/${response.data.data.access_token}`);
       setTkn(response2.data);
       setLogged(true);
       history.push({
@@ -39,12 +39,12 @@ function Login() {
   };
   
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Previene el comportamiento predeterminado del formulario
+    e.preventDefault(); 
   
     const loginSuccessful = await fetchData(use_email, use_password);
   
     if (loginSuccessful) {
-      // Redireccionar si el inicio de sesión fue exitoso
+
       return;
     }
   
