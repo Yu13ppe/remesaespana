@@ -88,7 +88,7 @@
     .changesBtn {
       position: relative;
       top: 3em;
-      left: 25em;
+      left: 16em;
       margin-bottom: 1em;
 
       Button {
@@ -107,6 +107,15 @@
 
   }
 }
+
+/* CSS personalizado para hacer las imágenes más pequeñas solo en dispositivos móviles */
+@media (max-width: 768px) {
+  .modal-image1 {
+    max-width: 100%; /* Ajusta el ancho máximo según tus necesidades */
+    height: auto; /* Escala automáticamente la altura */
+  }
+}
+
 
 @media (max-width: 1150px) {
   .changesContainer {
@@ -148,7 +157,7 @@
 
       .changesBtn {
         margin: auto; // width: 200px;
-        left: 30%;
+        left: 20%;
 
         Button {
           width: 100px;

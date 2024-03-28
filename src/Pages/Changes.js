@@ -11,7 +11,10 @@ import {
   ModalHeader,
   ModalBody,
   Alert,
-  FormFeedback
+  FormFeedback,
+  Table,
+  ModalFooter,
+  Spinner
 } from 'reactstrap';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -29,7 +32,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { NavBar } from '../Components/NavBar';
 import { NotFound404 } from '../Pages/NotFound404';
 import { FixeedAlert } from '../Components/FixeedAlert';
-import { Contact } from '../Components/Contact';
+import { FaPercentage, FaMapMarkerAlt, FaTruck, FaBuilding } from 'react-icons/fa'; // Importa los iconos necesarios
+import { clearLocalStorage } from '../Hooks/useLocalStorage'
 
 function Changes() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,12 +41,15 @@ function Changes() {
   const [tridModalOpen, setTridModalOpen] = useState(false);
   const [forthModalOpen, setForthModalOpen] = useState(false);
   const [fifthModalOpen, setFifthModalOpen] = useState(false);
+  const [sixModalOpen, setSixModalOpen] = useState(false);
   const [receiveAmount, setReceiveAmount] = useState(0);
   const [receiveUsdAmount, setReceiveUsdAmount] = useState(0);
+  const [receiveUsdAmountBofa, setReceiveUsdAmountBofa] = useState(0);
   const [bankOptionPay, setBankOptionPay] = useState('');
   const [note, setNote] = useState('');
   const [sendAmount, setSendAmount] = useState('');
   const [use_dni, setUseDNI] = useState('');
+  const [use_phone, setUsePhone] = useState('');
   const [use_img, setUseImg] = useState('');
   const [termsCheckbox, setTermsCheckbox] = useState(false);
   const [banksEUR, setBanksEUR] = useState([]);
@@ -50,7 +57,7 @@ function Changes() {
   const [banksUSD, setBanksUSD] = useState([]);
   const [user, setUser] = useState([]);
   const [use_imgDni, setUseImgDni] = useState('');
-  const { logged, accessToken, currencyPrice } = useDataContext();
+  const { logged, accessToken, currencyPrice, url } = useDataContext();
   const [mov_img, setMov_img] = useState('');
   const [payment, setPayment] = useState('');
   const [sendOption, setSendOption] = useState('');
@@ -68,12 +75,80 @@ function Changes() {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmationr, setShowConfirmationr] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [showConfirmationMobile, setShowConfirmationMobile] = useState(false);
   const [showConfirmationCash, setShowConfirmationCash] = useState(false);
   const [showConfirmationBank, setShowConfirmationBank] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [apiData, setApiData] = useState([]);
+  const [setSelectedPorcent] = useState(null);
 
+  const clearLocal = () => {
+    clearLocalStorage();
+    setTimeout(() => {
+      window.location.href = '/Login';
+    }, 500);
+  }
 
+  const fetchDataPorcentId = async (id) => {
+    try {
+      const response = await axios.get(`${url}/PorcentPrice/${id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
+      setPorcent(response.data);
+      setSelectedPorcent(response.data); // Agregar esta línea para seleccionar el porcentaje
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    if (sendOption === 'Efectivo' && sendAmount !== '' && porcent) {
+      const selectedPercentage = payment === 'EUR'
+        ? porcent.por_porcentEur
+        : payment === 'USD'
+          ? porcent.por_porcentUsd
+          : payment === 'GBP'
+            ? porcent.por_porcentGbp
+            : 0; // Ajusta según las monedas que necesites
+
+      const amountToDebit =
+        parseFloat(sendAmount) + (parseFloat(sendAmount) * (selectedPercentage / 100));
+      setReceiveAmount(amountToDebit);
+
+      if (payment === 'EUR') {
+        setReceiveUsdAmount(amountToDebit + porcent.por_deliveryPrice);
+      } else {
+        setReceiveUsdAmount(amountToDebit);
+      }
+    }
+
+    async function fetchData() {
+      try {
+        const response = await axios.get(`${url}/PorcentPrice`, {
+          headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
+          },
+        });
+
+        // Procesar la respuesta y almacenarla en el estado
+        if (response.status === 200) {
+          setApiData(response.data);
+        } else {
+          // Manejar errores o mostrar un mensaje de error
+          console.error('Hubo un problema al obtener los datos.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // Llama a la función fetchData
+    fetchData();
+  }, [sendOption, sendAmount, porcent, payment, url, accessToken]);
 
   const showUserStatusAlert = (userStatus) => {
     if (userStatus === 'N') {
@@ -87,6 +162,10 @@ function Changes() {
       setAlertType('success');
     }
     setShowAlert(true);
+  };
+
+  const toggleSixModal = () => {
+    setSixModalOpen(!sixModalOpen);
   };
 
   const toggleTridModal = () => {
@@ -118,54 +197,70 @@ function Changes() {
     document.body.style.paddingRight = '0';
   }
 
-  const fetchDataPorcent = async () => {
+  const fetchDataPorcent = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/PorcentPrice');
+      const response = await axios.get(`${url}/PorcentPrice`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
       setPorcents(response.data);
     } catch (error) {
       console.log(error);
     }
-  }
-  const fetchDataPorcentId = async (id) => {
+  }, [url, accessToken]);
+
+  const fetchDataAccEur = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/PorcentPrice/${id}`);
-      setPorcent(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  const fetchDataAccEur = async () => {
-    try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
+      const response = await axios.get(`${url}/Acceur`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
       setBanksEUR(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataAccGbp = async () => {
+  }, [url, accessToken]);
+
+  const fetchDataAccGbp = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/AccGbp');
+      const response = await axios.get(`${url}/AccGbp`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
       setBanksGBP(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataAccUsd = async () => {
+  }, [url, accessToken]);
+
+  const fetchDataAccUsd = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/AccUsd');
+      const response = await axios.get(`${url}/AccUsd`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
       setBanksUSD(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [url, accessToken]);
   const fetchDataUser = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByToken/${accessToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByToken/${accessToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
       setUser(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, accessToken]);
+  }, [setUser, accessToken, url]);
+
   useEffect(() => {
     fetchDataAccEur();
     fetchDataAccGbp();
@@ -173,9 +268,8 @@ function Changes() {
     fetchDataUser();
     fetchDataPorcent();
     showUserStatusAlert(user.use_verif);
-  }, [fetchDataUser, user]);
+  }, [fetchDataUser, user, fetchDataAccEur, fetchDataAccGbp, fetchDataAccUsd, fetchDataPorcent]);
 
-  // Cambios de monto
   const handleAmountChange = (e) => {
     const inputAmount = e.target.value;
     setSendAmount(inputAmount);
@@ -192,7 +286,6 @@ function Changes() {
         if (sendOption === 'Efectivo' && porcent.por_status === 'Oficina') {
           setReceiveUsdAmount(parseFloat(inputAmount) + (parseFloat(inputAmount) * (parseFloat(porcent.por_porcentEur) / 100)));
         }
-
 
       } else if (payment === 'GBP') {
         setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
@@ -236,16 +329,73 @@ function Changes() {
     });
   };
 
+  const handleAmountChangeUsd = (e) => {
+    const inputAmount = e.target.value;
+    setSendAmount(inputAmount);
+
+    currencyPrice.forEach((coin) => {
+      if (payment === 'EUR') {
+        setReceiveUsdAmountBofa((parseFloat(inputAmount) - (parseFloat(inputAmount)*(coin.cur_EurToUsd / 100))));
+      } else if (payment === 'GBP') {
+        setReceiveUsdAmountBofa((parseFloat(inputAmount) + (parseFloat(inputAmount)*(coin.cur_GbpToUsd / 100))));
+      }
+    });
+  };
+  const sendApprovalNotification = async () => {
+    try {
+      await axios.post(
+        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdeaprobacion@hotmail.com`
+      );
+      console.log('Approval notification sent successfully');
+    } catch (error) {
+      console.error('Error sending approval notification:', error);
+    }
+  };
+  
+  // Función para enviar notificaciones de pago
+  const sendPaymentNotification = async () => {
+    try {
+      await axios.post(
+        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdepago@hotmail.com`
+      );
+      console.log('Payment notification sent successfully');
+    } catch (error) {
+      console.error('Error sending payment notification:', error);
+    }
+  };
+
+  
   //Enviar a espera una carga
   const handleSubmitLoad = async event => {
     event.preventDefault();
+
+    const findBankName = () => {
+      if (payment === 'USD') {
+        const bank = banksUSD.find(bank => bank.accusd_id === parseInt(bankOptionPay));
+        if (bank) {
+          return bank.accusd_Bank;
+        }
+      }
+      if (payment === 'EUR') {
+        const bank = banksEUR.find(bank => bank.acceur_id === parseInt(bankOptionPay));
+        if (bank) {
+          return bank.acceur_Bank;
+        }
+      }
+      if (payment === 'GBP') {
+        const bank = banksGBP.find(bank => bank.accgbp_id === parseInt(bankOptionPay));
+        if (bank) {
+          return bank.accgbp_Bank;
+        }
+      }
+    };
 
     const formData = new FormData();
     formData.append('mov_currency', payment);
     formData.append('mov_amount', sendAmount);
     formData.append('mov_type', 'Deposito');
     formData.append('mov_status', 'E');
-    formData.append('mov_comment', 'Carga de Divisa');
+    formData.append('mov_comment', findBankName());
     formData.append('mov_img', mov_img);
     formData.append('mov_accEurId', (payment === 'EUR' ? parseInt(bankOptionPay) : 0));
     formData.append('mov_accUsdId', (payment === 'USD' ? parseInt(bankOptionPay) : 0));
@@ -253,15 +403,19 @@ function Changes() {
     formData.append('mov_userId', user.use_id);
 
     try {
-      await axios.post(
-        'https://apiremesa.up.railway.app/Movements/create',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      setLoading(true)
+        await axios.post(
+          `${url}/Movements/create`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken.access_token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        await sendApprovalNotification();
 
       toggleforthModal();
       toast.success('Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma', {
@@ -274,11 +428,14 @@ function Changes() {
         progress: undefined,
       });
 
-      setShowConfirmation(false);
+      setShowConfirmationr(false);
 
       console.log('Request sent successfully');
     } catch (error) {
       console.error('Error:', error);
+    }
+    finally {
+      setLoading(false); 
     }
   };
 
@@ -311,21 +468,27 @@ function Changes() {
     }
 
     try {
+      setLoading(true)
       await axios.post(
-        'https://apiremesa.up.railway.app/Movements/create',
+        `${url}/Movements/create`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
       );
 
+      await sendPaymentNotification();
+      await sendApprovalNotification();
+
       await axios.put(
-        `https://apiremesa.up.railway.app/Users/${user.use_id}`,
+        `${url}/Users/${user.use_id}`,
         formDataUser,
         {
           headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -351,6 +514,9 @@ function Changes() {
     } catch (error) {
       console.error('Error:', error);
     }
+    finally {
+      setLoading(false); 
+    }
   };
 
   // Verificacion DNI
@@ -361,10 +527,11 @@ function Changes() {
 
     try {
       axios.put(
-        `https://apiremesa.up.railway.app/Users/dni/${user.use_id}`,
+        `${url}/Users/dni/${user.use_id}`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -383,14 +550,16 @@ function Changes() {
     const formData = new FormData();
     formData.append('use_dni', use_dni);
     formData.append('use_img', use_img);
+    formData.append('use_phone', use_phone);
     formData.append('use_verif', 'E');
 
     try {
       await axios.put(
-        `https://apiremesa.up.railway.app/Users/${user.use_id}`,
+        `${url}/Users/${user.use_id}`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -416,15 +585,6 @@ function Changes() {
     }
   };
 
-  const handleClose = () => {
-    setShowModal(false);
-  };
-
-  const handleShow = () => {
-    setShowModal(true);
-    // Aquí puedes realizar la solicitud a la API para obtener los datos necesarios y guardarlos en el estado.
-  };
-
   return (
     <div>
       <div className='changesContainer'>
@@ -432,7 +592,6 @@ function Changes() {
           user.use_verif === 'S' ? (
             <div style={{ height: '100vh' }}>
               <NavBar />
-              <Contact />
               <img className='changesMen' alt='changesMen' src={changes} />
               <div className='textchanges'>
                 <h2>Hola {user.use_name} {user.use_lastName}</h2>
@@ -482,17 +641,50 @@ function Changes() {
                     Bs <img src={Venezuela} alt='Venezuela' width={45} />
                   </Button>
                 </InputGroup>
-
-                {/* Spain - Usa */}
+                {/* Eur - Usd */}
                 <InputGroup className='Change-Input1'>
                   <Button>
                     <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
                   <Input disabled className='centered-input'
-                    placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
+                    placeholder={(currencyPrice.map(coin => coin.cur_EurToUsd))+ '%'}
                   >
                   </Input>
                   <Button >
+                    Usd <img src={Usa} alt='Venezuela' width={45} />
+                  </Button>
+                </InputGroup>
+                {/* Gbp - Usd */}
+                <InputGroup className='Change-Input1'>
+                  <Button>
+                    <img src={Uk} alt='Gbp' width={45} /> Gbp
+                  </Button>
+                  <Input disabled className='centered-input'
+                    placeholder={(currencyPrice.map(coin => coin.cur_GbpToUsd))+ '%'}
+                  >
+                  </Input>
+                  <Button >
+                    Usd <img src={Usa} alt='Usa' width={45} />
+                  </Button>
+                </InputGroup>
+
+                {/* Spain - Usa */}
+                <InputGroup className='Change-Input1' onClick={toggleSixModal}>
+                  <Button style={{backgroundColor: '#cfd'}}>
+                    <img src={Spain} alt='Spain' width={45} /> Eur
+                  </Button>
+                  <Input
+                  style={{
+                    cursor: 'pointer',
+                    color: 'transparent',
+                    backgroundColor: '#cfd'
+                  }}
+                    value=''
+                    className='centered-input'
+                    placeholder='Consultar estado de entrega por efectivo'
+                    onClick={toggleSixModal}
+                  ></Input>
+                  <Button style={{backgroundColor: '#cfd'}} >
                     Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
                 </InputGroup>
@@ -548,11 +740,58 @@ function Changes() {
                         <option value="Efectivo">Efectivo (Dolares)</option>
                         <option value="Cuenta Bancaria">Cuenta Bancaria</option>
                         <option value="Pago Movil">Pago Móvil</option>
+                        <option value="Transferencias por dólares">Transferencias por dólares</option>
+
                       </Input>
                     </FormGroup>
 
                     {/* SendOption en Efectivo */}
                     {/* Seleccionar Lugar de Retiro */}
+                    {sendOption === "Transferencias por dólares" && (
+                      <div>
+                        <FormGroup>
+                          <Label>Titular</Label>
+                          <Input
+                            type="text"
+                            id="titular"
+                            onChange={(e) => setAccOwner(`Titular: ${e.target.value} \n`)}
+                            placeholder="Nombre del titular"
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label>Banco</Label>
+                          <Input
+                            type="text"
+                            id="banco"
+                            onChange={(e) => setAccBank(`Banco: ${e.target.value} \n`)}
+                            placeholder="Nombre del banco"
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label>Identificación</Label>
+                          <Input
+                            type="text"
+                            id="identificacion"
+                            onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
+                            placeholder="Identificación del titular"
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label>Número de Cuenta</Label>
+                          <Input
+                            type="text"
+                            id="numeroCuenta"
+                            onChange={(e) => {
+                              const target = e.target.value
+                              setLength(target.length)
+                              setAccNumber(`Numero de cuenta: ${target} \n`);
+                            }}
+                            placeholder="Número de cuenta"
+                          />
+                        </FormGroup>
+                      </div>
+                    )}
+
 
                     {sendOption === 'Efectivo' &&
                       <FormGroup>
@@ -562,13 +801,20 @@ function Changes() {
                           id="bankOptionSelect"
                           defaultValue={sendOption}
                           disabled={payment === ''}
-                          onChange={(e) => { fetchDataPorcentId(e.target.value) }}>
+                          onChange={(e) => {
+                            fetchDataPorcentId(e.target.value);
+                          }}
+                        >
                           <option value="">Selecciona una opción</option>
                           {porcents.map((por) => {
-                            return <option value={por.por_id}>{por.por_stateLocation}</option>
+                            if (por.por_status === "Desactivado") {
+                              return null;
+                            }
+                            return <option value={por.por_id}>{por.por_stateLocation}</option>;
                           })}
                         </Input>
-                      </FormGroup>}
+                      </FormGroup>
+                    }
 
                     {porcent && porcent.por_status === 'No obligatorio' && sendOption === 'Efectivo' &&
                       <FormGroup>
@@ -605,6 +851,201 @@ function Changes() {
                           {porcent && <option value={porcent.por_deliveryPrice}>Si</option>}
                         </Input>
                       </FormGroup>}
+
+                    {sendOption === "Efectivo" && porcent &&
+                      <FormGroup>
+                        <Label for="amountInput">Monto a recibir en dolares</Label>
+                        <InputGroup>
+                          <Input
+                            type="number"
+                            id="sendAmount"
+                            placeholder="Ej. 100"
+                            defaultValue={sendAmount}
+                            disabled={payment === '' || sendOption === '' || (porcent.por_status === 'No obligatorio' && delivery === '')}
+                            onChange={(e) => { handleAmountChange(e) }}
+                            invalid={
+                              sendAmount === "" ||
+                              sendAmount < 100 ||
+                              sendAmount % 20 !== 0 ||
+                              (payment === 'EUR' && user.use_amountEur < sendAmount) ||
+                              (payment === 'USD' && user.use_amountUsd < sendAmount) ||
+                              (payment === 'GBP' && user.use_amountGbp < sendAmount)
+                            }
+                          />
+                          {
+                            (sendAmount !== "" && sendAmount < 100 ?
+                              <FormFeedback>
+                                El monto mínimo a retirar es de 100
+                              </FormFeedback>
+                              : null) ||
+                            (sendOption === 'Efectivo' && sendAmount % 20 !== 0 ?
+                              <FormFeedback>
+                                {sendAmount % 20 !== 0
+                                  ? "El monto debe ser un múltiplo de 20"
+                                  : "El monto mínimo a retirar en efectivo es de 100"}
+                              </FormFeedback>
+                              : null) ||
+                            (payment === 'EUR' ? user.use_amountEur < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'USD' ? user.use_amountUsd < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'GBP' ? user.use_amountGbp < sendAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            )}
+                        </InputGroup>
+                      </FormGroup>}
+                    {porcent && sendOption === "Efectivo" ?
+                      <FormGroup>
+                        <Label for="receiveUsdAmountInput">Monto a debitar</Label>
+                        <InputGroup>
+                          <Input
+                            type="text"
+                            id="receiveUsdAmountInput"
+                            value={receiveUsdAmount}
+                            disabled
+                            invalid={
+                              (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
+                              (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
+                              (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
+                            }
+                          />
+                          {
+                            (payment === 'EUR' ? user.use_amountEur < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'USD' ? user.use_amountUsd < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            ) ||
+                            (payment === 'GBP' ? user.use_amountGbp < receiveUsdAmount ?
+                              <FormFeedback>
+                                El monto excede la cantidad que tiene disponible en su cuenta
+                              </FormFeedback>
+                              : null
+                              : null
+                            )
+                          }
+                        </InputGroup>
+                      </FormGroup>
+                      : null}
+                    {sendOption === "Efectivo" ?
+                      (
+                        <div className='row col-12'>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Nombre completo de quien recibe</Label>
+                            <Input
+                              type="text"
+                              id="accBank"
+                              maxLength={45}
+                              placeholder='Juan Medina'
+                              onChange={(e) => setAccBank(`Persona a recibir: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Cédula de quien recibe</Label>
+                            <Input
+                              type="text"
+                              id="accDni"
+                              maxLength={11}
+                              placeholder='00000000'
+                              onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">¿Quien le envia?</Label>
+                            <Input
+                              type="text"
+                              id="setAccOwner"
+                              maxLength={45}
+                              placeholder='Maria Gonzalez'
+                              onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                          <FormGroup className='col-6'>
+                            <Label for="receiveAmountInput">Telefono de contacto</Label>
+                            <Input
+                              type="text"
+                              id="accTlf"
+                              maxLength={15}
+                              placeholder='0414-000-0000'
+                              onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
+                            />
+                          </FormGroup>
+                        </div>
+                      )
+                      : null}
+                    {porcent && sendOption === "Efectivo" ?
+                      (<FormGroup>
+                        <Label for="receiveAmountInput">Ingrese la direccion de entrega </Label>
+                        <Input
+                          type="textarea"
+                          id="noteTextArea"
+                          rows="4"
+                          disabled={payment === '' || porcent.por_status === 'Oficina' || (porcent.por_status === 'No obligatorio' && delivery === '0')}
+                          placeholder="Direccion de entrega"
+                          onChange={(e) => setNote(
+                            `Nota: ${e.target.value}`
+                          )}
+                        />
+                      </FormGroup>
+                      ) : null
+                    }
+
+                    {
+                      porcent && sendOption === "Efectivo" &&
+                      <Button disabled={
+                        payment === '' ||
+                        sendOption === '' ||
+                        sendAmount === "" ||
+                        ((porcent.por_status === 'Obligatorio' || (porcent.por_status === 'No obligatorio' && (delivery !== '0' || delivery !== ''))) && note === "") ||
+                        (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
+                        (porcent.por_status === 'Obligatorio' && note === "") ||
+                        // (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
+                        // (porcent.por_status === 'No obligatorio' && delivery === '0' && note !== '') ||
+                        // (porcent.por_status === 'Oficina' && note === "") ||
+                        accDni === '' ||
+                        accOwner === '' ||
+                        accTlf === '' ||
+                        accBank === '' ||
+                        sendAmount < 20 ||
+                        sendAmount === "" ||
+                        sendAmount < 100 ||
+                        sendAmount % 20 !== 0 ||
+                        loading ||
+                        (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                        (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
+
+                        (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                        (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
+
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null) ||
+                        (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
+                      }
+                        onClick={() => setShowConfirmationCash(true)} className='btn col-md-12' color="success">
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                      </Button>
+                    }
 
                     {/* Monto a debitar */}
                     {(sendOption === 'Cuenta Bancaria' || sendOption === "Pago Movil") &&
@@ -661,38 +1102,35 @@ function Changes() {
                         </InputGroup>
                       </FormGroup>}
 
-                    {sendOption === 'Efectivo' && porcent &&
+                    {sendOption === 'Transferencias por dólares' &&
                       <FormGroup>
-                        <Label for="amountInput">Monto a recibir en dolares</Label>
+                        <Label for="amountInput">Monto a debitar</Label>
                         <InputGroup>
                           <Input
                             type="number"
                             id="sendAmount"
                             placeholder="Ej. 100"
                             defaultValue={sendAmount}
-                            disabled={payment === '' || sendOption === '' || (porcent.por_status === 'No obligatorio' && delivery === '')}
-                            onChange={(e) => { handleAmountChange(e) }}
+                            disabled={payment === '' || sendOption === ''}
+                            onChange={(e) => { handleAmountChangeUsd(e) }}
                             invalid={
-                              sendAmount === "" ||
-                              sendAmount < 100 ||
-                              sendAmount % 20 !== 0 ||
-                              (payment === 'EUR' && user.use_amountEur < sendAmount) ||
-                              (payment === 'USD' && user.use_amountUsd < sendAmount) ||
-                              (payment === 'GBP' && user.use_amountGbp < sendAmount)
-                            }
+                              (sendAmount !== "" && sendAmount < 20) ||
+                              (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 : null) ||
+                              (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
+                              (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
+                              (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
                           />
                           {
-                            (sendAmount !== "" && sendAmount < 100 ?
+                            (sendAmount !== "" && sendAmount < 20 ?
                               <FormFeedback>
-                                El monto mínimo a retirar es de 100
+                                El monto mínimo a retirar es de 20
                               </FormFeedback>
                               : null) ||
-                            (sendOption === 'Efectivo' && sendAmount % 20 !== 0 ?
+                            (sendOption === 'Efectivo' ? sendAmount < 100 && sendAmount % 2 !== 0 ?
                               <FormFeedback>
-                                {sendAmount % 20 !== 0
-                                  ? "El monto debe ser un múltiplo de 20"
-                                  : "El monto mínimo a retirar en efectivo es de 100"}
+                                El monto mínimo a retirar en efectivo es de 100
                               </FormFeedback>
+                              : null
                               : null) ||
                             (payment === 'EUR' ? user.use_amountEur < sendAmount ?
                               <FormFeedback>
@@ -718,6 +1156,20 @@ function Changes() {
                         </InputGroup>
                       </FormGroup>}
 
+                      {sendOption === 'Transferencias por dólares' &&
+                      <FormGroup>
+                        <Label for="receiveUsdAmountInput">Monto a recibir</Label>
+                        <InputGroup>
+                          <Input
+                            type="text"
+                            id="receiveUsdAmountInput"
+                            value={receiveUsdAmountBofa}
+                            disabled
+                          />
+                        </InputGroup>
+                      </FormGroup>}
+
+
                     {/* Seleccionar forma de pago a recibir */}
                     {sendOption === "Cuenta Bancaria" ?
                       <FormGroup>
@@ -732,47 +1184,8 @@ function Changes() {
                         </InputGroup>
                       </FormGroup>
                       : null}
-                    {porcent && sendOption === "Efectivo" ?
-                      <FormGroup >
-                        <Label for="receiveUsdAmountInput">Monto a debitar</Label>
-                        <InputGroup>
-                          <Input
-                            type="text"
-                            id="receiveUsdAmountInput"
-                            value={receiveUsdAmount}
-                            disabled
-                            invalid={
-                              (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
-                              (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
-                              (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
-                            }
-                          />
-                          {
-                            (payment === 'EUR' ? user.use_amountEur < receiveUsdAmount ?
-                              <FormFeedback>
-                                El monto excede la cantidad que tiene disponible en su cuenta
-                              </FormFeedback>
-                              : null
-                              : null
-                            ) ||
-                            (payment === 'USD' ? user.use_amountUsd < receiveUsdAmount ?
-                              <FormFeedback>
-                                El monto excede la cantidad que tiene disponible en su cuenta
-                              </FormFeedback>
-                              : null
-                              : null
-                            ) ||
-                            (payment === 'GBP' ? user.use_amountGbp < receiveUsdAmount ?
-                              <FormFeedback>
-                                El monto excede la cantidad que tiene disponible en su cuenta
-                              </FormFeedback>
-                              : null
-                              : null
-                            )
-                          }
-                        </InputGroup>
-                      </FormGroup>
-                      : null}
+
+
                     {sendOption === "Pago Movil" ?
                       <FormGroup>
                         <Label for="receiveAmountInput">Monto a recibir en Bolivares</Label>
@@ -780,7 +1193,7 @@ function Changes() {
                           <Input
                             type="text"
                             id="receiveAmountInput"
-                            value={parseInt(receiveAmount)}
+                            value={parseFloat(receiveAmount)}
                             disabled
                           />
                         </InputGroup>
@@ -790,7 +1203,7 @@ function Changes() {
                     {sendOption === "Cuenta Bancaria" ?
                       (
                         <FormGroup >
-                          <Label for="receiveAmountInput">Ingrese su número de cuenta</Label>
+                          <Label for="receiveAmountInput">Ingrese su número de cuenta (NO COLOCAR GUIONES NI SIMBOLOS ESPECIALES)</Label>
                           <Input
                             type="text"
                             id="accNumber"
@@ -811,52 +1224,7 @@ function Changes() {
                         </FormGroup>
 
                       ) : null}
-                    {sendOption === "Efectivo" ?
-                      (
-                        <div className='row col-12'>
-                          <FormGroup className='col-6'>
-                            <Label for="receiveAmountInput">Nombre completo de quien recibe</Label>
-                            <Input
-                              type="text"
-                              id="accBank"
-                              maxLength={45}
-                              placeholder='Juan Medina'
-                              onChange={(e) => setAccBank(`Persona a recibir: ${e.target.value} \n`)}
-                            />
-                          </FormGroup>
-                          <FormGroup className='col-6'>
-                            <Label for="receiveAmountInput">Cédula de quien recibe</Label>
-                            <Input
-                              type="text"
-                              id="accDni"
-                              maxLength={11}
-                              placeholder='00000000'
-                              onChange={(e) => setAccDni(`DNI: ${e.target.value} \n`)}
-                            />
-                          </FormGroup>
-                          <FormGroup className='col-6'>
-                            <Label for="receiveAmountInput">¿Quien le envia?</Label>
-                            <Input
-                              type="text"
-                              id="setAccOwner"
-                              maxLength={45}
-                              placeholder='Maria Gonzalez'
-                              onChange={(e) => setAccOwner(`Propietario: ${e.target.value} \n`)}
-                            />
-                          </FormGroup>
-                          <FormGroup className='col-6'>
-                            <Label for="receiveAmountInput">Telefono de contacto</Label>
-                            <Input
-                              type="text"
-                              id="accTlf"
-                              maxLength={15}
-                              placeholder='0414-000-0000'
-                              onChange={(e) => setAccTlf(`Número Telefónico: ${e.target.value} \n`)}
-                            />
-                          </FormGroup>
-                        </div>
-                      )
-                      : null}
+
                     {sendOption === "Pago Movil" || sendOption === "Cuenta Bancaria" ?
                       (
                         <div className='row col-12'>
@@ -926,25 +1294,7 @@ function Changes() {
                       :
                       null
                     }
-                    {
-                      porcent && sendOption === "Efectivo" ?
-                        (<FormGroup>
-                          <Label for="receiveAmountInput">Ingrese la direccion de entrega </Label>
-                          <Input
-                            type="textarea"
-                            id="noteTextArea"
-                            rows="4"
-                            disabled={payment === '' || porcent.por_status === 'Oficina' || (porcent.por_status === 'No obligatorio' && delivery === '0')}
-                            placeholder="Direccion de entrega"
-                            onChange={(e) => setNote(
-                              `Nota: ${e.target.value}`
-                            )}
-                          />
-                        </FormGroup>
-                        )
-                        :
-                        null
-                    }
+
                     {
                       sendOption === "Pago Movil" &&
                       <Button disabled={
@@ -956,65 +1306,50 @@ function Changes() {
                         accDni === '' ||
                         sendAmount === "" ||
                         sendAmount < 20 ||
+                        loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        onClick={() => setShowConfirmationMobile(true)} className='btn col-md-12'>
-                        Enviar
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)} 
+                        onClick={() => setShowConfirmationMobile(true)} className='btn col-md-12' color='success'>
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                       </Button>
                     }
-                    {
-                      porcent && sendOption === "Efectivo" &&
-                      <Button disabled={
-                        payment === '' ||
-                        sendOption === '' ||
-                        sendAmount === "" ||
-                        ((porcent.por_status === 'Obligatorio' || (porcent.por_status === 'No obligatorio' && (delivery !== '0' || delivery !== ''))) && note === "") ||
-                        (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
-                        (porcent.por_status === 'Obligatorio' && note === "") ||
-                        // (porcent.por_status === 'No obligatorio' && delivery === '' && note !== '') ||
-                        // (porcent.por_status === 'No obligatorio' && delivery === '0' && note !== '') ||
-                        // (porcent.por_status === 'Oficina' && note === "") ||
-                        accDni === '' ||
-                        accOwner === '' ||
-                        accTlf === '' ||
-                        accBank === '' ||
-                        sendAmount < 20 ||
-                        sendAmount === "" ||
-                        sendAmount < 100 ||
-                        sendAmount % 20 !== 0 ||
-                        (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
-                        (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
 
-                        (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                        (payment === 'USD' && user.use_amountUsd < receiveUsdAmount) ||
-
-                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null) ||
-                        (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
-                      }
-                        onClick={() => setShowConfirmationCash(true)} className='btn col-md-12' color="success">
-                        Enviar
-                      </Button>
-                    }
                     {
                       sendOption === "Cuenta Bancaria" &&
                       <Button disabled={
                         payment === '' ||
                         sendOption === '' ||
                         accNumber === '' ||
+                        accNumber < 20 ||
                         accBank === '' ||
                         accOwner === '' ||
                         accTlf === '' ||
                         accDni === '' ||
                         sendAmount === '' ||
                         sendAmount < 20 ||
+                        loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                         (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
-                        onClick={() => setShowConfirmationBank(true)} className='btn col-md-12'>
-                        Enviar
+                        onClick={() => setShowConfirmationBank(true)} className='btn col-md-12' color='success'>
+                       {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                       </Button>
                     }
+                    {sendOption === "Transferencias por dólares" && (
+                      <div>
+                        {/* ... Campos de entrada anteriores ... */}
+
+                        <Button
+                          color='success'
+                          onClick={handleSubmitSend} // Define la función de manejo de clic aquí
+                          className="btn col-md-12"
+                        >
+                          {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                        </Button>
+                      </div>
+                    )}
+
                   </Form>
                 </ModalBody>
               </Modal>
@@ -1033,11 +1368,35 @@ function Changes() {
                       setShowConfirmationMobile(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  
                   </Button>{" "}
                   <Button
                     color="secondary"
                     onClick={() => setShowConfirmationMobile(false)} // Cierra el modal de confirmación
+                  >
+                    Cancelar
+                  </Button>
+                </ModalBody>
+              </Modal>
+
+              <Modal isOpen={showConfirmationr} centered toggle={() => setShowConfirmationr(!showConfirmationr)}>
+                <ModalHeader toggle={() => setShowConfirmationr(!showConfirmationr)}>Confirmación de Datos</ModalHeader>
+                <ModalBody>
+                  <h5>Tipo de Moneda: {payment}</h5>
+                  <h5>Monto a Recargar: {sendAmount}</h5>
+                  <Button
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default form submission behavior
+                      handleSubmitLoad(e); // Pass the event object to the function
+                      setShowConfirmationr(false);
+                    }}
+                  >
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => setShowConfirmationr(false)} // Cierra el modal de confirmación
                   >
                     Cancelar
                   </Button>
@@ -1058,7 +1417,7 @@ function Changes() {
                       setShowConfirmationBank(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1069,6 +1428,47 @@ function Changes() {
                 </ModalBody>
               </Modal>
 
+              {/* Consultar estado */}
+              <Modal isOpen={sixModalOpen} size='lg' toggle={toggleSixModal}>
+                <ModalHeader toggle={toggleSixModal}>Consultar Estado</ModalHeader>
+                <ModalBody>
+                  <div className="table-responsive">
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>Porcentaje GBP</th>
+                          <th>Porcentaje USD</th>
+                          <th>Porcentaje EUR</th>
+                          <th>Ubicación</th>
+                          <th>Delivery</th>
+                          <th>Oficina</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Muestra los datos de la API aquí después de filtrar */
+                          apiData
+                            .filter((item) => item.por_status !== 'Desactivado')
+                            .map((item) => (
+                              <tr key={item.por_id}>
+                                <td><FaPercentage /> {item.por_porcentGbp}</td>
+                                <td><FaPercentage /> {item.por_porcentUsd}</td>
+                                <td><FaPercentage /> {item.por_porcentEur}</td>
+                                <td><FaMapMarkerAlt /> {item.por_stateLocation}</td>
+                                <td><FaTruck /> {item.por_deliveryPrice}</td>
+                                <td><FaBuilding />{item.por_comment}</td>
+                                {/* Agrega más campos según tus necesidades */}
+                              </tr>
+                            ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="secondary" onClick={toggleSixModal}>
+                    Cerrar
+                  </Button>
+                </ModalFooter>
+              </Modal>
 
               {/* Confirmacion Efectivo */}
               <Modal isOpen={showConfirmationCash} centered toggle={() => setShowConfirmationCash(!showConfirmationCash)}>
@@ -1084,7 +1484,7 @@ function Changes() {
                       setShowConfirmationCash(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1094,6 +1494,7 @@ function Changes() {
                   </Button>
                 </ModalBody>
               </Modal>
+
               {/* Cargar */}
               <Modal centered isOpen={forthModalOpen} size='lg' toggle={toggleforthModal}>
                 <ModalHeader toggle={toggleforthModal}>Realiza tu Carga</ModalHeader>
@@ -1195,7 +1596,7 @@ function Changes() {
                                 <p>
                                   Banco: {bank.accusd_Bank}
                                   <br />
-                                  {bank.accusd_type}
+                                  {bank.accusd_number}
                                   <br />
                                   Propietario: {bank.accusd_owner}
                                   <br />
@@ -1227,13 +1628,13 @@ function Changes() {
                     }
 
                     <FormGroup>
-                      <Label htmlFor="imageInput">Seleccionar Imagen:</Label>
+                      <Label htmlFor="imageInput">Adjuntar Comprobante de pago</Label>
                       <Input
                         type="file"
                         className="form-control-file"
                         id="imageInput"
                         disabled={payment === ''}
-                        accept=".jpg,.jpeg,.png,.gif"
+                        accept=".jpg,.jpeg,.png,.gif,.pdf"
                         onChange={(e) => setMov_img(e.target.files[0])}
                       />
                     </FormGroup>
@@ -1244,11 +1645,12 @@ function Changes() {
                       sendAmount === '' ||
                       sendAmount === "" ||
                       sendAmount < 20 ||
+                      loading  ||
                       (sendAmount !== "" && sendAmount.toString().length > 6)
                     }
                       color="primary"
-                      onClick={() => setShowConfirmation(true)} className='btn col-md-12'>
-                      Enviar
+                      onClick={() => setShowConfirmationr(true)} className='btn col-md-12' >
+                      {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                     </Button>
                   </Form>
                 </ModalBody>
@@ -1267,8 +1669,7 @@ function Changes() {
                       setShowConfirmation(false);
                     }}
                   >
-                    Confirmar
-                  </Button>{" "}
+{loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  </Button>{" "}
                   <Button
                     color="secondary"
                     onClick={() => setShowConfirmation(false)} // Cierra el modal de confirmación
@@ -1277,7 +1678,6 @@ function Changes() {
                   </Button>
                 </ModalBody>
               </Modal>
-
 
               <ToastContainer />
             </div>
@@ -1333,6 +1733,19 @@ function Changes() {
                     Bs <img src={Venezuela} alt='Venezuela' width={45} />
                   </Button>
                 </InputGroup>
+                {/* Usa - Bs */}
+                <InputGroup className='Change-Input1'>
+                  <Button>
+                    <img src={Spain} alt='Usa' width={45} /> Eur
+                  </Button>
+                  <Input disabled className='centered-input'
+                    placeholder={'1  =  ' + (currencyPrice.map(coin => coin.cur_EurToUsd))}
+                  >
+                  </Input>
+                  <Button >
+                    Usd <img src={Usa} alt='Venezuela' width={45} />
+                  </Button>
+                </InputGroup>
 
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1'>
@@ -1342,8 +1755,8 @@ function Changes() {
                   <Input
                     disabled
                     className='centered-input'
-                    placeholder='Consultar estado'
-                    onClick={handleShow} // Abre el modal al hacer clic en el input
+                    placeholder='Consultar estado entrega efectivo'
+                    onClick={toggleTridModal} // Abre el modal al hacer clic en el input
                   ></Input>
                   <Button >
                     Usd <img src={Usa} alt='Usa' width={45} />
@@ -1352,32 +1765,18 @@ function Changes() {
 
                 <InputGroup className='changesBtn'>
                   <div className='Btn' >
-                    <Button color='primary' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
+                    <Button color='primary' onClick={user.use_verif === 'N' ? toggleModal : user.use_verif === 'E' ? toggleFifthModal : clearLocal}>
                       Recargar
                     </Button>
-                    <Button color='success' onClick={user.use_verif === 'N' ? toggleModal : toggleFifthModal}>
+                    <Button color='success' onClick={user.use_verif === 'N' ? toggleModal : user.use_verif === 'E' ? toggleFifthModal : clearLocal}>
                       Retirar
+                    </Button>
+                    <Button color='warning' onClick={user.use_verif === 'N' ? toggleModal : user.use_verif === 'E' ? toggleFifthModal : clearLocal}>
+                      Consultar Porcentaje
                     </Button>
                   </div>
                 </InputGroup>
               </div>
-
-
-          {/* Consultar estado */}
-              <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Consulta tu estado</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {/* Coloca aquí el contenido del modal, como los datos de la API */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant='secondary' onClick={handleClose}>
-            Cerrar
-          </Button>
-          {/* Agrega otros botones o acciones según sea necesario */}
-        </Modal.Footer>
-      </Modal>
 
               {/* Alert */}
               <Modal isOpen={modalOpen} centered toggle={toggleModal} className="responsive-modal">
@@ -1414,6 +1813,17 @@ function Changes() {
                         onChange={(e) => setUseDNI(e.target.value)}
                       />
                     </div>
+                    <div className="form-group">
+                      <Label htmlFor="dniInput">Número de Telefono:</Label>
+                      <Input
+                        type="text"
+                        className="form-control"
+                        id="dniInput"
+                        placeholder="Ingresa tu telefono"
+                        value={use_phone}
+                        onChange={(e) => setUsePhone(e.target.value)}
+                      />
+                    </div>
                     <p style={{ color: 'rgba(33, 33, 33, 0.6)', marginTop: '.5em' }}>
                       Ingresa el número de documento de identidad. Lo utilizaremos para comprobar que eres realmente tú quien utilizará la plataforma.
                     </p>
@@ -1426,7 +1836,7 @@ function Changes() {
                         type="file"
                         className="form-control-file"
                         id="imageInput"
-                        accept=".jpg,.jpeg,.png,.gif"
+                        accept=".jpg,.jpeg,.png,.gif,.pdf"
                         onChange={(e) => setUseImg(e.target.files[0])}
                       />
                     </div>
@@ -1437,7 +1847,7 @@ function Changes() {
                         type="file"
                         className="form-control-file"
                         id="imageInputDNI"
-                        accept=".jpg,.jpeg,.png,.gif"
+                        accept=".jpg,.jpeg,.png,.gif,.pdf"
                         onChange={(e) => setUseImgDni(e.target.files[0])}
                       />
                     </div>
@@ -1457,7 +1867,15 @@ function Changes() {
                       </Label>
                     </div>
 
-                    <Button disabled={!termsCheckbox} type='submit' className="btn col-md-12" color='success'>
+                    <Button
+                      disabled={
+                        !termsCheckbox ||
+                        use_dni === '' ||
+                        use_phone === '' ||
+                        use_img === '' ||
+                        use_imgDni === ''
+                      }
+                      type='submit' className="btn col-md-12" color='success'>
                       Enviar
                     </Button>
                   </form>
@@ -1476,6 +1894,7 @@ function Changes() {
                   </div>
                 </ModalBody>
               </Modal>
+
               <ToastContainer />
             </div>
           )

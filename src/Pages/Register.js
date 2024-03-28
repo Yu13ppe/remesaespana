@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import remesalogo from '../Assets/Images/remesalogo.png';
-import { Input, Button, Label, FormFeedback, InputGroup } from 'reactstrap';
+import { Input, Button, Label, FormFeedback, InputGroup, Spinner } from 'reactstrap'; // Importa Spinner de reactstrap
 import { Link, useHistory, Redirect } from 'react-router-dom';
 import { FaUser, FaLock, FaRegEnvelope } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDataContext } from '../Context/dataContext';
 
 function Register() {
-  const { logged } = useDataContext();
+  const { logged, url } = useDataContext();
   const history = useHistory();
   const [use_name, setUse_name] = useState('');
   const [use_lastName, setUse_lastName] = useState('');
@@ -16,12 +16,14 @@ function Register() {
   const [use_password, setUse_password] = useState('');
   const [use_confirm, setUse_confirm] = useState('');
   const [termsCheckbox, setTermsCheckbox] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado para controlar la visibilidad del spinner
 
   const handleSubmit = async event => {
     event.preventDefault();
     try {
+      setLoading(true); // Muestra el spinner cuando se envía la solicitud
       await axios.post(
-        'https://apiremesa.up.railway.app/Auth/register',
+        `${url}/Auth/register`,
         {
           use_name,
           use_lastName,
@@ -31,10 +33,6 @@ function Register() {
           use_verif: 'N',
           use_img: ''
         }
-      );
-
-      await axios.post(
-        `https://apiremesa.up.railway.app/Mailer/EmailWelcome/${use_email}`
       );
 
       toast.success('¡Registro exitoso!', {
@@ -47,9 +45,11 @@ function Register() {
         progress: undefined,
       });
 
-      setTimeout(() => {
-        history.push('/Login');
-      }, 5000);
+      await axios.post(
+        `${url}/Mailer/EmailWelcome/${use_email}`
+      );
+
+      history.push('/Login');
 
     } catch (error) {
       toast.error(error.response.data.message, {
@@ -61,8 +61,11 @@ function Register() {
         draggable: true,
         progress: undefined,
       });
+    } finally {
+      setLoading(false); // Oculta el spinner cuando se complete la solicitud
     }
   };
+
   return (
     logged ? (
       <Redirect to="/Changes" />
@@ -165,6 +168,7 @@ function Register() {
               </Label>
             </div>
 
+            {/* Agrega el spinner */}
             <Button
               type='submit'
               disabled={
@@ -176,7 +180,13 @@ function Register() {
                 use_confirm !== use_password ||
                 !termsCheckbox
               }
-            >Registrar</Button>
+            >
+              {loading ? (
+                <Spinner size="sm" color="light" /> // Muestra el spinner si loading es true
+              ) : (
+                "Registrar"
+              )}
+            </Button>
             <Link to='/Login'>
               <Button type='button' color='secondary'>Volver</Button>
             </Link>
@@ -191,3 +201,4 @@ function Register() {
 }
 
 export { Register };
+ 

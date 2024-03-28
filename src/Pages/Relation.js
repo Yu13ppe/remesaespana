@@ -4,11 +4,11 @@ import { NavBar } from '../Components/NavBar';
 import { useDataContext } from '../Context/dataContext';
 import { NotFound404 } from './NotFound404';
 import { toast, ToastContainer } from 'react-toastify';
-import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert } from 'reactstrap';
+import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 import { Spinner } from '../Components/Spinner';
 
 function Relation() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
   const [admin, setAdmin] = useState([]);
   const [movements, setMovements] = useState([]);
   const [banksEUR, setBanksEUR] = useState([]);
@@ -16,15 +16,144 @@ function Relation() {
   const [banksUSD, setBanksUSD] = useState([]);
   const [banksBS, setBanksBS] = useState([]);
   const [movs, setMovs] = useState([]);
-  // const date = new Date();
-  // const day = date.getDate();
-  // const month = date.getMonth() + 1;
-  // const year = date.getFullYear();
+  const [modalOpenUsers, setModalOpenUsers] = useState(false);
+  const [usersWithPositiveBalance, setUsersWithPositiveBalance] = useState([]);
+  const [totalPositiveBalance, setTotalPositiveBalance] = useState(0);
+
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [usdData, setUsdData] = useState([]);
+  const [gbpData, setGbpData] = useState([]);
+  const [eurData, setEurData] = useState([]);
+  const [bsData, setBsData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const elementsPerPage = 10; // Número de elementos por página
+  const [filteredRelation, setFilteredRelation] = useState([]);
+  const [efectivoData, setEfectivoData] = useState([]);
+
+  const indexOfLastElement = currentPage * elementsPerPage;
+  const indexOfFirstElement = indexOfLastElement - elementsPerPage;
+  const currentElements = filteredRelation.slice(indexOfFirstElement, indexOfLastElement);
+
+  const [totalsByCurrency, setTotalsByCurrency] = useState({
+    USD: 0,
+    GBP: 0,
+    EUR: 0,
+    BS: 0,
+  });
+
+  // Función para calcular los totales por moneda
+  const calculateTotalsByCurrency = useCallback(() => {
+    const newTotalsByCurrency = {
+      USD: 0,
+      GBP: 0,
+      EUR: 0,
+      BS: 0,
+      // USDE: 0,
+    };
+
+    movs
+      .filter((mov) => mov.mov_status === 'V') // Filtrar por movimientos con estado "V"
+      .forEach((mov) => {
+        const currency = mov.mov_currency;
+        const amount = parseFloat(mov.mov_amount);
+
+        // Verificar si la moneda es válida antes de sumar
+        if (newTotalsByCurrency.hasOwnProperty(currency)) {
+          newTotalsByCurrency[currency] += amount;
+        }
+      });
+
+    // Actualizar el estado con los nuevos totales por moneda
+    setTotalsByCurrency(newTotalsByCurrency);
+  }, [movs, setTotalsByCurrency]);
+
+  const calculateTotalEfectivoAmount = () => {
+    const currentDate = new Date().toISOString().slice(0, 10); // Obtiene la fecha actual en formato yyyy-mm-dd
+    const totalEfectivoAmount = efectivoData
+      .filter((mov) => mov.mov_date.slice(0, 10) === currentDate) // Filtra los registros del día del sistema
+      .reduce((total, mov) => total + parseFloat(mov.mov_amount), 0); // Suma los mov_amount
+    return totalEfectivoAmount;
+  };
+  
+
+
+
+  const fetchEfectivoData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Movements/`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
+      
+      // Obtiene la fecha actual en formato yyyy-mm-dd
+      const currentDate = new Date().toISOString().slice(0, 10);
+      
+      // Filtra los movimientos cuya fecha sea igual a la fecha actual
+      const efectivoMovimientos = response.data.filter((mov) => {
+        return mov.mov_typeOutflow === "Efectivo" && mov.mov_date.slice(0, 10) === currentDate;
+      });
+
+      setEfectivoData(efectivoMovimientos);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [url, accessAdminToken]);
+
+
+  // Llamar a la función de cálculo de totales por moneda cuando cambie la lista de movimientos
+  useEffect(() => {
+    calculateTotalsByCurrency();
+  }, [calculateTotalsByCurrency, movs, totalsByCurrency]);
+  const [selectedTab, setSelectedTab] = useState('USD'); // Valor predeterminado es Dólares
+  const calculateUsersWithPositiveBalance = () => {
+    const usersWithPositiveBalance = users.filter((user) => {
+      const totalUsd = user.use_amountUsd;
+      const totalEur = user.use_amountEur;
+      const totalGbp = user.use_amountGbp;
+      return totalUsd > 0 || totalEur > 0 || totalGbp > 0;
+    });
+
+    const totalPositiveBalance = {
+      USD: usersWithPositiveBalance.reduce(
+        (total, user) => total + user.use_amountUsd,
+        0
+      ),
+      EUR: usersWithPositiveBalance.reduce(
+        (total, user) => total + user.use_amountEur,
+        0
+      ),
+      GBP: usersWithPositiveBalance.reduce(
+        (total, user) => total + user.use_amountGbp,
+        0
+      ),
+    };
+
+    setUsersWithPositiveBalance(usersWithPositiveBalance);
+    setTotalPositiveBalance(totalPositiveBalance);
+  };
+
+  const [users, setUsers] = useState([]);
+
+  const fetchDataUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [accessAdminToken, setUsers, url]);
+
+
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('');
   const [operationType, setOperationType] = useState('');
 
-  // Estados para el modal
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBank, setSelectedBank] = useState('');
   const [amount, setAmount] = useState(0);
@@ -43,6 +172,13 @@ function Relation() {
 
   const handleSubmit = async event => {
     event.preventDefault();
+    const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(selectedDate);
+
+    if (!isValidDate) {
+      // Mostrar un mensaje de error si la fecha no tiene el formato correcto
+      alert('Por favor, ingresa la fecha en el formato "aaaa-mm-dd".');
+      return;
+    }
 
     if (operationType === 'Ingreso') {
       const formData = new FormData();
@@ -54,13 +190,15 @@ function Relation() {
       formData.append('bal_accUsdId', (selectedCurrency === 'USD' ? parseInt(selectedBank) : 0));
       formData.append('bal_accGbpId', (selectedCurrency === 'GBP' ? parseInt(selectedBank) : 0));
       formData.append('bal_accBsId', (selectedCurrency === 'BS' ? parseInt(selectedBank) : 0));
+      formData.append('bal_date', selectedDate);
 
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/BalanceAcc/create',
+          `${url}/BalanceAcc/create`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
               'Content-Type': 'multipart/form-data',
             },
           }
@@ -68,32 +206,64 @@ function Relation() {
 
         if (selectedCurrency === 'EUR') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accEurId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accEurId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'USD') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdsId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accUsdsId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'GBP') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accGbpId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accGbpId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'BS') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accBsId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accBsId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
 
         toggleModal();
         fetchData();
-        toast.success('Cambio realizado con exito!', {
+        toast.success('Cambio realizado con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -119,13 +289,15 @@ function Relation() {
       formData.append('bal_accUsdId', (selectedCurrency === 'USD' ? parseInt(selectedBank) : 0));
       formData.append('bal_accGbpId', (selectedCurrency === 'GBP' ? parseInt(selectedBank) : 0));
       formData.append('bal_accBsId', (selectedCurrency === 'BS' ? parseInt(selectedBank) : 0));
+      formData.append('bal_date', selectedDate);
 
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/BalanceAcc/create',
+          `${url}/BalanceAcc/create`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
               'Content-Type': 'multipart/form-data',
             },
           }
@@ -133,32 +305,64 @@ function Relation() {
 
         if (selectedCurrency === 'EUR') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accEurId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accEurId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'USD') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accUsdsId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accUsdsId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'GBP') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accGbpId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accGbpId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
         if (selectedCurrency === 'BS') {
           await axios.post(
-            `https://apiremesa.up.railway.app/TotalRegister/create`, {
-            tor_accBsId: parseInt(selectedBank)
-          });
+            `${url}/TotalRegister/create`,
+            {
+              tor_accBsId: parseInt(selectedBank),
+              tor_date: (selectedDate),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessAdminToken.access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
         }
 
         toggleModal();
         fetchData();
-        toast.success('Cambio realizado con exito!', {
+        toast.success('Cambio realizado con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -174,6 +378,7 @@ function Relation() {
       }
     }
   };
+
 
   const calculateTotals = () => {
     let totalEur = 0;
@@ -205,76 +410,105 @@ function Relation() {
 
   const { totalEur, totalGbp, totalUsd, totalBs } = calculateTotals();
 
-  const filteredRelation = movements.filter((mov) => {
-    const fullName = `${mov.tor_date} 
-    ${mov.AccountsBs ? mov.AccountsBs.accbs_bank : null} 
-    ${mov.AccountsEur ? mov.AccountsEur.acceur_Bank : null} 
-    ${mov.AccountsGbp ? mov.AccountsGbp.accgbp_Bank : null} 
-    ${mov.AccountsUsd ? mov.AccountsUsd.accusd_Bank : null} `.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+
+
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/TotalRegister');
+      const response = await axios.get(`${url}/TotalRegister`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setMovements(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [accessAdminToken, setMovements, url]);
+
   const fetchDataMovs = useCallback(async () => {
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Movements/date/${formattedDate}`);
+      const response = await axios.get(`${url}/Movements/date/${formattedDate}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setMovs(response.data);
     } catch (error) {
       console.log(error);
     }
-  }, [setMovs]);
+  }, [accessAdminToken, setMovs, url]);
+
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
     } catch (error) {
     }
-  }, [setAdmin, accessAdminToken]);
-  const fetchDataEUR = async () => {
+  }, [accessAdminToken, setAdmin, url]);
+
+  const fetchDataEUR = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
+      const response = await axios.get(`${url}/Acceur`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksEUR(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataGBP = async () => {
+  }, [accessAdminToken, setBanksEUR, url]);
+
+  const fetchDataGBP = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accgbp');
+      const response = await axios.get(`${url}/Accgbp`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksGBP(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataUSD = async () => {
+  }, [accessAdminToken, setBanksGBP, url]);
+
+  const fetchDataUSD = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accusd');
+      const response = await axios.get(`${url}/Accusd`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksUSD(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataBS = async () => {
+  }, [accessAdminToken, setBanksUSD, url]);
+
+  const fetchDataBS = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accbs');
+      const response = await axios.get(`${url}/Accbs`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksBS(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [accessAdminToken, setBanksBS, url]);
+
 
   useEffect(() => {
     fetchData();
@@ -284,7 +518,64 @@ function Relation() {
     fetchDataUSD();
     fetchDataBS();
     fetchDataMovs();
-  }, [fetchDataAdmin, fetchDataMovs]);
+    fetchDataUsers();
+    fetchEfectivoData();
+  }, [fetchData, fetchDataAdmin, fetchDataMovs, fetchDataEUR, fetchDataGBP, fetchDataUSD, fetchDataBS, fetchDataUsers, fetchEfectivoData]);
+
+  useEffect(() => {
+    if (movements.length > 0) {
+      const filteredData = movements.filter((mov) => {
+        const fullName = `${mov.tor_date} 
+          ${mov.AccountsBs ? mov.AccountsBs.accbs_bank : null} 
+          ${mov.AccountsEur ? mov.AccountsEur.acceur_Bank : null} 
+          ${mov.AccountsGbp ? mov.AccountsGbp.accgbp_Bank : null} 
+          ${mov.AccountsUsd ? mov.AccountsUsd.accusd_Bank : null} `.toLowerCase();
+        return fullName.includes(searchQuery.toLowerCase());
+
+      })
+        .sort((a, b) => b.tor_id - a.tor_id);;
+
+      setFilteredRelation(filteredData);
+    }
+  }, [movements, searchQuery]);
+
+  useEffect(() => {
+
+
+    const categorizeDataByCurrency = () => {
+      const usd = [];
+      const gbp = [];
+      const eur = [];
+      const bs = [];
+
+      movs.filter((mov) => mov.mov_status === 'V').forEach((mov) => {
+        switch (mov.mov_currency) {
+          case 'USD':
+            usd.push(mov);
+            break;
+          case 'GBP':
+            gbp.push(mov);
+            break;
+          case 'EUR':
+            eur.push(mov);
+            break;
+          case 'BS':
+            bs.push(mov);
+            break;
+          default:
+            break;
+        }
+      });
+
+      setUsdData(usd);
+      setGbpData(gbp);
+      setEurData(eur);
+      setBsData(bs);
+    };
+
+    categorizeDataByCurrency();
+  }, [movs]);
+
 
   return (
     <div>
@@ -309,85 +600,98 @@ function Relation() {
                       />
                     </div>
                   </div>
-                </div>
-                <Table success bordered hover responsive striped className='userTable table-success'>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Banco</th>
-                      <th>Total Ingreso</th>
-                      <th>Total Egreso</th>
-                      <th>Total</th>
-                      <th>Fecha</th>
-                      <th>Tasa de Cambio</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredRelation.map((totalReg) => (
-                      (totalReg.AccountsEur?.acceur_Bank !== 'Ghost' &&
-                        totalReg.AccountsBs?.accbs_bank !== 'Ghost' &&
-                        totalReg.AccountsGbp?.accgbp_Bank !== 'Ghost' &&
-                        totalReg.AccountsUsd?.accusd_Bank !== 'Ghost') ? (
-                        <tr key={totalReg.tor_id}>
-                          <td>
-                            {filteredRelation
-                              .filter((mov) => (
-                                mov.AccountsEur?.acceur_Bank !== 'Ghost' &&
-                                mov.AccountsBs?.accbs_bank !== 'Ghost' &&
-                                mov.AccountsGbp?.accgbp_Bank !== 'Ghost' &&
-                                mov.AccountsUsd?.accusd_Bank !== 'Ghost'
-                              ))
-                              .indexOf(totalReg) + 1
-                            }
-                          </td>
-                          <td>
-                            {totalReg.AccountsBs ? `${totalReg.AccountsBs.accbs_bank} (${totalReg.AccountsBs.accbs_owner}) ` : ''}
-                            {totalReg.AccountsEur ? `${totalReg.AccountsEur.acceur_Bank} (${totalReg.AccountsEur.acceur_owner}) ` : ''}
-                            {totalReg.AccountsGbp ? `${totalReg.AccountsGbp.accgbp_Bank} (${totalReg.AccountsGbp.accgbp_owner}) ` : ''}
-                            {totalReg.AccountsUsd ? `${totalReg.AccountsUsd.accusd_Bank} (${totalReg.AccountsUsd.accusd_owner}) ` : ''}
-                          </td>
-                          <td>{totalReg.tor_totalIn}</td>
-                          <td>{totalReg.tor_totalOut}</td>
-                          <td>{totalReg.tor_total}</td>
-                          <td>{totalReg.tor_date}</td>
-                          <td>{totalReg.tor_currencyPrice}</td>
-                        </tr>
-                      ) : null
-                    ))}
-                  </tbody>
-                </Table>
-                <div className="totals-table">
-                  <h2>Totales</h2>
-                  <Table bordered>
-                    <thead>
-                      <tr>
-                        <th>Moneda</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Euros</td>
-                        <td>{totalEur}</td>
-                      </tr>
-                      <tr>
-                        <td>Libras</td>
-                        <td>{totalGbp}</td>
-                      </tr>
-                      <tr>
-                        <td>Dólares</td>
-                        <td>{totalUsd}</td>
-                      </tr>
-                      <tr>
-                        <td>Bolívares</td>
-                        <td>{totalBs}</td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-                <Button color="primary" onClick={toggleModal}>Agregar Ingreso/Egreso</Button>
 
-                <Table success bordered hover responsive striped className='userTable table-success'>
+
+
+
+
+                </div>
+
+                <Modal
+                  isOpen={modalOpenUsers}
+                  size="lg"
+                  centered
+                  toggle={() => setModalOpenUsers(false)}
+                >
+                  <ModalHeader toggle={() => setModalOpenUsers(false)}>
+                    Usuarios con Saldo Positivo
+                  </ModalHeader>
+                  <ModalBody>
+                    <p>Total a Deber en USD: {totalPositiveBalance.USD}</p>
+                    <p>Total a Deber en EUR: {totalPositiveBalance.EUR}</p>
+                    <p>Total a Deber en GBP: {totalPositiveBalance.GBP}</p>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Saldo USD</th>
+                          <th>Saldo EUR</th>
+                          <th>Saldo GBP</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {usersWithPositiveBalance.map((user) => (
+                          <tr key={user.use_id}>
+                            <td>
+                              {user.use_name} {user.use_lastName}
+                            </td>
+                            <td>{user.use_amountUsd}</td>
+                            <td>{user.use_amountEur}</td>
+                            <td>{user.use_amountGbp}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </ModalBody>
+                </Modal>
+
+                <Button color="primary" onClick={toggleModal}>Agregar Ingreso/Egreso</Button>
+                <Button
+                  color="danger"
+                  onClick={() => {
+                    calculateUsersWithPositiveBalance();
+                    setModalOpenUsers(true);
+                  }}
+                  style={{ marginLeft: '20px' }}
+
+                >
+                  Ver Usuarios con Saldo Positivo
+                </Button>
+
+                <div className="currency-tabs" style={{ marginTop: '15px' }}>
+                  <Button
+                    className={`currency-tab ${selectedTab === 'USD' ? 'active' : ''}`}
+                    onClick={() => setSelectedTab('USD')} color='warning' style={{ marginRight: '5px' }}
+                  >
+                    Dólares
+                  </Button>
+                  <Button
+                    className={`currency-tab ${selectedTab === 'GBP' ? 'active' : ''}`}
+                    onClick={() => setSelectedTab('GBP')} color='warning' style={{ marginRight: '5px', marginLeft: '5px' }}
+                  >
+                    Libras
+                  </Button>
+                  <Button
+                    className={`currency-tab ${selectedTab === 'EUR' ? 'active' : ''}`}
+                    onClick={() => setSelectedTab('EUR')} color='warning' style={{ marginRight: '5px', marginLeft: '5px' }}
+                  >
+                    Euros
+                  </Button>
+                  <Button
+                    className={`currency-tab ${selectedTab === 'BS' ? 'active' : ''}`}
+                    onClick={() => setSelectedTab('BS')} color='warning' style={{ marginLeft: '5px' }}
+                  >
+                    Bolívares
+                  </Button>
+                  <Button
+                    className={`currency-tab ${selectedTab === 'Efectivo' ? 'active' : ''}`}
+                    onClick={() => setSelectedTab('Efectivo')} color='warning' style={{ marginLeft: '5px' }}
+                  >
+                    Efectivo
+                  </Button>
+                </div>
+
+                <Table responsive className='userTable'>
                   <thead>
                     <tr>
                       <th>Usuario</th>
@@ -399,16 +703,67 @@ function Relation() {
                     </tr>
                   </thead>
                   <tbody>
-                    {movs.filter((mov)=> mov.mov_status === 'V').map((mov) => (
+                    {selectedTab === 'USD' && usdData.map((mov) => (
                       <tr key={mov.mov_id}>
                         <td>{mov.User.use_name} {mov.User.use_lastName}</td>
                         <td>{mov.mov_currency}</td>
                         <td>{mov.mov_amount}</td>
                         <td>{mov.mov_date}</td>
                         <td>{mov.mov_type}</td>
-                        <td>{mov.mov_typeOutflow? mov.mov_typeOutflow : 'Deposito'}</td>
+                        <td>{mov.mov_typeOutflow ? mov.mov_typeOutflow : 'Depósito'}</td>
                       </tr>
                     ))}
+                    {selectedTab === 'GBP' && gbpData.map((mov) => (
+                      <tr key={mov.mov_id}>
+                        <td>{mov.User.use_name} {mov.User.use_lastName}</td>
+                        <td>{mov.mov_currency}</td>
+                        <td>{mov.mov_amount}</td>
+                        <td>{mov.mov_date}</td>
+                        <td>{mov.mov_type}</td>
+                        <td>{mov.mov_typeOutflow ? mov.mov_typeOutflow : 'Depósito'}</td>
+                      </tr>
+                    ))}
+                    {selectedTab === 'EUR' && eurData.map((mov) => (
+                      <tr key={mov.mov_id}>
+                        <td>{mov.User.use_name} {mov.User.use_lastName}</td>
+                        <td>{mov.mov_currency}</td>
+                        <td>{mov.mov_amount}</td>
+                        <td>{mov.mov_date}</td>
+                        <td>{mov.mov_type}</td>
+                        <td>{mov.mov_typeOutflow}</td>
+                      </tr>
+                    ))}
+                    {selectedTab === 'BS' && bsData.map((mov) => (
+                      <tr key={mov.mov_id}>
+                        <td>{mov.User.use_name} {mov.User.use_lastName}</td>
+                        <td>{mov.mov_currency}</td>
+                        <td>{mov.mov_amount}</td>
+                        <td>{mov.mov_date}</td>
+                        <td>{mov.mov_type}</td>
+                        <td>{mov.mov_typeOutflow ? mov.mov_typeOutflow : 'Depósito'}</td>
+                      </tr>
+                    ))}
+                    {selectedTab === 'Efectivo' && efectivoData.map((mov) => (
+                      <tr key={mov.mov_id}>
+                        <td>{mov.User.use_name} {mov.User.use_lastName}</td>
+                        <td>{mov.mov_currency}</td>
+                        <td>{mov.mov_amount}</td>
+                        <td>{mov.mov_date}</td>
+                        <td>{mov.mov_comment}</td>
+                        <td>{mov.mov_typeOutflow}</td>
+                      </tr>
+                    ))}
+
+                    <tr>
+                      <td colSpan="2">Totales por Moneda:</td>
+                      <td>USD {totalsByCurrency.USD}</td>
+                      <td>GBP {totalsByCurrency.GBP}</td>
+                      <td>EUR {totalsByCurrency.EUR}</td>
+                      <td>BS {totalsByCurrency.BS}</td>
+                      <td>Efectivo Total del Día: {calculateTotalEfectivoAmount()}</td>
+
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
 
@@ -511,6 +866,9 @@ function Relation() {
                                 return bank.accusd_id === parseInt(selectedBank) ?
                                   <p>
                                     Banco: {bank.accusd_Bank}
+
+                                    <br />
+                                    Cuenta: {bank.accusd_number}
                                     <br />
                                     Propietario: {bank.accusd_owner}
                                     <br />
@@ -544,7 +902,6 @@ function Relation() {
                                     </p>
                                     : null
                                 })
-
                           }
                           <hr />
                           <p className="mb-0">
@@ -561,6 +918,19 @@ function Relation() {
                             className="form-control"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
+                          />
+                        </div>
+                      )}
+                      {operationType && (
+                        <div className="form-group" hidden={selectedCurrency === ''}>
+                          <label htmlFor="date">Fecha (aaaa-mm-dd):</label>
+                          <input
+                            type="text"
+                            id="date"
+                            className="form-control"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            placeholder="aaaa-mm-dd"
                           />
                         </div>
                       )}

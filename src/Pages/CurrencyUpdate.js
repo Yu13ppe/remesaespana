@@ -25,7 +25,7 @@ import Venezuela from '../Assets/Images/venezuela.png';
 import { Spinner } from '../Components/Spinner';
 
 function CurrencyUpdate() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
   const [admin, setAdmin] = useState([]);
   const [currencyPrice, setCurrencyPrice] = useState([]);
   const [porcentPrice, setPorcentPrice] = useState([]);
@@ -52,32 +52,46 @@ function CurrencyUpdate() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Tasa de cambios'); // Pestaña por defecto
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/CurrencyPrice');
+      const response = await axios.get(`${url}/CurrencyPrice`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`
+        }
+      });
       setCurrencyPrice(response.data);
       // Set default values from the database
       setFormData(response.data[0]);
     } catch (error) {
-      console.log('a');
+      console.log(error);
     }
-  };
+  }, [accessAdminToken, setFormData, url]);
 
-  const fetchDataPorcents = async () => {
+  const fetchDataPorcents = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/PorcentPrice/`);
+      const response = await axios.get(`${url}/PorcentPrice/`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`
+        }
+      });
       setPorcentPrice(response.data);
     } catch (error) {
-      console.log('a');
+      console.log(error);
     }
-  };
+  }, [accessAdminToken, setPorcentPrice, url]);
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
-    } catch (error) { }
-  }, [setAdmin, accessAdminToken]);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setAdmin, accessAdminToken,url]);
 
   useEffect(() => {
     fetchData();
@@ -86,13 +100,17 @@ function CurrencyUpdate() {
     setTimeout(() => {
       setIsLoading(false);
     }, 900);
-  }, [fetchDataAdmin]);
+  }, [fetchDataAdmin, fetchData, fetchDataPorcents]);
 
   const handleEdit = async (event) => {
     event.preventDefault();
 
     try {
-      await axios.put(`https://apiremesa.up.railway.app/CurrencyPrice/1`, formData);
+      await axios.put(`${url}/CurrencyPrice/1`, formData, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`
+        }
+      });
 
       fetchData();
       toast.success('¡Datos cambiados con éxito!', {
@@ -114,7 +132,11 @@ function CurrencyUpdate() {
       if (id) {
         setPorcentId(id);
 
-        const response = await axios.get(`https://apiremesa.up.railway.app/PorcentPrice/${id}`);
+        const response = await axios.get(`${url}/PorcentPrice/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessAdminToken.access_token}`
+          }
+        });
         setPorcent(response.data);
 
         setFormDataPorcent({
@@ -148,7 +170,6 @@ function CurrencyUpdate() {
     }
   };
 
-
   const handleUpdatePorcentaje = async () => {
     try {
       const requestData = {
@@ -162,8 +183,11 @@ function CurrencyUpdate() {
 
       const id = porcentId;
 
-
-      await axios.put(`https://apiremesa.up.railway.app/PorcentPrice/${id}`, requestData);
+      await axios.put(`${url}/PorcentPrice/${id}`, requestData, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`
+        }
+      });
 
       toast.success('¡Datos de porcentaje actualizados con éxito!', {
         position: 'bottom-right',
@@ -178,6 +202,7 @@ function CurrencyUpdate() {
       console.error('Error al actualizar los datos de porcentaje:', error);
     }
   };
+
 
 
   const handleInputChangePorcent = (e) => {
@@ -458,6 +483,13 @@ function CurrencyUpdate() {
                                 >
                                   Oficina
                                 </Button>
+                                <Button
+                                  color="danger"
+                                  onClick={() => handleLocationChange('Desactivado')}
+                                  className={location === 'Desactivado' ? 'active' : ''}
+                                >
+                                  Desactivado
+                                </Button>
                                 {location === 'Oficina' || location === 'No obligatorio' ? (
                                   <div>
                                     <h6>Información Adicional</h6>
@@ -474,10 +506,13 @@ function CurrencyUpdate() {
                                     <Alert color="success">Obligatorio</Alert>
                                   ) : location === 'No obligatorio' ? (
                                     <Alert color="warning">No obligatorio</Alert>
-                                  ) : (
+                                  ) : location === 'Oficina' ? (
                                     <Alert color="info">Oficina</Alert>
+                                  ) : (
+                                    <Alert color="danger">Desactivado</Alert>
                                   )}
                                 </CardSubtitle>
+
                               </CardBody>
                             </Card>
 

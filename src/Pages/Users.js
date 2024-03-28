@@ -24,7 +24,7 @@ import {Spinner} from '../Components/Spinner'; // Ajusta la ruta de importación
 
 
 function Users() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
   const [users, setUsers] = useState([]);
   const [modalImageUser, setModalImageUser] = useState(false);
   const [modalUser, setModalUser] = useState(false);
@@ -38,8 +38,10 @@ function Users() {
   const [use_email, setEmail] = useState('');
   const [use_password, setPassword] = useState('');
   const [use_dni, setDNI] = useState('');
+  const [use_phone, setPhone] = useState('');
   const [use_verif, setVerif] = useState('');
   const use_img = '';
+
   const [use_amountEur, setAmountEur] = useState(Number);
   const [use_amountUsd, setAmountUsd] = useState(Number);
   const [use_amountGbp, setAmountGbp] = useState(Number);
@@ -79,65 +81,79 @@ function Users() {
     setSearchQuery(event.target.value);
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/users');
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setUsers(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-
+  }, [accessAdminToken, setUsers, url]);
+  
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
     } catch (error) {
+      console.log(error);
     }
-  }, [setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken, url]);
 
-  useEffect(() => {
-    fetchData();
-    fetchDataMovements();
-    fetchDataAdmin();
-  }, [currentPage, fetchDataAdmin]); // Actualiza los movimientos cuando cambia la página
-
-  const fetchDataMovements = async () => {
+  const fetchDataMovements = useCallback(async () => {
     try {
-      // Aquí debes ajustar la lógica para obtener los movimientos relacionados con el usuario actualmente seleccionado
-      const response = await axios.get('https://apiremesa.up.railway.app/Movements');
+      const response = await axios.get(`${url}/Movements`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setMovements(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [accessAdminToken, setMovements, url]);
+  
+  useEffect(() => {
+    fetchData();
+    fetchDataMovements();
+    fetchDataAdmin();
+  }, [fetchData, fetchDataMovements, fetchDataAdmin]);
 
   const handleEdit = (user) => {
     setSelectedUser(user);
     toggleUser();
-
+  
     setNombre(user.use_name);
     setLastName(user.use_lastName);
     setEmail(user.use_email);
     setPassword(user.use_password);
     setDNI(user.use_dni);
+    setPhone(user.use_phone);
     setVerif(user.use_verif);
     setAmountEur(user.use_amountEur);
     setAmountUsd(user.use_amountUsd);
     setAmountGbp(user.use_amountGbp);
   };
-
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     try {
       if (selectedUser) {
         await axios.put(
-          `https://apiremesa.up.railway.app/Users/${selectedUser.use_id}`,
+          `${url}/Users/${selectedUser.use_id}`,
           {
             use_name,
             use_lastName,
             use_dni,
+            use_phone,
             use_email,
             use_password,
             use_img,
@@ -145,18 +161,24 @@ function Users() {
             use_amountUsd,
             use_amountEur,
             use_amountGbp,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`
+            }
           }
         );
         setSelectedUser(null);
-
+  
         fetchData();
         toggleUser();
         toggleViewer();
       } else {
-        await axios.post('https://apiremesa.up.railway.app/Users/create', {
+        await axios.post(`${url}/Auth/register`, {
           use_name,
           use_lastName,
           use_dni,
+          use_phone,
           use_email,
           use_password,
           use_img,
@@ -164,6 +186,10 @@ function Users() {
           use_amountUsd,
           use_amountEur,
           use_amountGbp,
+        }, {
+          headers: {
+            Authorization: `Bearer ${accessAdminToken.access_token}`
+          }
         });
       }
       fetchData();
@@ -172,17 +198,23 @@ function Users() {
       console.log(error);
     }
   };
+  
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://apiremesa.up.railway.app/Users/${id}`);
+      const headers = {
+        Authorization: `Bearer ${accessAdminToken.access_token}`,
+      };
+      
+      await axios.delete(`${url}/Users/${id}`, { headers });
+      
       fetchData();
       toggleViewer();
     } catch (error) {
       console.log(error);
     }
   };
-
+  
   // Calcular el índice de inicio y final de los usuarios para la página actual
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -278,22 +310,54 @@ function Users() {
               ))}
             </tbody>
           </Table>
-
           <Pagination>
-            {Array.from({ length: Math.ceil(filteredUsuarios.length / usersPerPage) }).map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink onClick={() => paginate(index + 1)}>
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          </Pagination>
+  {/* Página anterior */}
+  <PaginationItem>
+    <PaginationLink previous href="#" />
+  </PaginationItem>
+  {/* Números de página */}
+  {Array.from({ length: Math.min(Math.ceil(filteredUsuarios.length / usersPerPage), 8) }).map((_, index) => (
+    <PaginationItem key={index} active={currentPage === index + 1}>
+      <PaginationLink onClick={() => paginate(index + 1)}>
+        {index + 1}
+      </PaginationLink>
+    </PaginationItem>
+  ))}
+  {/* Mostrar "..." si hay más páginas disponibles */}
+  {Math.ceil(filteredUsuarios.length / usersPerPage) > 8 && (
+    <PaginationItem>
+      <PaginationLink onClick={() => paginate(currentPage + 5)}>...</PaginationLink>
+    </PaginationItem>
+  )}
+  {/* Mostrar las páginas adicionales después de hacer clic en "..." */}
+  {currentPage > 8 && (
+    <>
+      <PaginationItem>
+        <PaginationLink onClick={() => paginate(currentPage - 1)}>{currentPage - 1}</PaginationLink>
+      </PaginationItem>
+      <PaginationItem active>
+        <PaginationLink>{currentPage}</PaginationLink>
+      </PaginationItem>
+      <PaginationItem>
+        <PaginationLink onClick={() => paginate(currentPage + 1)}>{currentPage + 1}</PaginationLink>
+      </PaginationItem>
+    </>
+  )}
+  {/* Página siguiente */}
+  <PaginationItem>
+    <PaginationLink next href="#" />
+  </PaginationItem>
+</Pagination>
+
 
           {/* Modal De Imagen Usuarios */}
           <Modal centered isOpen={modalImageUser} toggle={toggleImageUser}>
             <ModalHeader toggle={toggleImageUser}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageUser' src={`https://apiremesa.up.railway.app/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser' src={`${url}/Users/image/${select.use_img}`} />
+              <img style={{ width: '100%' }} alt='ImageUser2' src={`${url}/Users/imageDni/${select.use_imgDni}`} />
+
+              
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageUser}>
@@ -378,6 +442,14 @@ function Users() {
                     className="form-control"
                     id="dni"
                     placeholder="DNI"
+                  />
+                  <Input
+                    type="text"
+                    defaultValue={use_phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="form-control"
+                    id="dni"
+                    placeholder="Telefono"
                   />
                 </div>
                 <div className="col-md-6">
@@ -475,6 +547,7 @@ function Users() {
                   <tr>
                     <th>Correo</th>
                     <th>DNI</th>
+                    <th>Telefono</th>
                     <th>Imagen</th>
                     <th>USD</th>
                     <th>EUR</th>
@@ -485,6 +558,7 @@ function Users() {
                   <tr>
                     <td>{select.use_email}</td>
                     <td>{select.use_dni ? select.use_dni : <p>No se encontraron resultados</p>}</td>
+                    <td>{select.use_phone ? select.use_phone : <p>No se encontraron resultados</p>}</td>
                     <td>
                       {select.use_verif === "s" || select.use_verif === "S" ?
                         <Button
@@ -566,7 +640,8 @@ function Users() {
           <Modal isOpen={modalImageMov} size='lg' centered toggle={toggleImageMov}>
             <ModalHeader toggle={toggleImageMov}>{select.use_name} {select.use_lastName}</ModalHeader>
             <ModalBody>
-              <img style={{ width: '100%' }} alt='ImageMovement' src={`https://apiremesa.up.railway.app/Movements/image/${selectMov.mov_img}`} />
+              <img style={{ width: '100%' }} alt='ImageMovement' src={`${url}/Movements/image/${selectMov.mov_img}`} />
+
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={toggleImageMov}>

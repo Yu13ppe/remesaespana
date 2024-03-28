@@ -37,10 +37,11 @@ import Banesco from '../Assets/Images/Banks/BANESCO.png'
 import Mercantil from '../Assets/Images/Banks/MERCANTIL.png'
 import Provincial from '../Assets/Images/Banks/PROVINCIAL.png'
 import BDV from '../Assets/Images/Banks/BDV.png'
-
+import PIBANK from '../Assets/Images/Banks/cajarural.png'
+import RURAL from '../Assets/Images/Banks/pibank.jpg'
 
 function Banks() {
-  const { accessAdminToken } = useDataContext();
+  const { accessAdminToken, url } = useDataContext();
 
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
@@ -101,44 +102,70 @@ function Banks() {
 
   const fetchDataAdmin = useCallback(async () => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${accessAdminToken.access_token}`);
+      const response = await axios.get(`${url}/Auth/findByTokenAdmin/${accessAdminToken.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setAdmin(response.data);
     } catch (error) {
+      console.log(error);
     }
-  }, [setAdmin, accessAdminToken]);
+  }, [setAdmin, accessAdminToken,url]);
+  
 
-  const fetchDataEUR = async () => {
+  const fetchDataEUR = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Acceur');
+      const response = await axios.get(`${url}/Acceur`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksEUR(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataGBP = async () => {
+  }, [accessAdminToken, setBanksEUR,url]);
+  
+  const fetchDataGBP = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accgbp');
+      const response = await axios.get(`${url}/Accgbp`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksGBP(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataBS = async () => {
+  }, [accessAdminToken, setBanksGBP,url]);
+  
+  const fetchDataBS = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accbs');
+      const response = await axios.get(`${url}/Accbs`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksBS(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
-  const fetchDataUSD = async () => {
+  }, [accessAdminToken, setBanksBS,url]);
+  
+  const fetchDataUSD = useCallback(async () => {
     try {
-      const response = await axios.get('https://apiremesa.up.railway.app/Accusd');
+      const response = await axios.get(`${url}/Accusd`, {
+        headers: {
+          Authorization: `Bearer ${accessAdminToken.access_token}`,
+        },
+      });
       setBanksUSD(response.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [accessAdminToken, setBanksUSD,url]);
+  
 
   useEffect(() => {
     fetchDataEUR();
@@ -146,15 +173,15 @@ function Banks() {
     fetchDataUSD();
     fetchDataBS();
     fetchDataAdmin();
-  }, [fetchDataAdmin]);
+  }, [fetchDataAdmin,fetchDataEUR, fetchDataGBP, fetchDataUSD, fetchDataBS]);
 
   const handleSubmit = async event => {
     event.preventDefault();
-
+  
     if (typeAcc === 'EUR') {
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/Acceur/create',
+          `${url}/Acceur/create`,
           {
             acceur_Bank,
             acceur_owner,
@@ -163,15 +190,21 @@ function Banks() {
             acceur_phone,
             acceur_type: 'Normal',
             acceur_status: 'Activo'
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+              'Content-Type': 'application/json',
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Cuenta creada con exito!', {
+  
+        toast.success('¡Cuenta creada con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -180,18 +213,18 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle();
-
+  
       } catch (error) {
         console.log(error);
       }
     }
-
+  
     if (typeAcc === 'GBP') {
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/Accgbp/create',
+          `${url}/Accgbp/create`,
           {
             accgbp_Bank,
             accgbp_owner,
@@ -199,15 +232,21 @@ function Banks() {
             accgbp_Ident,
             accgbp_phone,
             accgbp_status: "Activo"
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+              'Content-Type': 'application/json',
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Cuenta creada con exito!', {
+  
+        toast.success('¡Cuenta creada con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -216,18 +255,18 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle();
-
+  
       } catch (error) {
         console.log(error);
       }
     }
-
+  
     if (typeAcc === 'USD') {
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/Accusd/create',
+          `${url}/Accusd/create`,
           {
             accusd_Bank,
             accusd_owner,
@@ -237,15 +276,21 @@ function Banks() {
             accusd_phone,
             accusd_type: 'Normal',
             accusd_status: 'Activo'
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+              'Content-Type': 'application/json',
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Cuenta creada con exito!', {
+  
+        toast.success('¡Cuenta creada con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -254,18 +299,18 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle();
-
+  
       } catch (error) {
         console.log(error);
       }
     }
-
+  
     if (typeAcc === 'BS') {
       try {
         await axios.post(
-          'https://apiremesa.up.railway.app/Accbs/create',
+          `${url}/Accbs/create`,
           {
             accbs_bank,
             accbs_owner,
@@ -274,15 +319,21 @@ function Banks() {
             accbs_phone,
             accbs_type: 'Normal',
             accbs_status: 'Activo'
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+              'Content-Type': 'application/json',
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Cuenta creada con exito!', {
+  
+        toast.success('¡Cuenta creada con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
           hideProgressBar: false,
@@ -291,9 +342,9 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle();
-
+  
       } catch (error) {
         console.log(error);
       }
@@ -302,22 +353,27 @@ function Banks() {
 
   const handleEdit = async event => {
     event.preventDefault();
-
+  
     if (selectModal.acceur_Bank) {
       try {
         await axios.put(
-          `https://apiremesa.up.railway.app/Acceur/${selectModal.acceur_id}`,
+          `${url}/Acceur/${selectModal.acceur_id}`,
           {
             acceur_status: (selectModal.acceur_status === 'Desactivo' ? 'Activo' : 'Desactivo')
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Datos cambiados con exito!', {
+  
+        toast.success('¡Datos cambiados con éxito!', {
           position: 'bottom-right',
           autoClose: 1000,
           hideProgressBar: false,
@@ -326,9 +382,9 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle1();
-
+  
       } catch (error) {
         console.log(error);
       }
@@ -336,18 +392,23 @@ function Banks() {
     if (selectModal.accgbp_Bank) {
       try {
         await axios.put(
-          `https://apiremesa.up.railway.app/Accgbp/${selectModal.accgbp_id}`,
+          `${url}/Accgbp/${selectModal.accgbp_id}`,
           {
             accgbp_status: (selectModal.accgbp_status === 'Desactivo' ? 'Activo' : 'Desactivo')
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Datos cambiados con exito!', {
+  
+        toast.success('¡Datos cambiados con éxito!', {
           position: 'bottom-right',
           autoClose: 1000,
           hideProgressBar: false,
@@ -356,29 +417,33 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle1();
-
+  
       } catch (error) {
         console.log(error);
       }
-
     }
     if (selectModal.accusd_Bank) {
       try {
         await axios.put(
-          `https://apiremesa.up.railway.app/Accusd/${selectModal.accusd_id}`,
+          `${url}/Accusd/${selectModal.accusd_id}`,
           {
             accusd_status: (selectModal.accusd_status === 'Desactivo' ? 'Activo' : 'Desactivo')
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Datos cambiados con exito!', {
+  
+        toast.success('¡Datos cambiados con éxito!', {
           position: 'bottom-right',
           autoClose: 1000,
           hideProgressBar: false,
@@ -387,9 +452,9 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle1();
-
+  
       } catch (error) {
         console.log(error);
       }
@@ -397,18 +462,23 @@ function Banks() {
     if (selectModal.accbs_bank) {
       try {
         await axios.put(
-          `https://apiremesa.up.railway.app/Accbs/${selectModal.accbs_id}`,
+          `${url}/Accbs/${selectModal.accbs_id}`,
           {
             accbs_status: (selectModal.accbs_status === 'Desactivo' ? 'Activo' : 'Desactivo')
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessAdminToken.access_token}`,
+            },
           }
         );
-
+  
         fetchDataEUR();
         fetchDataGBP();
         fetchDataUSD();
         fetchDataBS();
-
-        toast.success('¡Datos cambiados con exito!', {
+  
+        toast.success('¡Datos cambiados con éxito!', {
           position: 'bottom-right',
           autoClose: 1000,
           hideProgressBar: false,
@@ -417,14 +487,15 @@ function Banks() {
           draggable: true,
           progress: undefined,
         });
-
+  
         toggle1();
-
+  
       } catch (error) {
         console.log(error);
       }
     }
-  }
+  };
+  
 
   const banksImages = [
     {
@@ -490,6 +561,14 @@ function Banks() {
     {
       name: "Banco de Venezuela",
       Component: BDV
+    },
+    {
+      name: "Pibank",
+      Component: PIBANK
+    },
+    {
+      name: "Caja rural",
+      Component: RURAL
     }
   ]
 
@@ -835,6 +914,8 @@ function Banks() {
                             <option value="Bizum">Bizum</option>
                             <option value="Bankinter">Bankinter</option>
                             <option value="Revolut">Revolut</option>
+                            <option value="RURAL">Caja Rural</option>
+                            <option value="PIBANK">Pibank</option>
                           </Input>
                         </div>
                         :

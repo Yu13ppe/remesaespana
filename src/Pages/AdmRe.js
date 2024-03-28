@@ -13,14 +13,14 @@ function AdmRe() {
   const [tkn, setTkn] = useState('');
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const { setLogged, setAccessAdminToken } = useDataContext();
+  const { setLogged, setAccessAdminToken, url } = useDataContext();
   const [alertVisible, setAlertVisible] = useState(false);
 
   const fetchData = async (email, password) => {
     try {
-      const response = await axios.get(`https://apiremesa.up.railway.app/Auth/loginAdmin/${email}/${password}`);
+      const response = await axios.get(`${url}/Auth/loginAdmin/${email}/${password}`);
       setAccessAdminToken(response.data.data);
-      const response2 = await axios.get(`https://apiremesa.up.railway.app/Auth/findByTokenAdmin/${response.data.data.access_token}`);
+      const response2 = await axios.get(`${url}/Auth/findByTokenAdmin/${response.data.data.access_token}`);
       setTkn(response2.data);
       setLogged(true);
       history.push({
