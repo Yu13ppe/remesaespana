@@ -13,7 +13,8 @@ import {
   Alert,
   FormFeedback,
   Table,
-  ModalFooter
+  ModalFooter,
+  Spinner
 } from 'reactstrap';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -75,6 +76,7 @@ function Changes() {
   const [alertType, setAlertType] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showConfirmationr, setShowConfirmationr] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [showConfirmationMobile, setShowConfirmationMobile] = useState(false);
   const [showConfirmationCash, setShowConfirmationCash] = useState(false);
@@ -339,7 +341,30 @@ function Changes() {
       }
     });
   };
+  const sendApprovalNotification = async () => {
+    try {
+      await axios.post(
+        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdeaprobacion@hotmail.com`
+      );
+      console.log('Approval notification sent successfully');
+    } catch (error) {
+      console.error('Error sending approval notification:', error);
+    }
+  };
+  
+  // Función para enviar notificaciones de pago
+  const sendPaymentNotification = async () => {
+    try {
+      await axios.post(
+        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdepago@hotmail.com`
+      );
+      console.log('Payment notification sent successfully');
+    } catch (error) {
+      console.error('Error sending payment notification:', error);
+    }
+  };
 
+  
   //Enviar a espera una carga
   const handleSubmitLoad = async event => {
     event.preventDefault();
@@ -378,6 +403,7 @@ function Changes() {
     formData.append('mov_userId', user.use_id);
 
     try {
+      setLoading(true)
         await axios.post(
           `${url}/Movements/create`,
           formData,
@@ -389,9 +415,7 @@ function Changes() {
           }
         );
 
-        await axios.post(
-          `${url}/Mailer/pendantTransfer/Recibirnotificacionesdeaprobacion@hotmail.com`
-        );
+        await sendApprovalNotification();
 
       toggleforthModal();
       toast.success('Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma', {
@@ -409,6 +433,9 @@ function Changes() {
       console.log('Request sent successfully');
     } catch (error) {
       console.error('Error:', error);
+    }
+    finally {
+      setLoading(false); 
     }
   };
 
@@ -441,6 +468,7 @@ function Changes() {
     }
 
     try {
+      setLoading(true)
       await axios.post(
         `${url}/Movements/create`,
         formData,
@@ -452,14 +480,8 @@ function Changes() {
         }
       );
 
-      await axios.post(
-        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdepago@hotmail.com`
-      );
-
-      await axios.post(
-        `${url}/Mailer/pendantTransfer/Recibirnotificacionesdeaprobacion@hotmail.com`
-      );
-      
+      await sendPaymentNotification();
+      await sendApprovalNotification();
 
       await axios.put(
         `${url}/Users/${user.use_id}`,
@@ -491,6 +513,9 @@ function Changes() {
       console.log('Request sent successfully');
     } catch (error) {
       console.error('Error:', error);
+    }
+    finally {
+      setLoading(false); 
     }
   };
 
@@ -1007,6 +1032,7 @@ function Changes() {
                         sendAmount === "" ||
                         sendAmount < 100 ||
                         sendAmount % 20 !== 0 ||
+                        loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'EUR' && user.use_amountEur < receiveUsdAmount) ||
 
@@ -1017,7 +1043,7 @@ function Changes() {
                         (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
                       }
                         onClick={() => setShowConfirmationCash(true)} className='btn col-md-12' color="success">
-                        Enviar
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                       </Button>
                     }
 
@@ -1280,11 +1306,12 @@ function Changes() {
                         accDni === '' ||
                         sendAmount === "" ||
                         sendAmount < 20 ||
+                        loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)} 
                         onClick={() => setShowConfirmationMobile(true)} className='btn col-md-12' color='success'>
-                        Enviar
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                       </Button>
                     }
 
@@ -1301,11 +1328,12 @@ function Changes() {
                         accDni === '' ||
                         sendAmount === '' ||
                         sendAmount < 20 ||
+                        loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                         (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
                         onClick={() => setShowConfirmationBank(true)} className='btn col-md-12' color='success'>
-                        Enviar
+                       {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                       </Button>
                     }
                     {sendOption === "Transferencias por dólares" && (
@@ -1317,7 +1345,7 @@ function Changes() {
                           onClick={handleSubmitSend} // Define la función de manejo de clic aquí
                           className="btn col-md-12"
                         >
-                          Enviar
+                          {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                         </Button>
                       </div>
                     )}
@@ -1340,7 +1368,7 @@ function Changes() {
                       setShowConfirmationMobile(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1364,7 +1392,7 @@ function Changes() {
                       setShowConfirmationr(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1389,7 +1417,7 @@ function Changes() {
                       setShowConfirmationBank(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1456,7 +1484,7 @@ function Changes() {
                       setShowConfirmationCash(false);
                     }}
                   >
-                    Confirmar
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1617,11 +1645,12 @@ function Changes() {
                       sendAmount === '' ||
                       sendAmount === "" ||
                       sendAmount < 20 ||
+                      loading  ||
                       (sendAmount !== "" && sendAmount.toString().length > 6)
                     }
                       color="primary"
                       onClick={() => setShowConfirmationr(true)} className='btn col-md-12' >
-                      Enviar
+                      {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
                     </Button>
                   </Form>
                 </ModalBody>
@@ -1640,8 +1669,7 @@ function Changes() {
                       setShowConfirmation(false);
                     }}
                   >
-                    Confirmar
-                  </Button>{" "}
+{loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  </Button>{" "}
                   <Button
                     color="secondary"
                     onClick={() => setShowConfirmation(false)} // Cierra el modal de confirmación
