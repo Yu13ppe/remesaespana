@@ -152,7 +152,11 @@ function Changes() {
 
   const showUserStatusAlert = (userStatus) => {
     if (userStatus === 'N') {
-      setAlertMessage('Usuario no verificado');
+      setAlertMessage(
+        <span style={{cursor: 'pointer'}} onClick={toggleModal}>
+          Usuario no verificado ¡Haz click aquí para verificarte!
+        </span>
+      );
       setAlertType('error');
     } else if (userStatus === 'E') {
       setAlertMessage('Usuario en proceso de verificación');
@@ -335,9 +339,9 @@ function Changes() {
 
     currencyPrice.forEach((coin) => {
       if (payment === 'EUR') {
-        setReceiveUsdAmountBofa((parseFloat(inputAmount) - (parseFloat(inputAmount)*(coin.cur_EurToUsd / 100))));
+        setReceiveUsdAmountBofa((parseFloat(inputAmount) - (parseFloat(inputAmount) * (coin.cur_EurToUsd / 100))));
       } else if (payment === 'GBP') {
-        setReceiveUsdAmountBofa((parseFloat(inputAmount) + (parseFloat(inputAmount)*(coin.cur_GbpToUsd / 100))));
+        setReceiveUsdAmountBofa((parseFloat(inputAmount) + (parseFloat(inputAmount) * (coin.cur_GbpToUsd / 100))));
       }
     });
   };
@@ -351,7 +355,7 @@ function Changes() {
       console.error('Error sending approval notification:', error);
     }
   };
-  
+
   // Función para enviar notificaciones de pago
   const sendPaymentNotification = async () => {
     try {
@@ -364,7 +368,7 @@ function Changes() {
     }
   };
 
-  
+
   //Enviar a espera una carga
   const handleSubmitLoad = async event => {
     event.preventDefault();
@@ -404,18 +408,18 @@ function Changes() {
 
     try {
       setLoading(true)
-        await axios.post(
-          `${url}/Movements/create`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken.access_token}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
+      axios.post(
+        `${url}/Movements/create`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken.access_token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
-        await sendApprovalNotification();
+      await sendApprovalNotification();
 
       toggleforthModal();
       toast.success('Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma', {
@@ -435,7 +439,7 @@ function Changes() {
       console.error('Error:', error);
     }
     finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -469,7 +473,7 @@ function Changes() {
 
     try {
       setLoading(true)
-      await axios.post(
+      axios.post(
         `${url}/Movements/create`,
         formData,
         {
@@ -515,7 +519,7 @@ function Changes() {
       console.error('Error:', error);
     }
     finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -647,7 +651,7 @@ function Changes() {
                     <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
                   <Input disabled className='centered-input'
-                    placeholder={(currencyPrice.map(coin => coin.cur_EurToUsd))+ '%'}
+                    placeholder={(currencyPrice.map(coin => coin.cur_EurToUsd)) + '%'}
                   >
                   </Input>
                   <Button >
@@ -660,7 +664,7 @@ function Changes() {
                     <img src={Uk} alt='Gbp' width={45} /> Gbp
                   </Button>
                   <Input disabled className='centered-input'
-                    placeholder={(currencyPrice.map(coin => coin.cur_GbpToUsd))+ '%'}
+                    placeholder={(currencyPrice.map(coin => coin.cur_GbpToUsd)) + '%'}
                   >
                   </Input>
                   <Button >
@@ -670,21 +674,21 @@ function Changes() {
 
                 {/* Spain - Usa */}
                 <InputGroup className='Change-Input1' onClick={toggleSixModal}>
-                  <Button style={{backgroundColor: '#cfd'}}>
+                  <Button style={{ backgroundColor: '#cfd' }}>
                     <img src={Spain} alt='Spain' width={45} /> Eur
                   </Button>
                   <Input
-                  style={{
-                    cursor: 'pointer',
-                    color: 'transparent',
-                    backgroundColor: '#cfd'
-                  }}
+                    style={{
+                      cursor: 'pointer',
+                      color: 'transparent',
+                      backgroundColor: '#cfd'
+                    }}
                     value=''
                     className='centered-input'
                     placeholder='Consultar estado de entrega por efectivo'
                     onClick={toggleSixModal}
                   ></Input>
-                  <Button style={{backgroundColor: '#cfd'}} >
+                  <Button style={{ backgroundColor: '#cfd' }} >
                     Usd <img src={Usa} alt='Usa' width={45} />
                   </Button>
                 </InputGroup>
@@ -1043,7 +1047,7 @@ function Changes() {
                         (payment === 'GBP' && user.use_amountGbp < receiveUsdAmount)
                       }
                         onClick={() => setShowConfirmationCash(true)} className='btn col-md-12' color="success">
-                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}
                       </Button>
                     }
 
@@ -1156,7 +1160,7 @@ function Changes() {
                         </InputGroup>
                       </FormGroup>}
 
-                      {sendOption === 'Transferencias por dólares' &&
+                    {sendOption === 'Transferencias por dólares' &&
                       <FormGroup>
                         <Label for="receiveUsdAmountInput">Monto a recibir</Label>
                         <InputGroup>
@@ -1309,9 +1313,9 @@ function Changes() {
                         loading ||
                         (payment === 'EUR' ? user.use_amountEur < sendAmount : null) ||
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
-                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)} 
+                        (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
                         onClick={() => setShowConfirmationMobile(true)} className='btn col-md-12' color='success'>
-                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}
                       </Button>
                     }
 
@@ -1333,7 +1337,7 @@ function Changes() {
                         (payment === 'USD' ? user.use_amountUsd < sendAmount : null) ||
                         (payment === 'GBP' ? user.use_amountGbp < sendAmount : null)}
                         onClick={() => setShowConfirmationBank(true)} className='btn col-md-12' color='success'>
-                       {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                        {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}
                       </Button>
                     }
                     {sendOption === "Transferencias por dólares" && (
@@ -1345,7 +1349,7 @@ function Changes() {
                           onClick={handleSubmitSend} // Define la función de manejo de clic aquí
                           className="btn col-md-12"
                         >
-                          {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                          {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}
                         </Button>
                       </div>
                     )}
@@ -1368,7 +1372,7 @@ function Changes() {
                       setShowConfirmationMobile(false);
                     }}
                   >
-                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1392,7 +1396,7 @@ function Changes() {
                       setShowConfirmationr(false);
                     }}
                   >
-                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1417,7 +1421,7 @@ function Changes() {
                       setShowConfirmationBank(false);
                     }}
                   >
-                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1484,7 +1488,7 @@ function Changes() {
                       setShowConfirmationCash(false);
                     }}
                   >
-                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'} 
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}
                   </Button>{" "}
                   <Button
                     color="secondary"
@@ -1645,12 +1649,12 @@ function Changes() {
                       sendAmount === '' ||
                       sendAmount === "" ||
                       sendAmount < 20 ||
-                      loading  ||
+                      loading ||
                       (sendAmount !== "" && sendAmount.toString().length > 6)
                     }
                       color="primary"
                       onClick={() => setShowConfirmationr(true)} className='btn col-md-12' >
-                      {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}  
+                      {loading ? <Spinner size="sm" color="light" /> : 'Enviar'}
                     </Button>
                   </Form>
                 </ModalBody>
@@ -1669,7 +1673,7 @@ function Changes() {
                       setShowConfirmation(false);
                     }}
                   >
-{loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  </Button>{" "}
+                    {loading ? <Spinner size="sm" color="light" /> : 'Confirmar'}                  </Button>{" "}
                   <Button
                     color="secondary"
                     onClick={() => setShowConfirmation(false)} // Cierra el modal de confirmación
