@@ -4,13 +4,12 @@ import { NavBar } from '../Components/NavBar';
 import { useDataContext } from '../Context/dataContext';
 import { NotFound404 } from './NotFound404';
 import { toast, ToastContainer } from 'react-toastify';
-import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Table, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button, Alert } from 'reactstrap';
 import { Spinner } from '../Components/Spinner';
 
 function Relation() {
   const { accessAdminToken, url } = useDataContext();
   const [admin, setAdmin] = useState([]);
-  const [movements, setMovements] = useState([]);
   const [banksEUR, setBanksEUR] = useState([]);
   const [banksGBP, setBanksGBP] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
@@ -25,14 +24,8 @@ function Relation() {
   const [gbpData, setGbpData] = useState([]);
   const [eurData, setEurData] = useState([]);
   const [bsData, setBsData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const elementsPerPage = 10; // Número de elementos por página
-  const [filteredRelation, setFilteredRelation] = useState([]);
   const [efectivoData, setEfectivoData] = useState([]);
 
-  const indexOfLastElement = currentPage * elementsPerPage;
-  const indexOfFirstElement = indexOfLastElement - elementsPerPage;
-  const currentElements = filteredRelation.slice(indexOfFirstElement, indexOfLastElement);
 
   const [totalsByCurrency, setTotalsByCurrency] = useState({
     USD: 0,
@@ -262,7 +255,6 @@ function Relation() {
         }
 
         toggleModal();
-        fetchData();
         toast.success('Cambio realizado con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
@@ -361,7 +353,6 @@ function Relation() {
         }
 
         toggleModal();
-        fetchData();
         toast.success('Cambio realizado con éxito!', {
           position: 'bottom-right',
           autoClose: 10000,
@@ -380,35 +371,8 @@ function Relation() {
   };
 
 
-  const calculateTotals = () => {
-    let totalEur = 0;
-    let totalGbp = 0;
-    let totalUsd = 0;
-    let totalBs = 0;
+ 
 
-    movements.forEach((totalReg) => {
-      const total = parseFloat(totalReg.tor_total);
-
-      if (totalReg.AccountsEur) {
-        totalEur += total;
-      } else if (totalReg.AccountsGbp) {
-        totalGbp += total;
-      } else if (totalReg.AccountsUsd) {
-        totalUsd += total;
-      } else if (totalReg.AccountsBs) {
-        totalBs += total;
-      }
-    });
-
-    return {
-      totalEur,
-      totalGbp,
-      totalUsd,
-      totalBs,
-    };
-  };
-
-  const { totalEur, totalGbp, totalUsd, totalBs } = calculateTotals();
 
 
 
@@ -417,18 +381,7 @@ function Relation() {
     setSearchQuery(event.target.value);
   };
 
-  const fetchData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/TotalRegister`, {
-        headers: {
-          Authorization: `Bearer ${accessAdminToken.access_token}`,
-        },
-      });
-      setMovements(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [accessAdminToken, setMovements, url]);
+  
 
   const fetchDataMovs = useCallback(async () => {
     const now = new Date();
@@ -511,7 +464,6 @@ function Relation() {
 
 
   useEffect(() => {
-    fetchData();
     fetchDataAdmin();
     fetchDataEUR();
     fetchDataGBP();
@@ -520,24 +472,9 @@ function Relation() {
     fetchDataMovs();
     fetchDataUsers();
     fetchEfectivoData();
-  }, [fetchData, fetchDataAdmin, fetchDataMovs, fetchDataEUR, fetchDataGBP, fetchDataUSD, fetchDataBS, fetchDataUsers, fetchEfectivoData]);
+  }, [fetchDataAdmin, fetchDataMovs, fetchDataEUR, fetchDataGBP, fetchDataUSD, fetchDataBS, fetchDataUsers, fetchEfectivoData]);
 
-  useEffect(() => {
-    if (movements.length > 0) {
-      const filteredData = movements.filter((mov) => {
-        const fullName = `${mov.tor_date} 
-          ${mov.AccountsBs ? mov.AccountsBs.accbs_bank : null} 
-          ${mov.AccountsEur ? mov.AccountsEur.acceur_Bank : null} 
-          ${mov.AccountsGbp ? mov.AccountsGbp.accgbp_Bank : null} 
-          ${mov.AccountsUsd ? mov.AccountsUsd.accusd_Bank : null} `.toLowerCase();
-        return fullName.includes(searchQuery.toLowerCase());
-
-      })
-        .sort((a, b) => b.tor_id - a.tor_id);;
-
-      setFilteredRelation(filteredData);
-    }
-  }, [movements, searchQuery]);
+ 
 
   useEffect(() => {
 
