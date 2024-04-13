@@ -5,11 +5,26 @@
   "dir":"ltr",
   "display_override":["standalone","fullscreen"],
   "display":"standalone",
-  "icons": [
+  "icons":[
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src":"remesalogo-192.png",
+      "sizes":"192x192",
+      "type":"image/png"
+    },
+    {
+      "src":"remesalogo-384.png",
+      "sizes":"384x384",
+      "type":"image/png"
+    },
+    {
+      "src":"remesalogo-512.png",
+      "sizes":"512x512",
+      "type":"image/png"
+    },
+    {
+      "src":"remesalogo-1024.png",
+      "sizes":"1024x1024",
+      "type":"image/png"
     }
   ],
   "lang":"es",
@@ -17,7 +32,7 @@
   "orientation":"portrait",
   "prefer_related_applications":false,
   "scope":"/",
-  "short_name":"Remesaespana",
+  "short_name":"Resmesa Espana",
   "start_url":"/",
   "theme_color":"#ffffff"
 }
